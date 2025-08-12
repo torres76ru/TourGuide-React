@@ -3,11 +3,18 @@
 
 Структура ветвления Gir
 main
+
  └── dev
+ 
       ├── front
+      
       │     ├── frontend/feature-login-page
+      
       │     └── frontend/feature-user-profile
+      
       └── back
+      
             ├── backend/feature-auth
+            
             └── backend/feature-order-processing
 
