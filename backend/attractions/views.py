@@ -154,7 +154,7 @@ class MapAttractionsView(APIView):
         headers = {"User-Agent": "TravelAPI/1.0"}
         image_url = None
 
-        # Приоритет 1: Wikidata (тег 'wikidata')
+
         if 'wikidata' in tags:
             wikidata_id = tags['wikidata']
             wd_url = f"https://www.wikidata.org/w/api.php?action=wbgetentities&ids={wikidata_id}&props=claims&format=json"
@@ -175,13 +175,13 @@ class MapAttractionsView(APIView):
                             if image_info:
                                 image_url = image_info[0]['url']
 
-        # Приоритет 2: Wikipedia (тег 'wikipedia')
+
         if not image_url and 'wikipedia' in tags:
             wp_tag = tags['wikipedia']
             if ':' in wp_tag:
                 lang, title = wp_tag.split(':', 1)
             else:
-                lang = 'ru'  # По умолчанию русский, если не указан язык
+                lang = 'ru'
                 title = wp_tag
             title = title.replace(' ', '_')
             wiki_base = f"https://{lang}.wikipedia.org/w/api.php"
@@ -197,7 +197,7 @@ class MapAttractionsView(APIView):
                     elif 'thumbnail' in page:
                         image_url = page['thumbnail']['source']
 
-        # Приоритет 3: Поиск по названию (с уточнением "достопримечательность")
+
         if not image_url:
             search_query = f"{place_name} достопримечательность"
             wiki_url = f"https://ru.wikipedia.org/w/api.php?action=query&list=search&srsearch={search_query}&format=json"
