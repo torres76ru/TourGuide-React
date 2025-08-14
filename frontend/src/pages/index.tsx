@@ -1,3 +1,4 @@
+//src/pages/index.tsx
 import { Route, Routes, Navigate } from "react-router-dom";
 import TestPage from "./test";
 
