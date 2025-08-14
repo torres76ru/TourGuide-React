@@ -128,6 +128,9 @@ class MapAttractionsView(APIView):
                         attractions.append(attraction)
 
                 if attractions:
+                    attractions = Attraction.objects.filter(
+                        id__in=[a.id for a in attractions]
+                    ).prefetch_related('ratings')
                     serializer = AttractionSerializer(attractions, many=True)
                     return Response(serializer.data, status=status.HTTP_200_OK)
 
