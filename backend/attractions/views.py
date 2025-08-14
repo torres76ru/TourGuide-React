@@ -11,7 +11,7 @@ class MapAttractionsView(APIView):
     def get(self, request):
         lat = request.query_params.get('lat')
         lng = request.query_params.get('lng')
-        radius = request.query_params.get('radius', 0.001)  # Радиус по умолчанию ~1-2 км
+        radius = request.query_params.get('radius', 0.01)  # Радиус по умолчанию ~1-2 км
         tags = request.query_params.get('tags', 'all').split(',')
 
         if not lat or not lng:
@@ -98,10 +98,10 @@ class MapAttractionsView(APIView):
                         if not created and attraction.tags != relevant_tags:
                             attraction.tags = relevant_tags
                             attraction.save()
-                        image_url = self._fetch_and_save_image(name, tags)
-                        if image_url and attraction.image_url != image_url:
-                            attraction.image_url = image_url
-                            attraction.save()
+                        #image_url = self._fetch_and_save_image(name, tags)
+                       # if image_url and attraction.image_url != image_url:
+                        #    attraction.image_url = image_url
+                         #   attraction.save()
                         attractions.append(attraction)
                     elif 'center' in element:
                         name = element.get('tags', {}).get('name', 'Unknown_Place')
@@ -121,10 +121,10 @@ class MapAttractionsView(APIView):
                         if not created and attraction.tags != relevant_tags:
                             attraction.tags = relevant_tags
                             attraction.save()
-                        image_url = self._fetch_and_save_image(name)
-                        if image_url and attraction.image_url != image_url:
-                            attraction.image_url = image_url
-                            attraction.save()
+                        #image_url = self._fetch_and_save_image(name)
+                        #if image_url and attraction.image_url != image_url:
+                        #    attraction.image_url = image_url
+                         #   attraction.save()
                         attractions.append(attraction)
 
                 if attractions:
