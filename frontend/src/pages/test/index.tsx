@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { getCurrentLocation } from "../../shared/lib/geolocation";
 
 const Test = () => {
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(
@@ -6,41 +7,19 @@ const Test = () => {
   );
   const [error, setError] = useState<string | null>(null);
 
-  const getLocation = () => {
-    if (!navigator.geolocation) {
-      setError("Ваш браузер не поддерживает геолокацию");
-      return;
+  const handleGetLocation = async () => {
+    try {
+      const loc = await getCurrentLocation();
+      setLocation(loc);
+      setError(null);
+    } catch (e) {
+      setError(String(e));
     }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLocation({
-          lat: position.coords.latitude,
-          lon: position.coords.longitude,
-        });
-        setError(null);
-      },
-      (err) => {
-        switch (err.code) {
-          case err.PERMISSION_DENIED:
-            setError("Пользователь запретил доступ к геолокации");
-            break;
-          case err.POSITION_UNAVAILABLE:
-            setError("Информация о местоположении недоступна");
-            break;
-          case err.TIMEOUT:
-            setError("Время ожидания запроса истекло");
-            break;
-          default:
-            setError("Неизвестная ошибка");
-        }
-      }
-    );
   };
 
   return (
     <div>
-      <button onClick={getLocation}>📍 Определить местоположение</button>
+      <button onClick={handleGetLocation}>📍 Определить местоположение</button>
 
       {location && (
         <p>
