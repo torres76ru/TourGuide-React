@@ -1,14 +1,11 @@
 // src/app/index.tsx
-import { Routing } from "../pages";
 import "./index.scss";
-import { BrowserRouter } from "react-router-dom";
+import { Routing } from "./routing/AppRouter";
 
 const App = () => {
   return (
     <div className="app">
-      <BrowserRouter>
-        <Routing />
-      </BrowserRouter>
+      <Routing />
     </div>
   );
 };
