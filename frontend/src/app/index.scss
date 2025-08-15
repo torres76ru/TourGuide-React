@@ -1,1 +1,11 @@
 @use "./styles/index.scss";
+
+body {
+  font-family: var(--font-family-main);
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  color: #242424;
+}
