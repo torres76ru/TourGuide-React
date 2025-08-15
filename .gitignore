@@ -140,3 +140,9 @@ vite.config.ts.timestamp-*
 
 
 media/
+
+.idea/
+backend/media/
+backend/db.sqlite3
+__pycache__/
+*.pyc
