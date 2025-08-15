@@ -2,7 +2,9 @@
   display: flex;
   overflow-x: auto; // включаем горизонтальный скролл
   overflow-y: hidden; // скрываем вертикальный скролл
-  padding: 10px 0px; // отступы по бокам, можно подстраивать
+  padding: 10px 20px; // отступы по бокам, можно подстраивать
+  margin-left: -20px;
+  margin-right: -20px;
   gap: 16px; // расстояние между карточками
   scroll-behavior: smooth; // плавный скролл
 
