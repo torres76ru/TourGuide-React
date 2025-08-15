@@ -2,6 +2,7 @@
 
 import WhereToGo from "widgets/where-to-go";
 import styles from "./MainPage.module.scss";
+import { Carousel } from "widgets/index";
 
 const MainPage = () => {
   // const navigate = useNavigate();
@@ -11,8 +12,12 @@ const MainPage = () => {
   // };
   return (
     <div className={styles.body}>
-      <div style={{ height: "40px" }}></div>
-      <WhereToGo />
+      <div style={{ margin: "40px 0 66px" }}>
+        <WhereToGo />
+      </div>
+      <Carousel category="Лучшие развлечения этого года" count={10} />
+      <Carousel category="Недалеко от вас" count={3} />
+      <Carousel category="Недавно посещали" count={5} />
     </div>
   );
 };
