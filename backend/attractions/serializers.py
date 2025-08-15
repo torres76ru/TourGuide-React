@@ -8,4 +8,4 @@ class AttractionSerializer(serializers.ModelSerializer):
     rating_count = serializers.IntegerField(read_only=True)
     class Meta:
         model = Attraction
-        fields = ['id', 'name', 'latitude', 'longitude', 'image_url', 'tags', 'created_at','ratings','average_rating','rating_count']
+        fields = ['id', 'name', 'latitude', 'longitude', 'image_url', 'tags', 'created_at', 'ratings', 'average_rating', 'rating_count']

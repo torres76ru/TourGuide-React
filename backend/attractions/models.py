@@ -2,7 +2,6 @@ from django.db import models
 from django.db.models import Avg, Count
 
 class Attraction(models.Model):
-    # Существующие поля остаются без изменений
     name = models.CharField(max_length=255)
     latitude = models.FloatField()
     longitude = models.FloatField()
@@ -10,9 +9,12 @@ class Attraction(models.Model):
     description = models.TextField(blank=True, null=True)
     tags = models.JSONField(default=dict, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     average_rating = models.FloatField(default=0.0, editable=False)
     rating_count = models.PositiveIntegerField(default=0, editable=False)
+
+    need_photo = models.BooleanField(default=False)
+    admin_reviewed = models.BooleanField(default=False)
 
     def update_rating_stats(self):
         from ratings.models import Rating
