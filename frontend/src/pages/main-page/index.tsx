@@ -16,8 +16,11 @@ const MainPage = () => {
         <WhereToGo />
       </div>
       <Carousel category="Лучшие развлечения этого года" count={10} />
+      <div style={{ height: "56px" }}></div>
       <Carousel category="Недалеко от вас" count={3} />
+      <div style={{ height: "56px" }}></div>
       <Carousel category="Недавно посещали" count={5} />
+      <div style={{ height: "56px" }}></div>
     </div>
   );
 };
