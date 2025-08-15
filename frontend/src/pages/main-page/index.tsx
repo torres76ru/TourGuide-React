@@ -1,17 +1,18 @@
-import { useNavigate } from "react-router";
+// import { useNavigate } from "react-router";
+
+import WhereToGo from "widgets/where-to-go";
+import styles from "./MainPage.module.scss";
 
 const MainPage = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
-  const handleRedirect = (url: string) => {
-    navigate(url);
-  };
+  // const handleRedirect = (url: string) => {
+  //   navigate(url);
+  // };
   return (
-    <div>
-      <h1>Welcome to TourGuide</h1>
-      <p>Discover amazing tours and experiences!</p>
-      <button onClick={() => handleRedirect("/auth")}>Go to Auth</button>
-      <button onClick={() => handleRedirect("/test")}>Go to Test</button>
+    <div className={styles.body}>
+      <div style={{ height: "40px" }}></div>
+      <WhereToGo />
     </div>
   );
 };

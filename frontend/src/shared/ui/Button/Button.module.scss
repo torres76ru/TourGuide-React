@@ -1,0 +1,20 @@
+.button {
+  padding: 6px 20px;
+  font-size: 24px;
+  border-radius: 15px;
+  font-weight: 300;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family-main, inherit);
+}
+
+.primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.secondary {
+  background: #f3f3f3;
+  color: #242424;
+  border: 1px solid #ccc;
+}

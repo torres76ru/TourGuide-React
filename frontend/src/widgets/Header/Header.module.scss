@@ -1,0 +1,45 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background: #fff;
+  box-shadow: 0 4px 8px 0 rgba(36, 36, 36, 0.15);
+  position: relative;
+}
+
+.burger {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  z-index: 1;
+}
+
+.logo {
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
+}
+
+.title {
+  font-weight: 400;
+  font-size: 24px;
+  color: var(--color-text-primary);
+  // letter-spacing: 1px;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
