@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import styles from "./Button.module.scss";
 
-type ButtonVariant = "primary" | "secondary";
+type ButtonVariant = "primary" | "black";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;

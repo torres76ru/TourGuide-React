@@ -1,0 +1,20 @@
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: flex-start; // если выезжает слева
+  align-items: stretch;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  width: 250px; // ширина меню
+  padding: 20px;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.3);
+  overflow-y: auto;
+}
