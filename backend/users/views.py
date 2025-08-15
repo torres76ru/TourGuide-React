@@ -6,6 +6,17 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import RegisterSerializer, UserSerializer
 from django.contrib.auth import get_user_model
 
+from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.urls import reverse
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
+from .tokens import account_activation_token
+
+
+
+
 User = get_user_model()
 
 
@@ -16,8 +27,20 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
 
     def perform_create(self, serializer):
-        """Сохраняем пользователя в БД"""
-        self.user = serializer.save()  # сохраняем в self, чтобы потом использовать
+        self.user = serializer.save(is_active=False)  # создаем неактивного пользователя
+
+        uid = urlsafe_base64_encode(force_bytes(self.user.pk))
+        token = account_activation_token.make_token(self.user)
+        activation_link = self.request.build_absolute_uri(
+            reverse('activate', kwargs={'uidb64': uid, 'token': token})
+        )
+
+        send_mail(
+            subject='Подтверждение регистрации',
+            message=f'Для активации аккаунта перейдите по ссылке: {activation_link}',
+            from_email='noreply@example.com',
+            recipient_list=[self.user.email],
+        )
 
     def create(self, request, *args, **kwargs):
         """Переопределяем create, чтобы добавить JWT токены в ответ"""
@@ -62,3 +85,20 @@ class MeView(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+
+class ActivateAccountView(generics.GenericAPIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user is not None and account_activation_token.check_token(user, token):
+            user.is_active = True
+            user.save()
+            return Response({'status': 'Аккаунт активирован'}, status=200)
+        else:
+            return Response({'error': 'Ссылка недействительна'}, status=400)
