@@ -1,0 +1,17 @@
+.choice {
+    display: none;
+    /* display: flex; */
+    flex-direction: column;
+    margin-bottom: 85px;
+}
+
+.choice_text {
+    font-weight: 300;
+    font-size: 16px;
+    margin-bottom: 16px;
+}
+
+.choice_buttons {
+    display: flex;
+    justify-content: space-around;
+}

@@ -14,5 +14,5 @@ export default function Button({ children, className = "", onClick, type = 'butt
     <button className={`registration__button ${className}`} onClick={onClick} type={type}>
       {children}
     </button>
-  );
+  ); 
 }

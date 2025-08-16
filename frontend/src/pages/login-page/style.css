@@ -55,7 +55,7 @@ a, button {
 
 .registration__img {
     height: 78vh;
-    background-image: url("/src/assets/Registration.jpg");
+    background-image: url("/src/shared/assets/Registration.jpg");
     background-position: 20%;
     background-repeat: no-repeat;
     background-size: cover;
@@ -218,9 +218,9 @@ a, button {
     height: 20px;
 }
 
-.registration__button--size {
+/* .registration__button--size {
     width: 278px;
-}
+} */
 
 .registration__choice {
     display: none;

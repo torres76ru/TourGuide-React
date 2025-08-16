@@ -1,12 +1,14 @@
 import { useState } from "react";
-import Button from "../../app/shared/login-page/Button";
-import RegistrationChoice from "../../app/shared/login-page/RegistrationChoice";
-import EntryForm from "../../app/shared/login-page/EntryForm";
-import RegistrationForm from "../../app/shared/login-page/RegistrationForm";
-import "./style.css";
+import Button from "shared/ui/Button";
+import RegistrationChoice from "../../shared/ui/RegistrationChoice/RegistrationChoice";
+import EntryForm from "../../shared/ui/EntryForm/EntryForm";
+import RegistrationForm from "../../shared/ui/RegistrationForm/RegistrationForm";
+import styles from "./LoginPage.module.scss"
+import clsx from 'clsx';
 
 const LoginPage = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [isBack, setIsBack] = useState(false);
   const [activeBlock, setActiveBlock] = useState<
     null | "entry" | "choice" | "registration"
   >(null);
@@ -15,6 +17,7 @@ const LoginPage = () => {
     lastName: "",
     email: "",
     password: "",
+    repeatPassword: "",
   });
 
   const [errors, setErrors] = useState({
@@ -22,6 +25,7 @@ const LoginPage = () => {
     lastName: "",
     email: "",
     password: "",
+    repeatPassword: "",
   });
 
   function CheckIsVisible(className?: string): string {
@@ -30,17 +34,14 @@ const LoginPage = () => {
 
   function GoBack() {
     if (activeBlock === null) setIsVisible(false);
-    else if (activeBlock === "entry" || activeBlock === "choice")
-      setActiveBlock(null);
+    else if (activeBlock === "entry" || activeBlock === "choice") setActiveBlock(null);
     else if (activeBlock === "registration") setActiveBlock("choice");
-    setFormData({ firstName: "", lastName: "", email: "", password: "" });
-    setErrors({ firstName: "", lastName: "", email: "", password: "" });
+    setFormData({ firstName: "", lastName: "", email: "", password: "", repeatPassword: ""});
+    setErrors({ firstName: "", lastName: "", email: "", password: "", repeatPassword: "" });
+    setIsBack(true);
   }
 
   const normalizeId = (id: string) => {
-    if (id.includes("repeat-password")) {
-      return "password";
-    }
     return id
       .replace(/^(entry__|reg__)/, "")
       .replace(/-id$/, "")
@@ -74,8 +75,8 @@ const LoginPage = () => {
       }
 
       // Валидация пароля
-      if (formData.password.length < 6) {
-        newErrors.password = "Пароль должен быть не менее 6 символов";
+      if (formData.repeatPassword.length < 6) {
+        newErrors.repeatPassword = "Пароль должен быть не менее 6 символов";
         valid = false;
       }
     }
@@ -85,6 +86,12 @@ const LoginPage = () => {
       newErrors.email = "Некорректный email";
       valid = false;
     }
+
+     // Валидация пароля
+      if (formData.password.length < 6) {
+        newErrors.password = "Пароль должен быть не менее 6 символов";
+        valid = false;
+      }
 
     setErrors(newErrors);
     return valid;
@@ -101,68 +108,60 @@ const LoginPage = () => {
 
   return (
     <div>
-      <button
-        className={`btn ${CheckIsVisible("btn--click")}`}
+      <button 
+        className={clsx( styles.btn, CheckIsVisible('btn_click') && styles['btn_click'])}
         onClick={() => setIsVisible(true)}
       >
         Войти
       </button>
-      <div className="registration">
+      <div className={styles.registration}>
         <button
-          className={`registration__btn-back ${CheckIsVisible(
-            "registration__btn-back--visible"
-          )}`}
+          className={clsx( styles.btn_back, CheckIsVisible('btn_back_visible') && styles['btn_back_visible'])}
           onClick={GoBack}
         >
-          <img src="/src/assets/icons/Arrow.svg" />
+          <img src="/src/shared/assets/icons/Arrow.svg" />
         </button>
         <div
-          className={`registration__img ${CheckIsVisible(
-            "registration__img--visible"
-          )}`}
+          className={clsx( styles.img, CheckIsVisible('img_visible') && styles['img_visible'])}
         >
           <div
-            className={`registration__blackout ${CheckIsVisible(
-              "registration__blackout--visible"
-            )}`}
+            className={clsx( styles.blackout, CheckIsVisible('blackout_visible') && styles['blackout_visible'])}
           ></div>
         </div>
         <div
-          className={`registration__area container ${CheckIsVisible(
-            "registration__area--visible"
-          )}`}
+          className={clsx( styles.area, styles.container, CheckIsVisible('area_visible') && styles['area_visible'])}
         >
-          <h3 className="registration__title">TourGuide</h3>
-          <p className="registration__slogan">
+          <h3 className={styles.title}>TourGuide</h3>
+          <p className={styles.slogan}>
             Отправляйся в путешествие с нами
           </p>
           <div
-            className={`registration__buttons ${
-              activeBlock === null ? "active-block" : ""
-            }`}
+          className={clsx( styles.registration_buttons, activeBlock === null && styles['active_block'])}
           >
-            <Button onClick={() => setActiveBlock("entry")}>Войти</Button>
-            <Button onClick={() => setActiveBlock("choice")}>
+            <Button variant = "black" style={{ width: "100%" }} onClick={() => setActiveBlock("entry")}>Войти</Button>
+            <Button variant = "black" style={{ width: "100%" }} onClick={() => setActiveBlock("choice")}>
               Регистрация
             </Button>
           </div>
           <EntryForm
-            className={activeBlock === "entry" ? "active-block" : ""}
-            value={formData.email}
-            onChange={handleChange}
-            error={errors.email}
-            onClick={handleSubmit}
-          />
-          <RegistrationChoice
-            className={activeBlock === "choice" ? "active-block" : ""}
-            onClick={() => setActiveBlock("registration")}
-          />
-          <RegistrationForm
-            className={activeBlock === "registration" ? "active-block" : ""}
+            className={clsx(activeBlock === "entry" && styles['active_block'])}
             formData={formData}
             onChange={handleChange}
             errors={errors}
             onClick={handleSubmit}
+            back={isBack}
+          />
+          <RegistrationChoice
+            className={clsx(activeBlock === "choice" && styles['active_block'])}
+            onClick={() => setActiveBlock("registration")}
+          />
+          <RegistrationForm
+            className={clsx(activeBlock === "registration" && styles['active_block'])}
+            formData={formData}
+            onChange={handleChange}
+            errors={errors}
+            onClick={handleSubmit}
+            back={isBack}
           />
         </div>
       </div>

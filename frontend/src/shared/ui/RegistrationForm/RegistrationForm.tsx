@@ -1,7 +1,9 @@
 import type { MouseEventHandler } from "react";
-import Button from "./Button";
-import Input from "../../../shared/ui/Input/Input";
-import PasswordInput from "./PasswordInput";
+import Button from "../Button";
+import Input from "../Input/Input";
+import PasswordInput from "../PasswordInput/PasswordInput";
+import styles from "./RegistrationForm.module.scss"
+import clsx from "clsx";
 
 interface EntryFormProps {
   className: string;
@@ -10,15 +12,18 @@ interface EntryFormProps {
     lastName: string;
     email: string;
     password: string;
+    repeatPassword: string
   };
   errors: {
     firstName: string;
     lastName: string;
     email: string;
     password: string;
+    repeatPassword: string
   };
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onClick?: MouseEventHandler<HTMLButtonElement>;
+  back: boolean
 }
 
 export default function RegistrationForm({
@@ -27,12 +32,13 @@ export default function RegistrationForm({
   errors,
   onChange,
   onClick,
+  back
 }: EntryFormProps) {
   return (
     <>
       <form
         action=""
-        className={`registration__registration-form ${className}`}
+        className={clsx(styles.registration_form, className)}
       >
         <Input
           label="Имя"
@@ -60,32 +66,47 @@ export default function RegistrationForm({
           error={errors.email}
         ></Input>
         <PasswordInput
+          label="Пароль"
           id="reg__password-id"
-          className="password-container--margin"
-        ></PasswordInput>
-        <Input
-          label="Повторите пароль"
-          id="reg__repeat-password-id"
-          type="text"
+          className={styles.container_margin} 
           value={formData.password}
           onChange={onChange}
           error={errors.password}
-        ></Input>
-        <div className="registration__checkbox-container">
+          back={back}
+        ></PasswordInput>
+        <PasswordInput
+          label="Повторите пароль"
+          id="reg__repeat-password-id"
+          className={styles.container_margin} 
+          value={formData.repeatPassword}
+          onChange={onChange}
+          error={errors.repeatPassword}
+          back={back}
+        ></PasswordInput>
+        {/* <Input
+          label="Повторите пароль"
+          id="reg__repeat-password-id"
+          type="text"
+          value={formData.repeatPassword}
+          onChange={onChange}
+          error={errors.repeatPassword}
+        ></Input> */}
+        <div className={styles.checkbox_container}>
           <input
-            className="registration__checkbox"
+            className={styles.checkbox}
             type="checkbox"
             id="reg__checkbox-id"
           />
           <label
-            className="registration__checkbox-lable"
+            className={styles.checkbox_lable}
             htmlFor="reg__checkbox-id"
           >
             Я прочитал и согласен с политикой данного сервиса.
           </label>
         </div>
         <Button
-          className="registration__button--size"
+          variant = "black"
+          style={{ width: "278px" }}
           onClick={onClick}
           type="submit"
         >
