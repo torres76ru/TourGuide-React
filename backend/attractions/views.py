@@ -1,12 +1,18 @@
-import requests
-import os
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAdminUser
-from .models import Attraction
-from .serializers import AttractionSerializer
-from django.conf import settings
+from rest_framework import permissions,status, generics
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.shortcuts import get_object_or_404
+from django.core.files.base import ContentFile
+from io import BytesIO
+import imghdr
+import requests
+from .models import Attraction, AttractionPhoto
+from .serializers import AttractionListSerializer, AttractionDetailSerializer, AttractionPhotoSerializer
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class MapAttractionsView(APIView):
@@ -102,7 +108,6 @@ class MapAttractionsView(APIView):
                             latitude=lat,
                             longitude=lng,
                             defaults={
-                                'image_url': None,
                                 'tags': relevant_tags if relevant_tags else None,
                             }
                         )
@@ -112,7 +117,7 @@ class MapAttractionsView(APIView):
                         elif not created and attraction.tags != relevant_tags:
                             attraction.tags = relevant_tags
                             attraction.save()
-                        if not attraction.image_url:
+                        if not attraction.main_photo:
                             attraction.need_photo = True
                             attraction.save()
                         attractions.append(attraction)
@@ -132,7 +137,6 @@ class MapAttractionsView(APIView):
                             latitude=lat,
                             longitude=lng,
                             defaults={
-                                'image_url': None,
                                 'tags': relevant_tags if relevant_tags else None,
                             }
                         )
@@ -142,7 +146,7 @@ class MapAttractionsView(APIView):
                         elif not created and attraction.tags != relevant_tags:
                             attraction.tags = relevant_tags
                             attraction.save()
-                        if not attraction.image_url:
+                        if not attraction.main_photo:
                             attraction.need_photo = True
                             attraction.save()
                         attractions.append(attraction)
@@ -151,7 +155,7 @@ class MapAttractionsView(APIView):
                     attractions = Attraction.objects.filter(
                         id__in=[a.id for a in attractions]
                     ).prefetch_related('ratings')
-                    serializer = AttractionSerializer(attractions, many=True)
+                    serializer = AttractionListSerializer(attractions, many=True)  # Используем новый сериализатор
                     return Response(serializer.data, status=status.HTTP_200_OK)
 
                 return Response({"error": "No attractions found in the area"}, status=status.HTTP_404_NOT_FOUND)
@@ -166,13 +170,17 @@ class MapAttractionsView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-#Этот класс для того чтобы админы видели какие объекты без картинок в бд
 class AdminListPendingPhotosView(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
-        pending_attractions = Attraction.objects.filter(need_photo=True)
-        serializer = AttractionSerializer(pending_attractions, many=True)
+        pending_attractions = Attraction.objects.filter(
+            need_photo=True,
+            main_photo__isnull=True
+        ).exclude(
+            admin_uploaded_image__isnull=False
+        )
+        serializer = AttractionListSerializer(pending_attractions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -182,38 +190,31 @@ class AdminFetchPhotosView(APIView):
     permission_classes = [IsAdminUser]
 
     def put(self, request):
-        try:
-            # Получаем все объекты Attraction с need_photo=True
-            pending_attractions = Attraction.objects.filter(need_photo=True)
-            updated_ids = []
-
-            for attraction in pending_attractions:
-                image_url = self._fetch_and_save_image(attraction.name, attraction.tags)
-                if image_url:
-                    attraction.image_url = image_url
+        pending_attractions = Attraction.objects.filter(
+            need_photo=True,
+            main_photo__isnull=True
+        )
+        
+        updated_ids = []
+        
+        for attraction in pending_attractions:
+            image_url = self._fetch_and_save_image(attraction.name, attraction.tags)
+            if image_url:
+                # Сохраняем в main_photo
+                response = requests.get(image_url)
+                if response.status_code == 200:
+                    file_name = f"{attraction.id}.{image_url.split('.')[-1]}"
+                    attraction.main_photo.save(
+                        file_name,
+                        ContentFile(response.content),
+                        save=True
+                    )
                     attraction.need_photo = False
-                    attraction.admin_reviewed = True
                     attraction.save()
                     updated_ids.append(attraction.id)
-                # Если фото не найдено, оставляем need_photo=True и не добавляем в updated_ids
-
-            if updated_ids:
-                return Response({
-                    "message": "Photos fetched and saved for some attractions",
-                    "updated_ids": updated_ids,
-                    "total_pending": pending_attractions.count(),
-                    "success_count": len(updated_ids)
-                }, status=status.HTTP_200_OK)
-            else:
-                return Response({
-                    "message": "No photos could be fetched for any attraction",
-                    "total_pending": pending_attractions.count()
-                }, status=status.HTTP_404_NOT_FOUND)
-
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    #Сама валидация фот из вики
+        
+        return Response({"updated_ids": updated_ids,"count": len(updated_ids)})
+    
     def _fetch_and_save_image(self, place_name, tags):
         if place_name == 'Unknown_Place':
             return None
@@ -318,3 +319,35 @@ class AdminFetchPhotosView(APIView):
                 return None
 
         return None
+class AttractionListView(generics.ListAPIView):
+    queryset = Attraction.objects.all()
+    serializer_class = AttractionListSerializer
+
+class AttractionDetailView(generics.RetrieveAPIView):
+    queryset = Attraction.objects.all()
+    serializer_class = AttractionDetailSerializer
+
+class AttractionCreateView(generics.CreateAPIView):
+    queryset = Attraction.objects.all()
+    serializer_class = AttractionDetailSerializer
+    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    
+    def perform_create(self, serializer):
+        serializer.save(need_photo=True)
+
+class PhotoUploadView(generics.CreateAPIView):
+    queryset = AttractionPhoto.objects.all()
+    serializer_class = AttractionPhotoSerializer
+    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def create(self, request, *args, **kwargs):
+        attraction_id = kwargs.get('attraction_id')
+        attraction = get_object_or_404(Attraction, id=attraction_id)
+        
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(attraction=attraction, user=request.user)
+        
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
