@@ -1,23 +1,32 @@
 import { useState } from "react";
 import Button from "shared/ui/Button";
-import RegistrationChoice from "shared/ui/RegistrationChoice/RegistrationChoice";
-import EntryForm from "shared/ui/EntryForm/EntryForm";
-import RegistrationForm from "shared/ui/RegistrationForm/RegistrationForm";
+import RegistrationChoice from "widgets/RegistrationChoice/ui/RegistrationChoice/RegistrationChoice";
+import EntryForm from "widgets/EntryForm/ui/EntryForm/EntryForm";
+import RegistrationForm from "widgets/RegistrationForm/ui/RegistrationForm/RegistrationForm";
 import styles from "./LoginPage.module.scss";
 import clsx from "clsx";
+import arrow from "shared/assets/icons/Arrow.svg"
+import { useNavigate } from "react-router";
 
 const LoginPage = () => {
+
+  const navigate = useNavigate();
+
+  const handleRedirect = (url: string) => {
+    navigate(url);
+  };
+  
   const [isVisible, setIsVisible] = useState(false);
   const [isBack, setIsBack] = useState(false);
-  const [activeBlock, setActiveBlock] = useState<
-    null | "entry" | "choice" | "registration"
-  >(null);
+  const [activeBlock, setActiveBlock] = useState<null | "entry" | "choice" | "registration">(null);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
     repeatPassword: "",
+    checkbox: false
+
   });
 
   const [errors, setErrors] = useState({
@@ -26,6 +35,7 @@ const LoginPage = () => {
     email: "",
     password: "",
     repeatPassword: "",
+    checkbox: ""
   });
 
   function CheckIsVisible(className?: string): string {
@@ -33,7 +43,7 @@ const LoginPage = () => {
   }
 
   function GoBack() {
-    if (activeBlock === null) setIsVisible(false);
+    if (activeBlock === null) handleRedirect("/");
     else if (activeBlock === "entry" || activeBlock === "choice")
       setActiveBlock(null);
     else if (activeBlock === "registration") setActiveBlock("choice");
@@ -43,6 +53,7 @@ const LoginPage = () => {
       email: "",
       password: "",
       repeatPassword: "",
+      checkbox: false
     });
     setErrors({
       firstName: "",
@@ -50,6 +61,7 @@ const LoginPage = () => {
       email: "",
       password: "",
       repeatPassword: "",
+      checkbox: ""
     });
     setIsBack(true);
   }
@@ -65,7 +77,7 @@ const LoginPage = () => {
     const { id, value } = e.target;
     const fieldName = normalizeId(id);
 
-    setFormData({ ...formData, [fieldName]: value });
+    setFormData({ ...formData, [fieldName]: fieldName === "checkbox" ? e.target.checked : value });
     setErrors({ ...errors, [fieldName]: "" });
   };
 
@@ -90,6 +102,12 @@ const LoginPage = () => {
       // Валидация пароля
       if (formData.repeatPassword.length < 6) {
         newErrors.repeatPassword = "Пароль должен быть не менее 6 символов";
+        valid = false;
+      }
+
+      // Валидация чекбокса
+      if (!formData.checkbox) {
+        newErrors.checkbox = "Чекбокс не выбран";
         valid = false;
       }
     }
@@ -121,44 +139,40 @@ const LoginPage = () => {
 
   return (
     <div>
-      <button
-        className={clsx(
-          styles.btn,
-          CheckIsVisible(styles.btn_click) && styles["btn_click"]
-        )} // Классы inline заменить на модульные
+      {/* <button
+        className={clsx(styles.btn, CheckIsVisible(styles.btn_click) && styles.btn_click)}
         onClick={() => setIsVisible(true)}
       >
         Войти
-      </button>
+      </button> */}
       <div className={styles.registration}>
         <button
           className={clsx(
             styles.btn_back,
-            CheckIsVisible("btn_back_visible") && styles["btn_back_visible"]
-          )} // Классы inline заменить на модульные
+            CheckIsVisible(styles.btn_back_visible) && styles.btn_back_visible
+          )}
           onClick={GoBack}
         >
-          <img src="/src/shared/assets/icons/Arrow.svg" />
-          {/* Сделать импорт  */}
+          <img src={arrow} />
         </button>
         <div
           className={clsx(
             styles.img,
-            CheckIsVisible("img_visible") && styles["img_visible"]
-          )} // Классы inline заменить на модульные
+            CheckIsVisible(styles.img_visible) && styles.img_visible
+          )}
         >
           <div
             className={clsx(
               styles.blackout,
-              CheckIsVisible("blackout_visible") && styles["blackout_visible"]
-            )} // Классы inline заменить на модульные
+              CheckIsVisible(styles.blackout_visible) && styles.blackout_visible
+            )}
           ></div>
         </div>
         <div
           className={clsx(
             styles.area,
             styles.container,
-            CheckIsVisible("area_visible") && styles["area_visible"]
+            CheckIsVisible(styles.area_visible) && styles.area_visible
           )}
         >
           <h3 className={styles.title}>TourGuide</h3>
@@ -166,26 +180,32 @@ const LoginPage = () => {
           <div
             className={clsx(
               styles.registration_buttons,
-              activeBlock === null && styles["active_block"]
+              activeBlock === null && styles.active_block
             )}
           >
             <Button
               variant="black"
               style={{ width: "100%" }}
-              onClick={() => setActiveBlock("entry")}
+              onClick={() => {
+                setActiveBlock("entry")
+                setIsBack(false);
+              }}
             >
               Войти
             </Button>
             <Button
               variant="black"
               style={{ width: "100%" }}
-              onClick={() => setActiveBlock("choice")}
+              onClick={() => {
+                setActiveBlock("choice")
+                setIsBack(false);
+              }}
             >
               Регистрация
             </Button>
           </div>
           <EntryForm
-            className={clsx(activeBlock === "entry" && styles["active_block"])}
+            className={clsx(activeBlock === "entry" && styles.active_block)}
             formData={formData}
             onChange={handleChange}
             errors={errors}
@@ -193,13 +213,14 @@ const LoginPage = () => {
             back={isBack}
           />
           <RegistrationChoice
-            className={clsx(activeBlock === "choice" && styles["active_block"])}
-            onClick={() => setActiveBlock("registration")}
+            className={clsx(activeBlock === "choice" && styles.active_block)}
+            onClick={() => {
+              setActiveBlock("registration")
+              setIsBack(false);
+            }}
           />
           <RegistrationForm
-            className={clsx(
-              activeBlock === "registration" && styles["active_block"]
-            )}
+            className={clsx(activeBlock === "registration" && styles.active_block)}
             formData={formData}
             onChange={handleChange}
             errors={errors}

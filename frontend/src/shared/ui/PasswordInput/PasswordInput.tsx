@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import styles from "./PasswordInput.module.scss";
 import clsx from "clsx";
-import Input from "../Input/Input";
+import Input from "shared/ui/Input/Input";
+import eyeClose from "shared/assets/icons/PasswordEye-close.svg"
+import eyeOpen from "shared/assets/icons/PasswordEye-open.svg"
 
 interface PasswordInputProps {
   label?: string;
@@ -21,6 +23,9 @@ export default function PasswordInput({ label, id, className = "", value, onChan
       setShowPassword(false);
     }
   }, [back]);
+
+  // console.log(back)
+  // console.log(showPassword)
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -44,7 +49,7 @@ export default function PasswordInput({ label, id, className = "", value, onChan
         aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
       >
         <img
-          src={showPassword ? "/src/shared/assets/icons/PasswordEye-open.svg" : "/src/shared/assets/icons/PasswordEye-close.svg"}
+          src={showPassword ? eyeClose : eyeOpen}
           alt={showPassword ? "Скрыть пароль" : "Показать пароль"}
         />
       </button>

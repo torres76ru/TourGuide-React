@@ -1,0 +1,67 @@
+.registration_form {
+    display: none;
+    /* display: flex; */
+    flex-direction: column;
+    margin-bottom: 73px;
+    /* opacity: 0;
+    transition: opacity 1s ease 0.5s; */
+}
+
+.container_margin {
+    margin-bottom: 0;
+}
+
+.checkbox_container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 13px;
+    margin-top: 47px;
+}
+
+.custom_checkbox {
+    display: flex;
+    align-items: center;
+}
+
+.hidden_checkbox {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.checkbox_lable {
+    font-weight: 200;
+    font-size: 12px;
+    margin-left: 6px;
+}
+
+// .checkbox_error {
+//     border: 1px solid red;
+// }
+
+/* Кастомный чекбокс */
+.checkbox_icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 1px solid #C4BBB0;
+  border-radius: 2px;
+  position: relative;
+  cursor: pointer;
+}
+
+/* Галочка (можно заменить на SVG) */
+.hidden_checkbox:checked + .checkbox_icon::after {
+  content: "✓";
+  color: #C4BBB0;
+  position: absolute;
+  top: -5.5px;
+  left: 0.5px;
+  
+}
+
+/* Красная обводка при ошибке */
+.hidden_checkbox.checkbox_error + .checkbox_icon {
+  border-color: red;
+}

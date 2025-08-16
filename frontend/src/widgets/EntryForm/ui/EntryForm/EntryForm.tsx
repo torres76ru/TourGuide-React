@@ -1,27 +1,20 @@
 import type { MouseEventHandler } from "react";
-import Button from "../Button";
-import Input from "../Input/Input";
-// import PasswordInput from "../PasswordInput/PasswordInput";
+import Button from "shared/ui/Button";
+import Input from "shared/ui/Input/Input";
 import styles from "./EntryForm.module.scss";
 import clsx from "clsx";
-import PasswordInput from "../PasswordInput/PasswordInput";
+import PasswordInput from "shared/ui/PasswordInput/PasswordInput";
  
 interface EntryFormProps {
   className: string;
   formData: {
-    firstName: string;
-    lastName: string;
     email: string;
     password: string;
-    repeatPassword: string
   };
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
    errors: {
-    firstName: string;
-    lastName: string;
     email: string;
     password: string;
-    repeatPassword: string
   };
   onClick?: MouseEventHandler<HTMLButtonElement>;
   back: boolean

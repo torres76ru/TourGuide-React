@@ -1,8 +1,7 @@
-// переместить в widgets
 import type { MouseEventHandler } from "react";
-import Button from "../Button";
-import Input from "../Input/Input";
-import PasswordInput from "../PasswordInput/PasswordInput";
+import Button from "shared/ui/Button";
+import Input from "shared/ui/Input/Input";
+import PasswordInput from "shared/ui/PasswordInput/PasswordInput";
 import styles from "./RegistrationForm.module.scss";
 import clsx from "clsx";
 
@@ -14,6 +13,7 @@ interface EntryFormProps {
     email: string;
     password: string;
     repeatPassword: string;
+    checkbox: boolean
   };
   errors: {
     firstName: string;
@@ -21,6 +21,7 @@ interface EntryFormProps {
     email: string;
     password: string;
     repeatPassword: string;
+    checkbox: string
   };
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onClick?: MouseEventHandler<HTMLButtonElement>;
@@ -81,20 +82,17 @@ export default function RegistrationForm({
           error={errors.repeatPassword}
           back={back}
         ></PasswordInput>
-        {/* <Input
-          label="Повторите пароль"
-          id="reg__repeat-password-id"
-          type="text"
-          value={formData.repeatPassword}
-          onChange={onChange}
-          error={errors.repeatPassword}
-        ></Input> */}
         <div className={styles.checkbox_container}>
-          <input
-            className={styles.checkbox}
+          <label className={styles.custom_checkbox}>
+            <input
+            className={clsx(styles.hidden_checkbox, errors.checkbox && styles.checkbox_error)}
             type="checkbox"
             id="reg__checkbox-id"
-          />
+            onChange={onChange}
+            checked={formData.checkbox}/>
+            {/* <input type="checkbox" class="hidden-checkbox"> */}
+            <span className={styles.checkbox_icon}></span>
+          </label>
           <label className={styles.checkbox_lable} htmlFor="reg__checkbox-id">
             Я прочитал и согласен с политикой данного сервиса.
           </label>
