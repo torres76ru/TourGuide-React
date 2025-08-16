@@ -1,10 +1,10 @@
 import { useState } from "react";
 import Button from "shared/ui/Button";
-import RegistrationChoice from "../../shared/ui/RegistrationChoice/RegistrationChoice";
-import EntryForm from "../../shared/ui/EntryForm/EntryForm";
-import RegistrationForm from "../../shared/ui/RegistrationForm/RegistrationForm";
-import styles from "./LoginPage.module.scss"
-import clsx from 'clsx';
+import RegistrationChoice from "shared/ui/RegistrationChoice/RegistrationChoice";
+import EntryForm from "shared/ui/EntryForm/EntryForm";
+import RegistrationForm from "shared/ui/RegistrationForm/RegistrationForm";
+import styles from "./LoginPage.module.scss";
+import clsx from "clsx";
 
 const LoginPage = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -34,10 +34,23 @@ const LoginPage = () => {
 
   function GoBack() {
     if (activeBlock === null) setIsVisible(false);
-    else if (activeBlock === "entry" || activeBlock === "choice") setActiveBlock(null);
+    else if (activeBlock === "entry" || activeBlock === "choice")
+      setActiveBlock(null);
     else if (activeBlock === "registration") setActiveBlock("choice");
-    setFormData({ firstName: "", lastName: "", email: "", password: "", repeatPassword: ""});
-    setErrors({ firstName: "", lastName: "", email: "", password: "", repeatPassword: "" });
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      repeatPassword: "",
+    });
+    setErrors({
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      repeatPassword: "",
+    });
     setIsBack(true);
   }
 
@@ -87,11 +100,11 @@ const LoginPage = () => {
       valid = false;
     }
 
-     // Валидация пароля
-      if (formData.password.length < 6) {
-        newErrors.password = "Пароль должен быть не менее 6 символов";
-        valid = false;
-      }
+    // Валидация пароля
+    if (formData.password.length < 6) {
+      newErrors.password = "Пароль должен быть не менее 6 символов";
+      valid = false;
+    }
 
     setErrors(newErrors);
     return valid;
@@ -108,43 +121,71 @@ const LoginPage = () => {
 
   return (
     <div>
-      <button 
-        className={clsx( styles.btn, CheckIsVisible('btn_click') && styles['btn_click'])}
+      <button
+        className={clsx(
+          styles.btn,
+          CheckIsVisible(styles.btn_click) && styles["btn_click"]
+        )} // Классы inline заменить на модульные
         onClick={() => setIsVisible(true)}
       >
         Войти
       </button>
       <div className={styles.registration}>
         <button
-          className={clsx( styles.btn_back, CheckIsVisible('btn_back_visible') && styles['btn_back_visible'])}
+          className={clsx(
+            styles.btn_back,
+            CheckIsVisible("btn_back_visible") && styles["btn_back_visible"]
+          )} // Классы inline заменить на модульные
           onClick={GoBack}
         >
           <img src="/src/shared/assets/icons/Arrow.svg" />
+          {/* Сделать импорт  */}
         </button>
         <div
-          className={clsx( styles.img, CheckIsVisible('img_visible') && styles['img_visible'])}
+          className={clsx(
+            styles.img,
+            CheckIsVisible("img_visible") && styles["img_visible"]
+          )} // Классы inline заменить на модульные
         >
           <div
-            className={clsx( styles.blackout, CheckIsVisible('blackout_visible') && styles['blackout_visible'])}
+            className={clsx(
+              styles.blackout,
+              CheckIsVisible("blackout_visible") && styles["blackout_visible"]
+            )} // Классы inline заменить на модульные
           ></div>
         </div>
         <div
-          className={clsx( styles.area, styles.container, CheckIsVisible('area_visible') && styles['area_visible'])}
+          className={clsx(
+            styles.area,
+            styles.container,
+            CheckIsVisible("area_visible") && styles["area_visible"]
+          )}
         >
           <h3 className={styles.title}>TourGuide</h3>
-          <p className={styles.slogan}>
-            Отправляйся в путешествие с нами
-          </p>
+          <p className={styles.slogan}>Отправляйся в путешествие с нами</p>
           <div
-          className={clsx( styles.registration_buttons, activeBlock === null && styles['active_block'])}
+            className={clsx(
+              styles.registration_buttons,
+              activeBlock === null && styles["active_block"]
+            )}
           >
-            <Button variant = "black" style={{ width: "100%" }} onClick={() => setActiveBlock("entry")}>Войти</Button>
-            <Button variant = "black" style={{ width: "100%" }} onClick={() => setActiveBlock("choice")}>
+            <Button
+              variant="black"
+              style={{ width: "100%" }}
+              onClick={() => setActiveBlock("entry")}
+            >
+              Войти
+            </Button>
+            <Button
+              variant="black"
+              style={{ width: "100%" }}
+              onClick={() => setActiveBlock("choice")}
+            >
               Регистрация
             </Button>
           </div>
           <EntryForm
-            className={clsx(activeBlock === "entry" && styles['active_block'])}
+            className={clsx(activeBlock === "entry" && styles["active_block"])}
             formData={formData}
             onChange={handleChange}
             errors={errors}
@@ -152,11 +193,13 @@ const LoginPage = () => {
             back={isBack}
           />
           <RegistrationChoice
-            className={clsx(activeBlock === "choice" && styles['active_block'])}
+            className={clsx(activeBlock === "choice" && styles["active_block"])}
             onClick={() => setActiveBlock("registration")}
           />
           <RegistrationForm
-            className={clsx(activeBlock === "registration" && styles['active_block'])}
+            className={clsx(
+              activeBlock === "registration" && styles["active_block"]
+            )}
             formData={formData}
             onChange={handleChange}
             errors={errors}

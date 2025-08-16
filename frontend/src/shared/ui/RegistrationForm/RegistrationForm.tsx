@@ -1,8 +1,9 @@
+// переместить в widgets
 import type { MouseEventHandler } from "react";
 import Button from "../Button";
 import Input from "../Input/Input";
 import PasswordInput from "../PasswordInput/PasswordInput";
-import styles from "./RegistrationForm.module.scss"
+import styles from "./RegistrationForm.module.scss";
 import clsx from "clsx";
 
 interface EntryFormProps {
@@ -12,18 +13,18 @@ interface EntryFormProps {
     lastName: string;
     email: string;
     password: string;
-    repeatPassword: string
+    repeatPassword: string;
   };
   errors: {
     firstName: string;
     lastName: string;
     email: string;
     password: string;
-    repeatPassword: string
+    repeatPassword: string;
   };
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onClick?: MouseEventHandler<HTMLButtonElement>;
-  back: boolean
+  back: boolean;
 }
 
 export default function RegistrationForm({
@@ -32,14 +33,11 @@ export default function RegistrationForm({
   errors,
   onChange,
   onClick,
-  back
+  back,
 }: EntryFormProps) {
   return (
     <>
-      <form
-        action=""
-        className={clsx(styles.registration_form, className)}
-      >
+      <form action="" className={clsx(styles.registration_form, className)}>
         <Input
           label="Имя"
           id="reg__first-name-id"
@@ -68,7 +66,7 @@ export default function RegistrationForm({
         <PasswordInput
           label="Пароль"
           id="reg__password-id"
-          className={styles.container_margin} 
+          className={styles.container_margin}
           value={formData.password}
           onChange={onChange}
           error={errors.password}
@@ -77,7 +75,7 @@ export default function RegistrationForm({
         <PasswordInput
           label="Повторите пароль"
           id="reg__repeat-password-id"
-          className={styles.container_margin} 
+          className={styles.container_margin}
           value={formData.repeatPassword}
           onChange={onChange}
           error={errors.repeatPassword}
@@ -97,15 +95,12 @@ export default function RegistrationForm({
             type="checkbox"
             id="reg__checkbox-id"
           />
-          <label
-            className={styles.checkbox_lable}
-            htmlFor="reg__checkbox-id"
-          >
+          <label className={styles.checkbox_lable} htmlFor="reg__checkbox-id">
             Я прочитал и согласен с политикой данного сервиса.
           </label>
         </div>
         <Button
-          variant = "black"
+          variant="black"
           style={{ width: "278px" }}
           onClick={onClick}
           type="submit"
