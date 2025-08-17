@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models import Avg, Count
 from users.models import User
 import os,uuid
+from rest_framework import serializers
 
 def main_photo_path(instance, filename):
     return f'mainphoto/{instance.id}.{filename.split(".")[-1]}'
@@ -9,26 +10,28 @@ def main_photo_path(instance, filename):
 def additional_photos_path(instance, filename):
     return f'{instance.attraction.id}/{uuid.uuid4()}.{filename.split(".")[-1]}'
 
+
 class Attraction(models.Model):
     # Основные поля 
     name = models.CharField(max_length=255)
     latitude = models.FloatField()
     longitude = models.FloatField()
+    city = models.CharField(max_length=100, blank=True, null=True)  # Новое поле для города
     description = models.TextField(blank=True, null=True)
     tags = models.JSONField(default=dict, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+    admin_uploaded_image = models.ImageField(upload_to='admin_photos/', blank=True, null=True)
     # Поля рейтинга
     average_rating = models.FloatField(default=0.0, editable=False)
     rating_count = models.PositiveIntegerField(default=0, editable=False)
-    
+
     # Главное фото (скачанное с вики)
     main_photo = models.ImageField(
         upload_to=main_photo_path,
         blank=True,
         null=True
     )
-    
+
     # Флаги
     need_photo = models.BooleanField(default=True)
     admin_reviewed = models.BooleanField(default=False)
@@ -67,3 +70,6 @@ class AttractionPhoto(models.Model):
         self.average_rating = stats['avg_rating'] or 0.0
         self.rating_count = stats['count']
         self.save(update_fields=['average_rating', 'rating_count'])
+
+
+

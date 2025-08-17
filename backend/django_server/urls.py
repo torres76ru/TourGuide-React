@@ -9,7 +9,8 @@ urlpatterns = [
     path('api/', include('attractions.urls')),
     path('api/ratings/', include('ratings.urls')),
     path('api/', include('tours.urls')),
-
+    path('api/', include('attractions.urls')),
+    path('api/cities/', include('cities.urls')),
     # Регистрация / авторизация через соцсети
     path('dj-rest-auth/', include('dj_rest_auth.urls')),
     path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
