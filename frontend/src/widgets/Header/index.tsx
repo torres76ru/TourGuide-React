@@ -31,7 +31,7 @@ const Header = () => {
       </div>
 
       {/* Поиск справа */}
-      <div>
+      <div onClick={() => handleRedirect("/search")}>
         <img src={search} alt="Search" className={styles.search} />
       </div>
 
