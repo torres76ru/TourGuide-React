@@ -1,4 +1,5 @@
 import type { MouseEventHandler } from "react";
+import styles from "./ChoiceButton.module.scss";
 
 interface ChoiceButtonProps {
   label: string;
@@ -10,8 +11,8 @@ interface ChoiceButtonProps {
 export default function ChoiceButton({label, iconSrc, altText, onClick}:ChoiceButtonProps){
     return (
         <>
-        <div className="registration__choice-colomn">
-            <button onClick={onClick} className="registration__choice-btn"><img src={iconSrc} alt={altText}/></button>
+        <div className={styles.choice_colomn}>
+            <button onClick={onClick} className={styles.choice_btn}><img src={iconSrc} alt={altText}/></button>
             <span>{label}</span>
         </div>
         </>

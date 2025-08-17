@@ -44,6 +44,13 @@ const Header = () => {
           >
             Войти
           </Button>
+          <Button
+            variant="black"
+            style={{ width: "100%" }}
+            onClick={() => handleRedirect("/sight")}
+          >
+            Достопримечательность
+          </Button>
           <ul>
             <li>Поблизости</li>
             <li>Поиск мест</li>

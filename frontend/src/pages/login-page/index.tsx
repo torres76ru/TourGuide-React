@@ -1,20 +1,32 @@
 import { useState } from "react";
-import Button from "../../app/shared/login-page/Button";
-import RegistrationChoice from "../../app/shared/login-page/RegistrationChoice";
-import EntryForm from "../../app/shared/login-page/EntryForm";
-import RegistrationForm from "../../app/shared/login-page/RegistrationForm";
-import "./style.css";
+import Button from "shared/ui/Button";
+import RegistrationChoice from "widgets/RegistrationChoice/ui/RegistrationChoice/RegistrationChoice";
+import EntryForm from "widgets/EntryForm/ui/EntryForm/EntryForm";
+import RegistrationForm from "widgets/RegistrationForm/ui/RegistrationForm/RegistrationForm";
+import styles from "./LoginPage.module.scss";
+import clsx from "clsx";
+import arrow from "shared/assets/icons/Arrow.svg"
+import { useNavigate } from "react-router";
 
 const LoginPage = () => {
+
+  const navigate = useNavigate();
+
+  const handleRedirect = (url: string) => {
+    navigate(url);
+  };
+  
   const [isVisible, setIsVisible] = useState(false);
-  const [activeBlock, setActiveBlock] = useState<
-    null | "entry" | "choice" | "registration"
-  >(null);
+  const [isBack, setIsBack] = useState(false);
+  const [activeBlock, setActiveBlock] = useState<null | "entry" | "choice" | "registration">(null);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
+    repeatPassword: "",
+    checkbox: false
+
   });
 
   const [errors, setErrors] = useState({
@@ -22,6 +34,8 @@ const LoginPage = () => {
     lastName: "",
     email: "",
     password: "",
+    repeatPassword: "",
+    checkbox: ""
   });
 
   function CheckIsVisible(className?: string): string {
@@ -29,18 +43,30 @@ const LoginPage = () => {
   }
 
   function GoBack() {
-    if (activeBlock === null) setIsVisible(false);
+    if (activeBlock === null) handleRedirect("/");
     else if (activeBlock === "entry" || activeBlock === "choice")
       setActiveBlock(null);
     else if (activeBlock === "registration") setActiveBlock("choice");
-    setFormData({ firstName: "", lastName: "", email: "", password: "" });
-    setErrors({ firstName: "", lastName: "", email: "", password: "" });
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      repeatPassword: "",
+      checkbox: false
+    });
+    setErrors({
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      repeatPassword: "",
+      checkbox: ""
+    });
+    setIsBack(true);
   }
 
   const normalizeId = (id: string) => {
-    if (id.includes("repeat-password")) {
-      return "password";
-    }
     return id
       .replace(/^(entry__|reg__)/, "")
       .replace(/-id$/, "")
@@ -51,7 +77,7 @@ const LoginPage = () => {
     const { id, value } = e.target;
     const fieldName = normalizeId(id);
 
-    setFormData({ ...formData, [fieldName]: value });
+    setFormData({ ...formData, [fieldName]: fieldName === "checkbox" ? e.target.checked : value });
     setErrors({ ...errors, [fieldName]: "" });
   };
 
@@ -74,8 +100,14 @@ const LoginPage = () => {
       }
 
       // Валидация пароля
-      if (formData.password.length < 6) {
-        newErrors.password = "Пароль должен быть не менее 6 символов";
+      if (formData.repeatPassword.length < 6) {
+        newErrors.repeatPassword = "Пароль должен быть не менее 6 символов";
+        valid = false;
+      }
+
+      // Валидация чекбокса
+      if (!formData.checkbox) {
+        newErrors.checkbox = "Чекбокс не выбран";
         valid = false;
       }
     }
@@ -83,6 +115,12 @@ const LoginPage = () => {
     // Валидация email
     if (!formData.email.includes("@")) {
       newErrors.email = "Некорректный email";
+      valid = false;
+    }
+
+    // Валидация пароля
+    if (formData.password.length < 6) {
+      newErrors.password = "Пароль должен быть не менее 6 символов";
       valid = false;
     }
 
@@ -101,68 +139,93 @@ const LoginPage = () => {
 
   return (
     <div>
-      <button
-        className={`btn ${CheckIsVisible("btn--click")}`}
+      {/* <button
+        className={clsx(styles.btn, CheckIsVisible(styles.btn_click) && styles.btn_click)}
         onClick={() => setIsVisible(true)}
       >
         Войти
-      </button>
-      <div className="registration">
+      </button> */}
+      <div className={styles.registration}>
         <button
-          className={`registration__btn-back ${CheckIsVisible(
-            "registration__btn-back--visible"
-          )}`}
+          className={clsx(
+            styles.btn_back,
+            CheckIsVisible(styles.btn_back_visible) && styles.btn_back_visible
+          )}
           onClick={GoBack}
         >
-          <img src="/src/assets/icons/Arrow.svg" />
+          <img src={arrow} />
         </button>
         <div
-          className={`registration__img ${CheckIsVisible(
-            "registration__img--visible"
-          )}`}
+          className={clsx(
+            styles.img,
+            CheckIsVisible(styles.img_visible) && styles.img_visible
+          )}
         >
           <div
-            className={`registration__blackout ${CheckIsVisible(
-              "registration__blackout--visible"
-            )}`}
+            className={clsx(
+              styles.blackout,
+              CheckIsVisible(styles.blackout_visible) && styles.blackout_visible
+            )}
           ></div>
         </div>
         <div
-          className={`registration__area container ${CheckIsVisible(
-            "registration__area--visible"
-          )}`}
+          className={clsx(
+            styles.area,
+            styles.container,
+            CheckIsVisible(styles.area_visible) && styles.area_visible
+          )}
         >
-          <h3 className="registration__title">TourGuide</h3>
-          <p className="registration__slogan">
-            Отправляйся в путешествие с нами
-          </p>
+          <h3 className={styles.title}>TourGuide</h3>
+          <p className={styles.slogan}>Отправляйся в путешествие с нами</p>
           <div
-            className={`registration__buttons ${
-              activeBlock === null ? "active-block" : ""
-            }`}
+            className={clsx(
+              styles.registration_buttons,
+              activeBlock === null && styles.active_block
+            )}
           >
-            <Button onClick={() => setActiveBlock("entry")}>Войти</Button>
-            <Button onClick={() => setActiveBlock("choice")}>
+            <Button
+              variant="black"
+              style={{ width: "100%" }}
+              onClick={() => {
+                setActiveBlock("entry")
+                setIsBack(false);
+              }}
+            >
+              Войти
+            </Button>
+            <Button
+              variant="black"
+              style={{ width: "100%" }}
+              onClick={() => {
+                setActiveBlock("choice")
+                setIsBack(false);
+              }}
+            >
               Регистрация
             </Button>
           </div>
           <EntryForm
-            className={activeBlock === "entry" ? "active-block" : ""}
-            value={formData.email}
-            onChange={handleChange}
-            error={errors.email}
-            onClick={handleSubmit}
-          />
-          <RegistrationChoice
-            className={activeBlock === "choice" ? "active-block" : ""}
-            onClick={() => setActiveBlock("registration")}
-          />
-          <RegistrationForm
-            className={activeBlock === "registration" ? "active-block" : ""}
+            className={clsx(activeBlock === "entry" && styles.active_block)}
             formData={formData}
             onChange={handleChange}
             errors={errors}
             onClick={handleSubmit}
+            back={isBack}
+          />
+          <RegistrationChoice
+            className={clsx(activeBlock === "choice" && styles.active_block)}
+            onClick={() => {
+              setActiveBlock("registration")
+              setIsBack(false);
+            }}
+          />
+          <RegistrationForm
+            className={clsx(activeBlock === "registration" && styles.active_block)}
+            formData={formData}
+            onChange={handleChange}
+            errors={errors}
+            onClick={handleSubmit}
+            back={isBack}
           />
         </div>
       </div>

@@ -1,0 +1,18 @@
+.choice_colomn {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.choice_btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 150px;
+    height: 150px;
+    border-radius: 5px;
+    border: 1px solid #C4BBB0;
+    box-shadow: 0px 0px 4px 0px #00000026;
+    margin-bottom: 3px;
+    background: transparent;
+}

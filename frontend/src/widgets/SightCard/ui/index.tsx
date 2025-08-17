@@ -1,12 +1,12 @@
+import Rating from "shared/ui/Rating/ui/Rating";
 import style from "./SightCard.module.scss";
-import starImg from "shared/assets/star-blue.svg";
 
 interface Props {
-  name?: string;
-  description?: string;
-  prices?: string;
-  rating?: number;
-  img?: string;
+  name: string;
+  description: string;
+  prices: string;
+  rating: number;
+  img: string;
 }
 
 const SightCard = ({ name, description, prices, rating, img }: Props) => {
@@ -19,10 +19,7 @@ const SightCard = ({ name, description, prices, rating, img }: Props) => {
         <div className={style.info}>
           <div className={style.row}>
             <h3>{name}</h3>
-            <div className={style.rating}>
-              <img src={starImg} alt="Рейтинг" />
-              <span>{rating?.toFixed(1)}</span>
-            </div>
+            <Rating rating={rating} />
           </div>
           <div className={style.description}>{description}</div>
         </div>
