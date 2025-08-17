@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "shared/ui/Button";
-import RegistrationChoice from "widgets/RegistrationChoice/ui/RegistrationChoice/RegistrationChoice";
-import EntryForm from "widgets/EntryForm/ui/EntryForm/EntryForm";
-import RegistrationForm from "widgets/RegistrationForm/ui/RegistrationForm/RegistrationForm";
+import RegistrationChoice from "widgets/RegistrationChoice/ui/RegistrationChoice";
+import EntryForm from "widgets/EntryForm/ui/EntryForm";
+import RegistrationForm from "widgets/RegistrationForm/ui/RegistrationForm";
 import styles from "./LoginPage.module.scss";
 import clsx from "clsx";
 import arrow from "shared/assets/icons/Arrow.svg"
@@ -16,7 +16,6 @@ const LoginPage = () => {
     navigate(url);
   };
   
-  const [isVisible, setIsVisible] = useState(false);
   const [isBack, setIsBack] = useState(false);
   const [activeBlock, setActiveBlock] = useState<null | "entry" | "choice" | "registration">(null);
   const [formData, setFormData] = useState({
@@ -26,7 +25,6 @@ const LoginPage = () => {
     password: "",
     repeatPassword: "",
     checkbox: false
-
   });
 
   const [errors, setErrors] = useState({
@@ -38,8 +36,15 @@ const LoginPage = () => {
     checkbox: ""
   });
 
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsMounted(true), 50);
+    return () => clearTimeout(timer);
+}, []);
+
   function CheckIsVisible(className?: string): string {
-    return isVisible ? className || "" : "";
+    return isMounted ? className || "" : "";
   }
 
   function GoBack() {

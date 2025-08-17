@@ -49,7 +49,7 @@ export default function PasswordInput({ label, id, className = "", value, onChan
         aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
       >
         <img
-          src={showPassword ? eyeClose : eyeOpen}
+          src={showPassword ? eyeOpen : eyeClose}
           alt={showPassword ? "Скрыть пароль" : "Показать пароль"}
         />
       </button>
