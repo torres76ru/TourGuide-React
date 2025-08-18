@@ -20,8 +20,10 @@ const AttractionCard = ({ name, isOpen, rating, img, location, categories }: Pro
       <div className={styles.context}>
         <h4>{name}</h4>
         <p>{isOpen}</p>
-        <Rating rating={rating} classSize={styles.size} classSizeIcon={styles.size_icon}/>
-        <Location location={location} classSize={styles.size} classSizeIcon={styles.size_icon}/>
+        <div className={styles.rating_location}>
+           <Rating rating={rating} classSize={styles.size} classSizeIcon={styles.size_icon}/>
+           <Location location={location} classSize={styles.size} classSizeIcon={styles.size_icon}/>
+        </div>
         <p>{categories}</p>
       </div>
     </div>
