@@ -27,7 +27,7 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
 
     def perform_create(self, serializer):
-        self.user = serializer.save(is_active=False)  # создаем неактивного пользователя
+        self.user = serializer.save(is_active=True)  # создаем неактивного пользователя
 
         uid = urlsafe_base64_encode(force_bytes(self.user.pk))
         token = account_activation_token.make_token(self.user)
@@ -61,14 +61,27 @@ class RegisterView(generics.CreateAPIView):
 # POST /api/auth/login/
 class LoginView(generics.GenericAPIView):
     permission_classes = [permissions.AllowAny]
-
+    #лучше бы сделать по нормальному, а не костыль, но это если вспомню)
     def post(self, request):
-        username = request.data.get("username")
+        login = request.data.get("username")
         password = request.data.get("password")
-        user = authenticate(username=username, password=password)
+        user = None
+
+        if '@' in login:
+            try:
+                user_obj = User.objects.get(email=login)
+                user = authenticate(username=user_obj.username, password=password)
+            except User.DoesNotExist:
+                pass
+        else:
+            user = authenticate(username=login, password=password)
 
         if not user:
             return Response({"error": "Неверные учетные данные"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not user.is_active:
+            return Response({"error": "Аккаунт не активирован"}, status=status.HTTP_400_BAD_REQUEST)
+
 
         refresh = RefreshToken.for_user(user)
         return Response({

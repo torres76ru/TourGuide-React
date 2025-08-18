@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Avg, Count
 from users.models import User
+from cities.models import City
 import os,uuid
 from rest_framework import serializers
 
@@ -12,35 +13,31 @@ def additional_photos_path(instance, filename):
 
 
 class Attraction(models.Model):
-    # Основные поля 
+    # Основные поля
     name = models.CharField(max_length=255)
     latitude = models.FloatField()
     longitude = models.FloatField()
-    city = models.CharField(max_length=100, blank=True, null=True)  # Новое поле для города
+    city = models.ForeignKey(City, on_delete=models.SET_NULL, blank=True, null=True, related_name='attractions')
+    address = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     tags = models.JSONField(default=dict, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     admin_uploaded_image = models.ImageField(upload_to='admin_photos/', blank=True, null=True)
+    main_photo = models.ImageField(upload_to=main_photo_path, blank=True, null=True)
+
     # Поля рейтинга
     average_rating = models.FloatField(default=0.0, editable=False)
     rating_count = models.PositiveIntegerField(default=0, editable=False)
-
-    # Главное фото (скачанное с вики)
-    main_photo = models.ImageField(
-        upload_to=main_photo_path,
-        blank=True,
-        null=True
-    )
 
     # Флаги
     need_photo = models.BooleanField(default=True)
     admin_reviewed = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
-        # При сохранении проверяем наличие главного фото
         if self.main_photo:
             self.need_photo = False
         super().save(*args, **kwargs)
+
 
 class AttractionPhoto(models.Model):
     attraction = models.ForeignKey(
@@ -70,6 +67,3 @@ class AttractionPhoto(models.Model):
         self.average_rating = stats['avg_rating'] or 0.0
         self.rating_count = stats['count']
         self.save(update_fields=['average_rating', 'rating_count'])
-
-
-

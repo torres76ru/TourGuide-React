@@ -10,6 +10,7 @@ class RatingCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
+
         serializer.save(user=self.request.user)
 
 class RatingListView(generics.ListAPIView):
@@ -17,6 +18,7 @@ class RatingListView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
+
         queryset = Rating.objects.all()
         attraction_id = self.request.query_params.get('attraction_id')
         if attraction_id:
