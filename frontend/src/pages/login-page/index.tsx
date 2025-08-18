@@ -5,35 +5,46 @@ import EntryForm from "widgets/EntryForm/ui/EntryForm";
 import RegistrationForm from "widgets/RegistrationForm/ui/RegistrationForm";
 import styles from "./LoginPage.module.scss";
 import clsx from "clsx";
-import arrow from "shared/assets/icons/Arrow.svg"
+import arrow from "shared/assets/icons/Arrow.svg";
 import { useNavigate } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
 
+import type { RootState, AppDispatch } from "app/store/mainStore";
+import { registerRequest } from "entities/user/model/slice";
 const LoginPage = () => {
-
   const navigate = useNavigate();
+
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, error, user } = useSelector(
+    (state: RootState) => state.user
+  );
 
   const handleRedirect = (url: string) => {
     navigate(url);
   };
-  
+
   const [isBack, setIsBack] = useState(false);
-  const [activeBlock, setActiveBlock] = useState<null | "entry" | "choice" | "registration">(null);
+  const [activeBlock, setActiveBlock] = useState<
+    null | "entry" | "choice" | "registration"
+  >(null);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
+    login: "",
     email: "",
     password: "",
     repeatPassword: "",
-    checkbox: false
+    checkbox: false,
   });
 
   const [errors, setErrors] = useState({
     firstName: "",
     lastName: "",
+    login: "",
     email: "",
     password: "",
     repeatPassword: "",
-    checkbox: ""
+    checkbox: "",
   });
 
   const [isMounted, setIsMounted] = useState(false);
@@ -41,7 +52,7 @@ const LoginPage = () => {
   useEffect(() => {
     const timer = setTimeout(() => setIsMounted(true), 50);
     return () => clearTimeout(timer);
-}, []);
+  }, []);
 
   function CheckIsVisible(className?: string): string {
     return isMounted ? className || "" : "";
@@ -55,18 +66,20 @@ const LoginPage = () => {
     setFormData({
       firstName: "",
       lastName: "",
+      login: "",
       email: "",
       password: "",
       repeatPassword: "",
-      checkbox: false
+      checkbox: false,
     });
     setErrors({
       firstName: "",
       lastName: "",
+      login: "",
       email: "",
       password: "",
       repeatPassword: "",
-      checkbox: ""
+      checkbox: "",
     });
     setIsBack(true);
   }
@@ -82,7 +95,10 @@ const LoginPage = () => {
     const { id, value } = e.target;
     const fieldName = normalizeId(id);
 
-    setFormData({ ...formData, [fieldName]: fieldName === "checkbox" ? e.target.checked : value });
+    setFormData({
+      ...formData,
+      [fieldName]: fieldName === "checkbox" ? e.target.checked : value,
+    });
     setErrors({ ...errors, [fieldName]: "" });
   };
 
@@ -138,6 +154,17 @@ const LoginPage = () => {
     e.preventDefault();
     if (validate()) {
       console.log("Форма отправлена:", formData);
+
+      dispatch(
+        registerRequest({
+          username: formData.login,
+          email: formData.email,
+          password: formData.password,
+          password2: formData.repeatPassword,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+        })
+      );
       // Отправка данных...
     }
   };
@@ -192,7 +219,7 @@ const LoginPage = () => {
               variant="black"
               style={{ width: "100%" }}
               onClick={() => {
-                setActiveBlock("entry")
+                setActiveBlock("entry");
                 setIsBack(false);
               }}
             >
@@ -202,7 +229,7 @@ const LoginPage = () => {
               variant="black"
               style={{ width: "100%" }}
               onClick={() => {
-                setActiveBlock("choice")
+                setActiveBlock("choice");
                 setIsBack(false);
               }}
             >
@@ -220,12 +247,14 @@ const LoginPage = () => {
           <RegistrationChoice
             className={clsx(activeBlock === "choice" && styles.active_block)}
             onClick={() => {
-              setActiveBlock("registration")
+              setActiveBlock("registration");
               setIsBack(false);
             }}
           />
           <RegistrationForm
-            className={clsx(activeBlock === "registration" && styles.active_block)}
+            className={clsx(
+              activeBlock === "registration" && styles.active_block
+            )}
             formData={formData}
             onChange={handleChange}
             errors={errors}
