@@ -8,6 +8,8 @@ import Modal from "widgets/Modal/ui";
 import { useState } from "react";
 import Button from "shared/ui/Button";
 import { useNavigate } from "react-router";
+import cross from "shared/assets/Cross.svg"
+import MenuButton from "shared/ui/MenuButton/ui/MenuButton";
 
 const Header = () => {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -37,26 +39,27 @@ const Header = () => {
 
       <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)}>
         <div className={styles.modalContent}>
-          <Button
-            variant="black"
-            style={{ width: "100%" }}
-            onClick={() => handleRedirect("/auth")}
-          >
-            Войти
-          </Button>
-          <Button
-            variant="black"
-            style={{ width: "100%" }}
-            onClick={() => handleRedirect("/sight")}
-          >
-            Достопримечательность
-          </Button>
-          <ul>
-            <li>Поблизости</li>
-            <li>Поиск мест</li>
-            <li>Отзывы</li>
-            <li>Карта</li>
+          <div className={styles.container}>
+            <button onClick={() => setModalOpen(false)} className={styles.cross}><img src={cross} alt="Крестик" /></button>
+            <Button
+              variant="black"
+              style={{ width: "100%" }}
+              onClick={() => handleRedirect("/auth")}>
+              Войти
+            </Button>
+          </div>
+          
+          <ul className={styles.buttons_list}>
+            <li><MenuButton>Поблизости</MenuButton></li>
+            <li><MenuButton>Поиск мест</MenuButton></li>
+            <li><MenuButton>Карта</MenuButton></li>
           </ul>
+          {/* <Button
+            variant="black"
+            style={{ width: "100%" }}
+            onClick={() => handleRedirect("/sight")}>
+            Достопримечательность
+          </Button> */}
         </div>
       </Modal>
     </header>

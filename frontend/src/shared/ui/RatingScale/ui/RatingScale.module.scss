@@ -19,3 +19,18 @@
 .blue {
     background-color: #6588E6;
 }
+
+@media (max-width: 370px) {
+        .rating_scale {
+        gap: 3px;
+        span {
+            font-weight: 400;
+            width: 5px;
+        }
+
+        .scale {
+        width: 150px;
+        height: 6px;
+        }
+    }
+}
