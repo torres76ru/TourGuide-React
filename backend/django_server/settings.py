@@ -17,7 +17,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'phonenumber_field',
 
-    'cities',
+
     # DRF
     'rest_framework',
     'rest_framework.authtoken',
@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'dj_rest_auth.registration',
 
     # Apps
+    'cities',
     'users',
     'attractions',
     'ratings',

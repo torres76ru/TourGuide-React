@@ -1,5 +1,10 @@
 import os
 import requests
+import time
+from io import BytesIO
+from PIL import Image
+from requests.exceptions import RequestException
+from django.core.cache import cache
 from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,37 +13,64 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
 from .models import Attraction, AttractionPhoto
+from cities.models import City
 from .serializers import AttractionListSerializer, AttractionDetailSerializer, AttractionPhotoSerializer
 from django.conf import settings
+from django.db.models import Q
+
 
 class MapAttractionsView(APIView):
-    def get_city_from_coordinates(self, lat, lng):
+    def get_address_from_coordinates(self, lat, lng):
         try:
             nominatim_url = "https://nominatim.openstreetmap.org/reverse"
             params = {
                 "lat": lat,
                 "lon": lng,
                 "format": "json",
+                "addressdetails": 1,
             }
             headers = {"User-Agent": "TravelAPI/1.0"}
-            response = requests.get(nominatim_url, params=params, headers=headers)
-            if response.status_code == 200:
-                data = response.json()
-                address = data.get("address", {})
-                city = address.get("city") or address.get("town") or address.get("village") or "Unknown"
-                return city
-            else:
-                print(f"Nominatim API error: {response.status_code}, {response.text}")
-                return "Unknown"
+            response = requests.get(nominatim_url, params=params, headers=headers, timeout=5)
+            response.raise_for_status()
+            data = response.json()
+            address = data.get("display_name", "Unknown")
+            city_name = (data.get("address", {}).get("city") or
+                         data.get("address", {}).get("town") or
+                         data.get("address", {}).get("village") or "Unknown")
+            return {"address": address, "city_name": city_name}
         except Exception as e:
-            print(f"Error fetching city from Nominatim: {str(e)}")
-            return "Unknown"
+            print(f"Error fetching address from Nominatim: {str(e)}")
+            return {"address": "Unknown", "city_name": "Unknown"}
+
+    def get_wikipedia_description(self, wikipedia_page):
+        cache_key = f"wikipedia_description_{wikipedia_page}"
+        cached_description = cache.get(cache_key)
+        if cached_description:
+            return cached_description
+
+        try:
+            wp_url = f"https://ru.wikipedia.org/w/api.php?action=query&titles={wikipedia_page}&prop=extracts&exintro&explaintext&format=json"
+            headers = {"User-Agent": "TravelAPI/1.0"}
+            response = requests.get(wp_url, headers=headers, timeout=5)
+            response.raise_for_status()
+            data = response.json()
+            pages = data.get('query', {}).get('pages', {})
+            for page in pages.values():
+                description = page.get('extract', '')
+                if description:
+                    cache.set(cache_key, description, timeout=3600 * 24)
+                    return description[:500]
+            return None
+        except Exception as e:
+            print(f"Error fetching Wikipedia description for {wikipedia_page}: {str(e)}")
+            return None
 
     def get(self, request):
         lat = request.query_params.get('lat')
         lng = request.query_params.get('lng')
-        radius = request.query_params.get('radius', 0.01)  # Радиус по умолчанию ~1 км
+        radius = request.query_params.get('radius', 0.01)
         tags = request.query_params.get('tags', 'all').split(',')
+        name_filter = request.query_params.get('name')
 
         if not lat or not lng:
             return Response({"error": "Latitude and longitude are required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -47,12 +79,16 @@ class MapAttractionsView(APIView):
             lat, lng = float(lat), float(lng)
             radius = float(radius)
 
-            # Валидация радиуса: от 0.001 до 0.01
             if radius < 0.001 or radius > 0.01:
                 return Response({"error": "Radius must be between 0.001 and 0.01"}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Получаем город по координатам
-            city = self.get_city_from_coordinates(lat, lng)
+            cache_key = f"attractions_{lat}_{lng}_{radius}_{','.join(tags)}_{name_filter or ''}"
+            cached_data = cache.get(cache_key)
+            if cached_data:
+                return Response(cached_data, status=status.HTTP_200_OK)
+
+            address_data = self.get_address_from_coordinates(lat, lng)
+            city_name = address_data["city_name"]
 
             lat_min = lat - radius
             lat_max = lat + radius
@@ -60,7 +96,7 @@ class MapAttractionsView(APIView):
             lng_max = lng + radius
 
             overpass_url = "https://overpass-api.de/api/interpreter"
-            overpass_query = "[out:json];(\n"
+            overpass_query = "[out:json][timeout:25];(\n"
 
             if 'all' in tags or not any(tag.strip() for tag in tags):
                 print("Using all tags by default")
@@ -69,13 +105,15 @@ class MapAttractionsView(APIView):
                     'tourism': ['museum', 'attraction'],
                     'leisure': ['park', 'garden'],
                     'amenity': ['place_of_worship'],
+                    'shop': ['supermarket'],
                 }
             else:
                 print(f"Using filtered tags: {tags}")
                 tag_groups = {}
                 tag_mapping = {
                     'park': 'leisure', 'museum': 'tourism', 'garden': 'leisure', 'attraction': 'tourism',
-                    'place_of_worship': 'amenity', 'christian': 'religion', 'muslim': 'religion'
+                    'place_of_worship': 'amenity', 'christian': 'religion', 'muslim': 'religion',
+                    'supermarket': 'shop'
                 }
                 for tag in tags:
                     tag = tag.strip()
@@ -96,112 +134,185 @@ class MapAttractionsView(APIView):
                         religion_values = tag_groups.get('religion', [])
                         if religion_values:
                             tag_filter = f'["amenity"="place_of_worship" "religion"~"{("|").join(religion_values)}"]'
+                    if name_filter:
+                        tag_filter += f'["name"~"{name_filter}",i]'
                     overpass_query += f"  node{tag_filter}({lat_min}, {lng_min}, {lat_max}, {lng_max});\n"
                     overpass_query += f"  way{tag_filter}({lat_min}, {lng_min}, {lat_max}, {lng_max});\n"
                     overpass_query += f"  relation{tag_filter}({lat_min}, {lng_min}, {lat_max}, {lng_max});\n"
 
-            overpass_query += "); out body; >; out skel qt;"
+            overpass_query += "); out 100; >; out skel qt;"
             print(f"Overpass Query: {overpass_query}")
 
-            osm_response = requests.post(overpass_url, data={"data": overpass_query},
-                                        headers={"User-Agent": "TravelAPI/1.0"})
-            print(f"Overpass API Response Status: {osm_response.status_code}")
-            print(f"Response Text: {osm_response.text}")
+            max_retries = 3
+            osm_response = None
+            for attempt in range(max_retries):
+                try:
+                    osm_response = requests.post(
+                        overpass_url,
+                        data={"data": overpass_query},
+                        headers={"User-Agent": "TravelAPI/1.0"},
+                        timeout=30
+                    )
+                    print(f"Overpass API Response Status: {osm_response.status_code}")
+                    print(f"Response Text: {osm_response.text}")
 
-            if osm_response.status_code == 200:
-                osm_data = osm_response.json()
-                attractions = []
-
-                for element in osm_data.get('elements', []):
-                    if 'lat' in element and 'lon' in element:
-                        name = element.get('tags', {}).get('name', 'Unknown_Place')
-                        if name == 'Unknown_Place':
+                    if osm_response.status_code == 200:
+                        break
+                    elif osm_response.status_code == 504:
+                        if attempt < max_retries - 1:
+                            time.sleep(2 ** attempt)
                             continue
-                        lat = element['lat']
-                        lng = element['lon']
-                        tags = element.get('tags', {})
-                        relevant_tags = {k: v for k, v in tags.items() if
-                                        k in ['tourism', 'historic', 'leisure', 'natural', 'piste:type', 'aerialway',
-                                              'shop', 'amenity', 'building', 'religion', 'place', 'highway', 'wikipedia', 'wikidata']}
-                        city = self.get_city_from_coordinates(lat, lng)
-                        attraction, created = Attraction.objects.get_or_create(
-                            name=name,
-                            latitude=lat,
-                            longitude=lng,
-                            defaults={
-                                'tags': relevant_tags if relevant_tags else None,
-                                'city': city
-                            }
-                        )
-                        if created:
-                            attraction.need_photo = True
-                            attraction.save()
-                        elif not created and (attraction.tags != relevant_tags or not attraction.city):
-                            attraction.tags = relevant_tags
-                            attraction.city = city
-                            attraction.save()
-                        if not attraction.main_photo:
-                            attraction.need_photo = True
-                            attraction.save()
-                        attractions.append(attraction)
-                    elif 'center' in element:
-                        name = element.get('tags', {}).get('name', 'Unknown_Place')
-                        if name == 'Unknown_Place':
-                            continue
-                        center = element['center']
-                        lat = center['lat']
-                        lng = center['lon']
-                        tags = element.get('tags', {})
-                        relevant_tags = {k: v for k, v in tags.items() if
-                                        k in ['tourism', 'historic', 'leisure', 'natural', 'piste:type', 'aerialway',
-                                              'shop', 'amenity', 'building', 'religion', 'place', 'highway', 'wikipedia', 'wikidata']}
-                        city = self.get_city_from_coordinates(lat, lng)
-                        attraction, created = Attraction.objects.get_or_create(
-                            name=name,
-                            latitude=lat,
-                            longitude=lng,
-                            defaults={
-                                'tags': relevant_tags if relevant_tags else None,
-                                'city': city
-                            }
-                        )
-                        if created:
-                            attraction.need_photo = True
-                            attraction.save()
-                        elif not created and (attraction.tags != relevant_tags or not attraction.city):
-                            attraction.tags = relevant_tags
-                            attraction.city = city
-                            attraction.save()
-                        if not attraction.main_photo:
-                            attraction.need_photo = True
-                            attraction.save()
-                        attractions.append(attraction)
-
-                if attractions:
-                    attractions = Attraction.objects.filter(
-                        id__in=[a.id for a in attractions]
-                    ).prefetch_related('ratings')
-                    serializer = AttractionListSerializer(attractions, many=True)
+                        return Response({
+                            "city": city_name,
+                            "error": "Overpass API timed out after multiple attempts"
+                        }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+                    else:
+                        return Response({
+                            "city": city_name,
+                            "error": f"Overpass API error: {osm_response.status_code}, {osm_response.text}"
+                        }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+                except RequestException as e:
+                    if attempt < max_retries - 1:
+                        time.sleep(2 ** attempt)
+                        continue
                     return Response({
-                        "city": city,
-                        "attractions": serializer.data
-                    }, status=status.HTTP_200_OK)
+                        "city": city_name,
+                        "error": f"Failed to connect to Overpass API: {str(e)}"
+                    }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-                return Response({
-                    "city": city,
-                    "attractions": [],
-                    "error": "No attractions found in the area"
-                }, status=status.HTTP_404_NOT_FOUND)
+            osm_data = osm_response.json()
+            attractions = []
+
+            for element in osm_data.get('elements', []):
+                if 'lat' in element and 'lon' in element:
+                    name = element.get('tags', {}).get('name', 'Unknown_Place')
+                    if name == 'Unknown_Place':
+                        continue
+                    lat = element['lat']
+                    lng = element['lon']
+                    tags = element.get('tags', {})
+                    relevant_tags = {k: v for k, v in tags.items() if
+                                     k in ['tourism', 'historic', 'leisure', 'natural', 'piste:type', 'aerialway',
+                                           'shop', 'amenity', 'building', 'religion', 'place', 'highway',
+                                           'wikipedia', 'wikidata', 'description']}
+                    address_data = self.get_address_from_coordinates(lat, lng)
+                    city_name = address_data["city_name"]
+                    address = address_data["address"]
+                    description = tags.get('description')
+                    if not description and 'wikipedia' in tags:
+                        wp_page = tags['wikipedia'].split(':', 1)[-1]
+                        description = self.get_wikipedia_description(wp_page)
+
+                    if city_name and city_name != "Unknown":
+                        city, _ = City.objects.get_or_create(name=city_name)
+                    else:
+                        city = None
+
+                    attraction, created = Attraction.objects.get_or_create(
+                        name=name,
+                        latitude=lat,
+                        longitude=lng,
+                        defaults={
+                            'tags': relevant_tags if relevant_tags else None,
+                            'city': city,
+                            'address': address,
+                            'description': description
+                        }
+                    )
+                    if created:
+                        attraction.need_photo = True
+                        attraction.save()
+                    elif not created and (
+                            attraction.tags != relevant_tags or
+                            attraction.city != city or
+                            attraction.address != address or
+                            attraction.description != description):
+                        attraction.tags = relevant_tags
+                        attraction.city = city
+                        attraction.address = address
+                        attraction.description = description
+                        attraction.save()
+                    if not attraction.main_photo:
+                        attraction.need_photo = True
+                        attraction.save()
+                    attractions.append(attraction)
+                elif 'center' in element:
+                    name = element.get('tags', {}).get('name', 'Unknown_Place')
+                    if name == 'Unknown_Place':
+                        continue
+                    center = element['center']
+                    lat = center['lat']
+                    lng = center['lon']
+                    tags = element.get('tags', {})
+                    relevant_tags = {k: v for k, v in tags.items() if
+                                     k in ['tourism', 'historic', 'leisure', 'natural', 'piste:type', 'aerialway',
+                                           'shop', 'amenity', 'building', 'religion', 'place', 'highway',
+                                           'wikipedia', 'wikidata', 'description']}
+                    address_data = self.get_address_from_coordinates(lat, lng)
+                    city_name = address_data["city_name"]
+                    address = address_data["address"]
+                    description = tags.get('description')
+                    if not description and 'wikipedia' in tags:
+                        wp_page = tags['wikipedia'].split(':', 1)[-1]
+                        description = self.get_wikipedia_description(wp_page)
+
+                    if city_name and city_name != "Unknown":
+                        city, _ = City.objects.get_or_create(name=city_name)
+                    else:
+                        city = None
+
+                    attraction, created = Attraction.objects.get_or_create(
+                        name=name,
+                        latitude=lat,
+                        longitude=lng,
+                        defaults={
+                            'tags': relevant_tags if relevant_tags else None,
+                            'city': city,
+                            'address': address,
+                            'description': description
+                        }
+                    )
+                    if created:
+                        attraction.need_photo = True
+                        attraction.save()
+                    elif not created and (
+                            attraction.tags != relevant_tags or
+                            attraction.city != city or
+                            attraction.address != address or
+                            attraction.description != description):
+                        attraction.tags = relevant_tags
+                        attraction.city = city
+                        attraction.address = address
+                        attraction.description = description
+                        attraction.save()
+                    if not attraction.main_photo:
+                        attraction.need_photo = True
+                        attraction.save()
+                    attractions.append(attraction)
+
+            if attractions:
+                attractions = Attraction.objects.filter(
+                    id__in=[a.id for a in attractions]
+                ).prefetch_related('ratings')
+                serializer = AttractionListSerializer(attractions, many=True)
+                response_data = {
+                    "city": city_name,
+                    "attractions": serializer.data
+                }
+                cache.set(cache_key, response_data, timeout=3600)
+                return Response(response_data, status=status.HTTP_200_OK)
 
             return Response({
-                "city": city,
-                "error": f"Could not fetch data from Overpass API. Status: {osm_response.status_code}, Text: {osm_response.text}"
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                "city": city_name,
+                "attractions": [],
+                "error": "No attractions found in the area"
+            }, status=status.HTTP_404_NOT_FOUND)
 
         except ValueError:
             return Response({"error": "Invalid latitude, longitude, or radius"}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class AdminListPendingPhotosView(APIView):
     permission_classes = [IsAdminUser]
@@ -214,8 +325,38 @@ class AdminListPendingPhotosView(APIView):
         serializer = AttractionListSerializer(pending_attractions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class AdminFetchPhotosView(APIView):
     permission_classes = [IsAdminUser]
+
+    def compress_image(self, image_content, target_size_kb=100):
+        """Compresses an image to approximately target_size_kb KB."""
+        img = Image.open(BytesIO(image_content))
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
+
+        quality = 85
+        max_size = max(img.size)
+        output = BytesIO()
+
+        while True:
+            output.seek(0)
+            output.truncate(0)
+            img.save(output, format='JPEG', quality=quality, optimize=True)
+            size_kb = output.getvalue().__len__() / 1024
+
+            if size_kb <= target_size_kb or quality <= 10:
+                break
+
+            if max_size > 1000:
+                scale = 0.8
+                new_size = (int(img.size[0] * scale), int(img.size[1] * scale))
+                img = img.resize(new_size, Image.Resampling.LANCZOS)
+                max_size = max(new_size)
+            else:
+                quality -= 10
+
+        return output.getvalue()
 
     def put(self, request):
         pending_attractions = Attraction.objects.filter(
@@ -238,10 +379,11 @@ class AdminFetchPhotosView(APIView):
                     try:
                         response = requests.get(image_url, headers={"User-Agent": "TravelAPI/1.0"})
                         if response.status_code == 200:
-                            file_name = f"mainphoto/{attraction.id}.{image_url.split('.')[-1]}"
+                            compressed_image = self.compress_image(response.content)
+                            file_name = f"mainphoto/{attraction.id}.jpg"
                             attraction.main_photo.save(
                                 file_name,
-                                ContentFile(response.content),
+                                ContentFile(compressed_image),
                                 save=True
                             )
                             attraction.need_photo = False
@@ -264,7 +406,10 @@ class AdminFetchPhotosView(APIView):
 
         image_path = os.path.join(settings.MEDIA_ROOT, f"mainphoto/{attraction_id}.jpg")
         if os.path.exists(image_path):
-            return f"{settings.MEDIA_URL}mainphoto/{attraction_id}.jpg"
+            if os.path.getsize(image_path) / 1024 <= 100:
+                return f"{settings.MEDIA_URL}mainphoto/{attraction_id}.jpg"
+            else:
+                os.remove(image_path)
 
         headers = {"User-Agent": "TravelAPI/1.0"}
         image_url = None
@@ -325,14 +470,16 @@ class AdminFetchPhotosView(APIView):
                 image_response = requests.get(image_url, headers=headers)
                 if image_response.status_code == 200:
                     os.makedirs(os.path.join(settings.MEDIA_ROOT, 'mainphoto'), exist_ok=True)
+                    compressed_image = self.compress_image(image_response.content)
                     with open(image_path, 'wb') as f:
-                        f.write(image_response.content)
+                        f.write(compressed_image)
                     return f"{settings.MEDIA_URL}mainphoto/{attraction_id}.jpg"
             except Exception as e:
                 print(f"Error saving image for {place_name}: {e}")
                 return None
 
         return None
+
 
 class AttractionListView(generics.ListAPIView):
     queryset = Attraction.objects.all()
@@ -351,7 +498,18 @@ class AttractionCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
-        serializer.save(need_photo=True)
+        instance = serializer.save(need_photo=True)
+        if not instance.address or not instance.city:
+            view = MapAttractionsView()
+            address_data = view.get_address_from_coordinates(instance.latitude, instance.longitude)
+            city_name = address_data["city_name"]
+            if city_name and city_name != "Unknown":
+                city, _ = City.objects.get_or_create(name=city_name)
+            else:
+                city = None
+            instance.address = address_data["address"]
+            instance.city = city
+            instance.save()
 
 
 class PhotoUploadView(generics.CreateAPIView):
@@ -369,3 +527,123 @@ class PhotoUploadView(generics.CreateAPIView):
         serializer.save(attraction=attraction, user=request.user)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class AttractionSearchView(APIView):
+    def get(self, request, name):
+        try:
+            attraction = Attraction.objects.filter(name__icontains=name).first()
+            if attraction:
+                serializer = AttractionListSerializer(attraction)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({"error": "Attraction not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class CityListView(APIView):
+    def get(self, request):
+        cities = City.objects.filter(attractions__isnull=False).distinct()
+        return Response([city.name for city in cities if city.name], status=status.HTTP_200_OK)
+
+
+class CityDetailView(APIView):
+    def get(self, request, name):
+        try:
+            city = City.objects.get(name=name)
+        except City.DoesNotExist:
+            return Response({"error": "City not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        attractions = Attraction.objects.filter(city=city)
+        serializer = AttractionListSerializer(attractions, many=True)
+        return Response({"city": name, "attractions": serializer.data}, status=status.HTTP_200_OK)
+
+class AttractionDetailCitiesView(APIView):
+    def get_address_from_coordinates(self, lat, lng):
+        try:
+            nominatim_url = "https://nominatim.openstreetmap.org/reverse"
+            params = {
+                "lat": lat,
+                "lon": lng,
+                "format": "json",
+                "addressdetails": 1,
+            }
+            headers = {"User-Agent": "TravelAPI/1.0"}
+            response = requests.get(nominatim_url, params=params, headers=headers, timeout=5)
+            response.raise_for_status()
+            data = response.json()
+            address = data.get("display_name", "Unknown")
+            city_name = (
+                data.get("address", {}).get("city")
+                or data.get("address", {}).get("town")
+                or data.get("address", {}).get("village")
+                or "Unknown"
+            )
+            return {"address": address, "city_name": city_name}
+        except Exception as e:
+            print(f"Error fetching address from Nominatim: {str(e)}")
+            return {"address": "Unknown", "city_name": "Unknown"}
+
+    def get(self, request):
+        lat = request.query_params.get('lat')
+        lng = request.query_params.get('lng')
+        tags = request.query_params.get('tags', '').split(',')
+
+        if not lat or not lng:
+            return Response({"error": "Latitude and longitude are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            lat, lng = float(lat), float(lng)
+
+            cache_key = f"city_attractions_{lat}_{lng}_{','.join(tags)}"
+            cached_data = cache.get(cache_key)
+            if cached_data:
+                return Response(cached_data, status=status.HTTP_200_OK)
+
+            address_data = self.get_address_from_coordinates(lat, lng)
+            city_name = address_data["city_name"]
+
+            if city_name == "Unknown":
+                return Response({"error": "City not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            try:
+                city = City.objects.get(name=city_name)
+            except City.DoesNotExist:
+                return Response({"error": "City not found in database"}, status=status.HTTP_404_NOT_FOUND)
+
+            attractions = Attraction.objects.filter(city=city)
+
+            if tags and tags != ['']:
+                tag_queries = Q()
+                for tag in tags:
+                    tag = tag.strip()
+                    if tag:
+                        # Map tags to their JSON keys (based on your tag_mapping in MapAttractionsView)
+                        tag_mapping = {
+                            'park': 'leisure',
+                            'museum': 'tourism',
+                            'garden': 'leisure',
+                            'attraction': 'tourism',
+                            'place_of_worship': 'amenity',
+                            'christian': 'religion',
+                            'muslim': 'religion',
+                            'supermarket': 'shop'
+                        }
+                        tag_key = tag_mapping.get(tag, tag)
+                        tag_queries |= Q(tags__has_key=tag_key)
+                attractions = attractions.filter(tag_queries)
+
+            serializer = AttractionListSerializer(attractions, many=True)
+            response_data = {
+                "city": city_name,
+                "attractions": serializer.data
+            }
+
+            cache.set(cache_key, response_data, timeout=3600)
+
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except ValueError:
+            return Response({"error": "Invalid latitude or longitude"}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
