@@ -7,7 +7,7 @@ class Rating(models.Model):
     attraction = models.ForeignKey(
         Attraction, 
         on_delete=models.CASCADE,
-        related_name='ratings'
+        related_name='ratings' 
     )
     user = models.ForeignKey(
         User,

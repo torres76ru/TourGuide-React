@@ -40,7 +40,7 @@ class AttractionListSerializer(serializers.ModelSerializer):
 class AttractionDetailSerializer(serializers.ModelSerializer):
     main_photo_url = serializers.SerializerMethodField()
     additional_photos = AttractionPhotoSerializer(many=True, read_only=True)
-    attractions_ratings = RatingSerializer(many=True, read_only=True)
+    ratings = RatingSerializer(many=True, read_only=True)  # Changed from attractions_ratings to ratings
     rating_count = serializers.IntegerField(read_only=True)
     city = serializers.CharField(source='city.name', allow_null=True)
 
@@ -49,7 +49,7 @@ class AttractionDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'latitude', 'longitude', 'city', 'address',
             'description', 'tags', 'created_at', 'average_rating',
-            'rating_count', 'main_photo_url', 'additional_photos', 'attractions_ratings'
+            'rating_count', 'main_photo_url', 'additional_photos', 'ratings'
         ]
 
     def get_main_photo_url(self, obj):
@@ -61,7 +61,7 @@ class AttractionDetailSerializer(serializers.ModelSerializer):
         latitude = data.get('latitude')
         longitude = data.get('longitude')
         if latitude is not None and (latitude < -90 or latitude > 90):
-            raise serializers.ValidationError("Latitude must be между -90 и 90.")
+            raise serializers.ValidationError("Latitude must be between -90 and 90.")
         if longitude is not None and (longitude < -180 or longitude > 180):
-            raise serializers.ValidationError("Longitude must be между -180 и 180.")
+            raise serializers.ValidationError("Longitude must be between -180 and 180.")
         return data
