@@ -6,7 +6,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+
+CORS_ALLOWED_ORIGINS = [
+		"http://localhost:5173",
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -40,6 +44,8 @@ INSTALLED_APPS = [
     'attractions',
     'ratings',
     'tours',
+
+		'corsheaders',
 ]
 
 SITE_ID = 2
@@ -64,6 +70,8 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+
+		'corsheaders.middleware.CorsMiddleware',
 
     'allauth.account.middleware.AccountMiddleware',
 
@@ -130,3 +138,5 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"  # обычная регистраци�
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_ADAPTER = "users.adapters.CustomAccountAdapter"
 SOCIALACCOUNT_ADAPTER = "users.adapters.CustomSocialAccountAdapter"
+
+

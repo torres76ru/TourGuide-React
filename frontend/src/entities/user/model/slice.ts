@@ -1,7 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
-import type { RegisterPayload, RegisterResponse } from "../api/userApi";
+import type {
+  LoginPayload,
+  RegisterPayload,
+  RegisterResponse,
+} from "../api/userApi";
 
 interface UserState {
   user: RegisterResponse["user"] | null;
@@ -23,6 +27,7 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registerRequest(state, action: PayloadAction<RegisterPayload>) {
       state.loading = true;
       state.error = null;
@@ -37,7 +42,24 @@ const userSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    logout(state) {
+    // ---- LOGIN ----
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    loginRequest(state, action: PayloadAction<LoginPayload>) {
+      state.loading = true;
+      state.error = null;
+    },
+    loginSuccess(state, action: PayloadAction<RegisterResponse>) {
+      state.loading = false;
+      state.user = action.payload.user;
+      state.accessToken = action.payload.access;
+      state.refreshToken = action.payload.refresh;
+    },
+    loginFailure(state, action: PayloadAction<string>) {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
+    logoutRequest(state) {
       state.user = null;
       state.accessToken = null;
       state.refreshToken = null;
@@ -45,6 +67,13 @@ const userSlice = createSlice({
   },
 });
 
-export const { registerRequest, registerSuccess, registerFailure, logout } =
-  userSlice.actions;
+export const {
+  registerRequest,
+  registerSuccess,
+  registerFailure,
+  loginRequest,
+  loginSuccess,
+  loginFailure,
+  logoutRequest,
+} = userSlice.actions;
 export default userSlice.reducer;

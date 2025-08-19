@@ -8,15 +8,25 @@ import Modal from "widgets/Modal/ui";
 import { useState } from "react";
 import Button from "shared/ui/Button";
 import { useNavigate } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "app/store/mainStore";
+import { logoutRequest } from "entities/user/model/slice";
 
 const Header = () => {
   const [isModalOpen, setModalOpen] = useState(false);
 
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+
+  const { user } = useSelector((state: RootState) => state.user);
 
   const handleRedirect = (href: string) => {
     setModalOpen(false);
     navigate(href);
+  };
+
+  const logout = () => {
+    dispatch(logoutRequest());
   };
 
   return (
@@ -37,20 +47,27 @@ const Header = () => {
 
       <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)}>
         <div className={styles.modalContent}>
-          <Button
-            variant="black"
-            style={{ width: "100%" }}
-            onClick={() => handleRedirect("/auth")}
-          >
-            Войти
-          </Button>
-          <Button
-            variant="black"
-            style={{ width: "100%" }}
-            onClick={() => handleRedirect("/sight")}
-          >
-            Достопримечательность
-          </Button>
+          {!user ? (
+            <Button
+              variant="black"
+              style={{ width: "100%" }}
+              onClick={() => handleRedirect("/auth")}
+            >
+              Войти
+            </Button>
+          ) : (
+            <>
+              <div>{user.username}</div>
+              <Button
+                variant="black"
+                style={{ width: "100%" }}
+                onClick={() => logout()}
+              >
+                Выйти из профиля
+              </Button>
+            </>
+          )}
+
           <ul>
             <li>Поблизости</li>
             <li>Поиск мест</li>

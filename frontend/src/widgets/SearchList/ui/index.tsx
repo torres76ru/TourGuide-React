@@ -2,12 +2,12 @@ import { SightTiny } from "entities/sight-tiny";
 
 const sightList = [
   {
-    img_url: "https://example.com/image1.jpg",
+    img_url: "",
     title: "Театр Волкова",
     town: "Ярославль",
   },
   {
-    img_url: "https://example.com/image2.jpg",
+    img_url: "",
     title: "Sight 2",
     town: "Town 2",
   },
