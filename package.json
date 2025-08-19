@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "typed-redux-saga": "^1.5.0"
+  }
+}

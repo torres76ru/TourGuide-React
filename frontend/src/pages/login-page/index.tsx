@@ -2,22 +2,22 @@ import { useEffect, useState } from "react";
 import Button from "shared/ui/Button";
 import RegistrationChoice from "widgets/RegistrationChoice/ui/RegistrationChoice";
 import EntryForm from "widgets/EntryForm/ui/EntryForm";
-import RegistrationForm from "widgets/RegistrationForm/ui/RegistrationForm";
+import RegistrationForm from "features/RegistrationForm/ui/RegistrationForm";
 import styles from "./LoginPage.module.scss";
 import clsx from "clsx";
 import arrow from "shared/assets/icons/Arrow.svg";
 import { useNavigate } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
-import type { RootState, AppDispatch } from "app/store/mainStore";
+import type { AppDispatch } from "app/store/mainStore";
 import { registerRequest } from "entities/user/model/slice";
 const LoginPage = () => {
   const navigate = useNavigate();
 
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, user } = useSelector(
-    (state: RootState) => state.user
-  );
+  // const { loading, error, user } = useSelector(
+  //   (state: RootState) => state.user
+  // );
 
   const handleRedirect = (url: string) => {
     navigate(url);
@@ -28,8 +28,6 @@ const LoginPage = () => {
     null | "entry" | "choice" | "registration"
   >(null);
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
     login: "",
     email: "",
     password: "",
@@ -38,8 +36,6 @@ const LoginPage = () => {
   });
 
   const [errors, setErrors] = useState({
-    firstName: "",
-    lastName: "",
     login: "",
     email: "",
     password: "",
@@ -63,24 +59,23 @@ const LoginPage = () => {
     else if (activeBlock === "entry" || activeBlock === "choice")
       setActiveBlock(null);
     else if (activeBlock === "registration") setActiveBlock("choice");
+
     setFormData({
-      firstName: "",
-      lastName: "",
       login: "",
       email: "",
       password: "",
       repeatPassword: "",
       checkbox: false,
     });
+
     setErrors({
-      firstName: "",
-      lastName: "",
       login: "",
       email: "",
       password: "",
       repeatPassword: "",
       checkbox: "",
     });
+
     setIsBack(true);
   }
 
@@ -108,18 +103,6 @@ const LoginPage = () => {
     const newErrors = { ...errors };
 
     if (activeBlock === "registration") {
-      // Валидация имени
-      if (!formData.firstName.trim()) {
-        newErrors.firstName = "Имя обязательно";
-        valid = false;
-      }
-
-      // Валидация фамилии
-      if (!formData.lastName.trim()) {
-        newErrors.lastName = "Фамилия обязательна";
-        valid = false;
-      }
-
       // Валидация пароля
       if (formData.repeatPassword.length < 6) {
         newErrors.repeatPassword = "Пароль должен быть не менее 6 символов";
@@ -161,109 +144,93 @@ const LoginPage = () => {
           email: formData.email,
           password: formData.password,
           password2: formData.repeatPassword,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
         })
       );
-      // Отправка данных...
     }
   };
 
   return (
-    <div>
-      {/* <button
-        className={clsx(styles.btn, CheckIsVisible(styles.btn_click) && styles.btn_click)}
-        onClick={() => setIsVisible(true)}
+    <div className={styles.registration}>
+      <button
+        className={clsx(
+          styles.btn_back,
+          CheckIsVisible(styles.btn_back_visible) && styles.btn_back_visible
+        )}
+        onClick={GoBack}
       >
-        Войти
-      </button> */}
-      <div className={styles.registration}>
-        <button
-          className={clsx(
-            styles.btn_back,
-            CheckIsVisible(styles.btn_back_visible) && styles.btn_back_visible
-          )}
-          onClick={GoBack}
-        >
-          <img src={arrow} />
-        </button>
+        <img src={arrow} />
+      </button>
+      <div
+        className={clsx(
+          styles.img,
+          CheckIsVisible(styles.img_visible) && styles.img_visible
+        )}
+      >
         <div
           className={clsx(
-            styles.img,
-            CheckIsVisible(styles.img_visible) && styles.img_visible
+            styles.blackout,
+            CheckIsVisible(styles.blackout_visible) && styles.blackout_visible
           )}
-        >
-          <div
-            className={clsx(
-              styles.blackout,
-              CheckIsVisible(styles.blackout_visible) && styles.blackout_visible
-            )}
-          ></div>
-        </div>
+        ></div>
+      </div>
+      <div
+        className={clsx(
+          styles.area,
+          styles.container,
+          CheckIsVisible(styles.area_visible) && styles.area_visible
+        )}
+      >
+        <h3 className={styles.title}>TourGuide</h3>
+        <p className={styles.slogan}>Отправляйся в путешествие с нами</p>
         <div
           className={clsx(
-            styles.area,
-            styles.container,
-            CheckIsVisible(styles.area_visible) && styles.area_visible
+            styles.registration_buttons,
+            activeBlock === null && styles.active_block
           )}
         >
-          <h3 className={styles.title}>TourGuide</h3>
-          <p className={styles.slogan}>Отправляйся в путешествие с нами</p>
-          <div
-            className={clsx(
-              styles.registration_buttons,
-              activeBlock === null && styles.active_block
-            )}
-          >
-            <Button
-              variant="black"
-              style={{ width: "100%" }}
-              onClick={() => {
-                setActiveBlock("entry");
-                setIsBack(false);
-              }}
-            >
-              Войти
-            </Button>
-            <Button
-              variant="black"
-              style={{ width: "100%" }}
-              onClick={() => {
-                setActiveBlock("choice");
-                setIsBack(false);
-              }}
-            >
-              Регистрация
-            </Button>
-          </div>
-          <EntryForm
-            className={clsx(activeBlock === "entry" && styles.active_block)}
-            formData={formData}
-            onChange={handleChange}
-            errors={errors}
-            onClick={handleSubmit}
-            back={isBack}
-          />
-          <RegistrationChoice
-            className={clsx(activeBlock === "choice" && styles.active_block)}
+          <Button
+            variant="black"
+            style={{ width: "100%" }}
             onClick={() => {
-              setActiveBlock("registration");
+              setActiveBlock("entry");
               setIsBack(false);
             }}
-          />
-          <RegistrationForm
-            className={clsx(
-              activeBlock === "registration" && styles.active_block
-            )}
-            formData={formData}
-            onChange={handleChange}
-            errors={errors}
-            onClick={handleSubmit}
-            back={isBack}
-          />
+          >
+            Войти
+          </Button>
+          <Button
+            variant="black"
+            style={{ width: "100%" }}
+            onClick={() => {
+              setActiveBlock("choice");
+              setIsBack(false);
+            }}
+          >
+            Регистрация
+          </Button>
         </div>
+        <EntryForm
+          className={clsx(activeBlock === "entry" && styles.active_block)}
+          formData={formData}
+          onChange={handleChange}
+          errors={errors}
+          onClick={handleSubmit}
+          back={isBack}
+        />
+        <RegistrationChoice
+          className={clsx(activeBlock === "choice" && styles.active_block)}
+          onClick={() => {
+            setActiveBlock("registration");
+            setIsBack(false);
+          }}
+        />
+        <RegistrationForm
+          className={clsx(
+            activeBlock === "registration" && styles.active_block
+          )}
+          back={isBack}
+        />
       </div>
-      {/* <button onClick={handleRedirect}>Go to Main</button> */}
     </div>
   );
 };
