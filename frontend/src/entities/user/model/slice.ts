@@ -28,7 +28,7 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    registerRequest(state, action: PayloadAction<RegisterPayload>) {
+    registerRequest(state, _action: PayloadAction<RegisterPayload>) {
       state.loading = true;
       state.error = null;
     },
@@ -44,7 +44,7 @@ const userSlice = createSlice({
     },
     // ---- LOGIN ----
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    loginRequest(state, action: PayloadAction<LoginPayload>) {
+    loginRequest(state, _action: PayloadAction<LoginPayload>) {
       state.loading = true;
       state.error = null;
     },
