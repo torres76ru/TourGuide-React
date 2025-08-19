@@ -14,7 +14,7 @@ export default function RegistrationForm({
   className,
   back,
 }: RegistrationFormProps) {
-  const { formData, errors, handleChange, handleSubmit } =
+  const { formData, errors, handleChange, handleSubmit, loading, error } =
     useRegistrationForm();
 
   return (
@@ -76,9 +76,16 @@ export default function RegistrationForm({
           Я прочитал и согласен с политикой данного сервиса.
         </label>
       </div>
-      <Button variant="black" style={{ width: "278px" }} type="submit">
-        Зарегистрироваться
+      <Button
+        variant="black"
+        style={{ width: "278px" }}
+        type="submit"
+        disabled={loading}
+      >
+        {loading ? "Загрузка..." : "Зарегистрироваться"}
       </Button>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
     </form>
   );
 }

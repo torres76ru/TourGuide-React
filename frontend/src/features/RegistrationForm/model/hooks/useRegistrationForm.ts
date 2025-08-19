@@ -1,11 +1,22 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { registerRequest } from "entities/user/model/slice";
-import type { AppDispatch } from "app/store/mainStore";
+import type { AppDispatch, RootState } from "app/store/mainStore";
+import { useNavigate } from "react-router";
 
 export function useRegistrationForm() {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
 
+  const { loading, error, user } = useSelector(
+    (state: RootState) => state.user
+  );
+
+  useEffect(() => {
+    if (user) {
+      navigate("/"); // на главную
+    }
+  }, [user, navigate]);
   const [formData, setFormData] = useState({
     login: "",
     email: "",
@@ -29,12 +40,12 @@ export function useRegistrationForm() {
       .replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
+    const { id, value, checked, type } = e.target;
     const fieldName = normalizeId(id);
 
     setFormData((prev) => ({
       ...prev,
-      [fieldName]: fieldName === "checkbox" ? e.target.checked : value,
+      [fieldName]: type === "checkbox" ? checked : value,
     }));
     setErrors((prev) => ({ ...prev, [fieldName]: "" }));
   };
@@ -88,5 +99,7 @@ export function useRegistrationForm() {
     handleSubmit,
     setFormData,
     setErrors,
+    loading,
+    error,
   };
 }

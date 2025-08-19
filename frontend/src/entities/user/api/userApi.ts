@@ -9,6 +9,11 @@ export interface RegisterPayload {
   password2: string;
 }
 
+export interface LoginPayload {
+  username: string;
+  password: string;
+}
+
 export interface RegisterResponse {
   user: {
     username: string;
@@ -27,6 +32,13 @@ export const authApi = {
   register: async (payload: RegisterPayload): Promise<RegisterResponse> => {
     const response = await axios.post<RegisterResponse>(
       `${BASE_URL}/auth/register/`,
+      payload
+    );
+    return response.data;
+  },
+  login: async (payload: LoginPayload): Promise<RegisterResponse> => {
+    const response = await axios.post<RegisterResponse>(
+      `${BASE_URL}/auth/login/`,
       payload
     );
     return response.data;

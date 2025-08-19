@@ -2,11 +2,19 @@
 import { call, put, takeLatest } from "typed-redux-saga";
 import {
   authApi,
+  type LoginPayload,
   type RegisterPayload,
   type RegisterResponse,
 } from "../api/userApi";
 
-import { registerRequest, registerSuccess, registerFailure } from "./slice";
+import {
+  registerRequest,
+  registerSuccess,
+  registerFailure,
+  loginSuccess,
+  loginFailure,
+  loginRequest,
+} from "./slice";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
 function* registerSaga(action: PayloadAction<RegisterPayload>) {
@@ -21,11 +29,9 @@ function* registerSaga(action: PayloadAction<RegisterPayload>) {
 
     yield* put(registerSuccess(response));
   } catch (err: unknown) {
-    // 👈 вместо any
     let message = "Registration failed";
 
     if (err && typeof err === "object" && "response" in err) {
-      // axios error
       const axiosErr = err as {
         response?: { data?: { detail?: string } };
         message?: string;
@@ -39,6 +45,36 @@ function* registerSaga(action: PayloadAction<RegisterPayload>) {
   }
 }
 
+// ---- LOGIN ----
+function* loginSaga(action: PayloadAction<LoginPayload>) {
+  try {
+    const response: RegisterResponse = yield* call(
+      authApi.login,
+      action.payload
+    );
+
+    localStorage.setItem("accessToken", response.access);
+    localStorage.setItem("refreshToken", response.refresh);
+
+    yield* put(loginSuccess(response));
+  } catch (err: unknown) {
+    let message = "Login failed";
+
+    if (err && typeof err === "object" && "response" in err) {
+      const axiosErr = err as {
+        response?: { data?: { detail?: string } };
+        message?: string;
+      };
+      message = axiosErr.response?.data?.detail ?? axiosErr.message ?? message;
+    } else if (err instanceof Error) {
+      message = err.message;
+    }
+
+    yield* put(loginFailure(message));
+  }
+}
+
 export function* userSaga() {
-  yield takeLatest(registerRequest.type, registerSaga);
+  yield* takeLatest(registerRequest.type, registerSaga);
+  yield* takeLatest(loginRequest.type, loginSaga);
 }

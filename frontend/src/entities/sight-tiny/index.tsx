@@ -1,4 +1,5 @@
 import style from "./style.module.scss";
+import placeholderImg from "shared/assets/attraction_placeholder.png";
 
 interface SightTinyProps {
   img_url?: string;
@@ -10,7 +11,10 @@ export const SightTiny = ({ img_url, title, town }: SightTinyProps) => {
   return (
     <div className={style.row}>
       <div className={style.preview}>
-        <img src={img_url} alt="Достопримечательность" />
+        <img
+          src={img_url ? img_url : placeholderImg}
+          alt="Достопримечательность"
+        />
       </div>
       <div className={style.info}>
         <h2 className={style.title}>{title}</h2>
