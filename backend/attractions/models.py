@@ -11,32 +11,59 @@ def main_photo_path(instance, filename):
 def additional_photos_path(instance, filename):
     return f'{instance.attraction.id}/{uuid.uuid4()}.{filename.split(".")[-1]}'
 
-
 class Attraction(models.Model):
-    # Основные поля
     name = models.CharField(max_length=255)
+    category = models.CharField(max_length=100)
+    description = models.TextField(null=True, blank=True)
+    address = models.CharField(max_length=255, blank=True, null=True)  # Combined address
     latitude = models.FloatField()
     longitude = models.FloatField()
+
+    working_hours = models.CharField(max_length=255, blank=True, null=True)  # Время работы
+    phone_number = models.CharField(max_length=20, blank=True, null=True)  # Номер телефона
+    email = models.EmailField(blank=True, null=True)  # Эл. почта
+    website = models.URLField(blank=True, null=True)  # Сайт
+    cost = models.CharField(max_length=100, blank=True, null=True)  # Стоимость
+    average_check = models.CharField(max_length=100, blank=True, null=True)  # Средний чек
+
     city = models.ForeignKey(City, on_delete=models.SET_NULL, blank=True, null=True, related_name='attractions')
-    address = models.CharField(max_length=255, blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
+    street = models.CharField(max_length=255, blank=True, null=True)
+    house = models.CharField(max_length=10, blank=True, null=True)
+    entrance = models.CharField(max_length=10, blank=True, null=True)
+    apartment = models.CharField(max_length=10, blank=True, null=True)
+
     tags = models.JSONField(default=dict, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    admin_uploaded_image = models.ImageField(upload_to='admin_photos/', blank=True, null=True)
     main_photo = models.ImageField(upload_to=main_photo_path, blank=True, null=True)
-
-    # Поля рейтинга
     average_rating = models.FloatField(default=0.0, editable=False)
     rating_count = models.PositiveIntegerField(default=0, editable=False)
-
-    # Флаги
     need_photo = models.BooleanField(default=True)
     admin_reviewed = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
+        if self.street or self.house or self.entrance or self.apartment:
+            address_parts = [part for part in [self.street, self.house, self.entrance, self.apartment] if part]
+            self.address = f"{self.city.name}, {' '.join(address_parts)}" if self.city else ' '.join(address_parts)
         if self.main_photo:
             self.need_photo = False
         super().save(*args, **kwargs)
+
+    def update_related_data(self, new_name):
+            if not self.description:
+                view = MapAttractionsView()
+                wp_description = view.get_wikipedia_description(new_name.replace(' ', '_'))
+                if wp_description:
+                    self.description = wp_description
+
+            if not self.category:
+                if 'музей' in new_name.lower():
+                    self.category = 'Музей'
+                elif 'парк' in new_name.lower():
+                    self.category = 'Парк'
+                else:
+                    self.category = 'Достопримечательность'
+
+            self.save(update_fields=['description', 'category'])
 
 
 class AttractionPhoto(models.Model):
@@ -54,7 +81,6 @@ class AttractionPhoto(models.Model):
     )
 
     def delete(self, *args, **kwargs):
-        # Удаляем файл при удалении записи
         storage, path = self.photo.storage, self.photo.path
         super().delete(*args, **kwargs)
         storage.delete(path)

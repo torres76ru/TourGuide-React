@@ -5,7 +5,8 @@ from io import BytesIO
 from PIL import Image
 from requests.exceptions import RequestException
 from django.core.cache import cache
-from rest_framework.permissions import IsAdminUser
+from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions, generics
@@ -330,7 +331,6 @@ class AdminFetchPhotosView(APIView):
     permission_classes = [IsAdminUser]
 
     def compress_image(self, image_content, target_size_kb=100):
-        """Compresses an image to approximately target_size_kb KB."""
         img = Image.open(BytesIO(image_content))
         if img.mode != 'RGB':
             img = img.convert('RGB')
@@ -498,6 +498,18 @@ class AttractionCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
+        street = self.request.data.get('street')
+        house = self.request.data.get('house')
+        entrance = self.request.data.get('entrance')
+        apartment = self.request.data.get('apartment')
+        city_name = self.request.data.get('city')
+
+        # Combine address if components are provided
+        if street or house or entrance or apartment:
+            address_parts = [part for part in [street, house, entrance, apartment] if part]
+            address = f"{city_name}, {' '.join(address_parts)}" if city_name else ' '.join(address_parts)
+            serializer.validated_data['address'] = address
+
         instance = serializer.save(need_photo=True)
         if not instance.address or not instance.city:
             view = MapAttractionsView()
@@ -510,7 +522,6 @@ class AttractionCreateView(generics.CreateAPIView):
             instance.address = address_data["address"]
             instance.city = city
             instance.save()
-
 
 class PhotoUploadView(generics.CreateAPIView):
     queryset = AttractionPhoto.objects.all()
@@ -647,3 +658,70 @@ class AttractionDetailCitiesView(APIView):
             return Response({"error": "Invalid latitude or longitude"}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class AttractionUpdateView(RetrieveUpdateAPIView):
+    queryset = Attraction.objects.all()
+    serializer_class = AttractionDetailSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+
+    def perform_update(self, serializer):
+        instance = serializer.instance
+        validated_data = serializer.validated_data
+
+        current_data = {
+            'name': instance.name,
+            'category': instance.category,
+            'description': instance.description,
+            'working_hours': instance.working_hours,
+            'phone_number': instance.phone_number,
+            'email': instance.email,
+            'website': instance.website,
+            'cost': instance.cost,
+            'average_check': instance.average_check,
+            'address': instance.address,
+            'latitude': instance.latitude,
+            'longitude': instance.longitude,
+            'city': instance.city.name if instance.city else None,
+            'tags': instance.tags
+        }
+
+        view = MapAttractionsView()
+
+
+        if validated_data:
+
+            if 'city' in validated_data and validated_data['city'] != current_data['city']:
+                city_name = validated_data['city']
+                city, _ = City.objects.get_or_create(name=city_name)
+                instance.city = city
+
+
+            if 'latitude' in validated_data or 'longitude' in validated_data:
+                new_latitude = validated_data.get('latitude', current_data['latitude'])
+                new_longitude = validated_data.get('longitude', current_data['longitude'])
+                if new_latitude != current_data['latitude'] or new_longitude != current_data['longitude']:
+                    address_data = view.get_address_from_coordinates(new_latitude, new_longitude)
+                    city_name = address_data["city_name"]
+                    if city_name != "Unknown" and ('city' not in validated_data or not validated_data.get('city')):
+                        city, _ = City.objects.get_or_create(name=city_name)
+                        instance.city = city
+                    if 'address' not in validated_data or not validated_data.get('address'):
+                        instance.address = address_data["address"]
+
+
+            if 'name' in validated_data and validated_data['name'] != current_data['name']:
+                name = validated_data['name']
+                if 'description' not in validated_data or not validated_data.get('description'):
+                    wp_description = view.get_wikipedia_description(name.replace(' ', '_'))
+                    if wp_description:
+                        instance.description = wp_description
+
+
+
+            for field in ['working_hours', 'phone_number', 'email', 'website', 'cost', 'average_check', 'tags', 'category', 'description', 'address']:
+                if field in validated_data:
+                    setattr(instance, field, validated_data[field])
+
+
+        serializer.save()

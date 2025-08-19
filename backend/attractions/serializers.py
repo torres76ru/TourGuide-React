@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Attraction, AttractionPhoto
 from ratings.serializers import RatingSerializer
-
+from cities.models import City
 
 class AttractionSerializer(serializers.ModelSerializer):
     rating_count = serializers.IntegerField(read_only=True)
@@ -40,16 +40,16 @@ class AttractionListSerializer(serializers.ModelSerializer):
 class AttractionDetailSerializer(serializers.ModelSerializer):
     main_photo_url = serializers.SerializerMethodField()
     additional_photos = AttractionPhotoSerializer(many=True, read_only=True)
-    ratings = RatingSerializer(many=True, read_only=True)  # Changed from attractions_ratings to ratings
+    ratings = RatingSerializer(many=True, read_only=True)
     rating_count = serializers.IntegerField(read_only=True)
     city = serializers.CharField(source='city.name', allow_null=True)
 
     class Meta:
         model = Attraction
         fields = [
-            'id', 'name', 'latitude', 'longitude', 'city', 'address',
-            'description', 'tags', 'created_at', 'average_rating',
-            'rating_count', 'main_photo_url', 'additional_photos', 'ratings'
+            'id', 'name', 'category', 'description', 'working_hours', 'phone_number', 'email', 'website',
+            'cost', 'average_check', 'address', 'latitude', 'longitude', 'city', 'tags', 'created_at',
+            'average_rating', 'rating_count', 'main_photo_url', 'additional_photos', 'ratings'
         ]
 
     def get_main_photo_url(self, obj):
@@ -58,10 +58,33 @@ class AttractionDetailSerializer(serializers.ModelSerializer):
         return None
 
     def validate(self, data):
+        required_fields = ['name', 'category', 'description', 'address']
+        for field in required_fields:
+            if not data.get(field):
+                raise serializers.ValidationError(f"{field} является обязательным.")
         latitude = data.get('latitude')
         longitude = data.get('longitude')
         if latitude is not None and (latitude < -90 or latitude > 90):
-            raise serializers.ValidationError("Latitude must be between -90 and 90.")
+            raise serializers.ValidationError("Широта должна быть между -90 и 90.")
         if longitude is not None and (longitude < -180 or longitude > 180):
-            raise serializers.ValidationError("Longitude must be between -180 and 180.")
+            raise serializers.ValidationError("Долгота должна быть между -180 и 180.")
         return data
+
+    def create(self, validated_data):
+        city_name = validated_data.pop('city')
+        city, created = City.objects.get_or_create(name=city_name)
+        attraction = Attraction.objects.create(city=city, **validated_data)
+        return attraction
+
+    def update(self, instance, validated_data):
+        city_name = validated_data.pop('city')
+        city, created = City.objects.get_or_create(name=city_name)
+        instance.city = city
+        instance.name = validated_data.get('name', instance.name)
+        instance.category = validated_data.get('category', instance.category)
+        instance.description = validated_data.get('description', instance.description)
+        instance.address = validated_data.get('address', instance.address)
+        instance.latitude = validated_data.get('latitude', instance.latitude)
+        instance.longitude = validated_data.get('longitude', instance.longitude)
+        instance.save()
+        return instance
