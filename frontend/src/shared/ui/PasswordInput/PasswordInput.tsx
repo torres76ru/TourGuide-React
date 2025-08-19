@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import styles from "./PasswordInput.module.scss";
 import clsx from "clsx";
 import Input from "shared/ui/Input/Input";
-import eyeClose from "shared/assets/icons/PasswordEye-close.svg"
-import eyeOpen from "shared/assets/icons/PasswordEye-open.svg"
+import eyeClose from "shared/assets/icons/PasswordEye-close.svg";
+import eyeOpen from "shared/assets/icons/PasswordEye-open.svg";
 
 interface PasswordInputProps {
   label?: string;
@@ -12,11 +12,19 @@ interface PasswordInputProps {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
-  back: boolean
+  back?: boolean;
 }
 
-export default function PasswordInput({ label, id, className = "", value, onChange, error, back }: PasswordInputProps) {
-  const [showPassword, setShowPassword] = useState(false); 
+export default function PasswordInput({
+  label,
+  id,
+  className = "",
+  value,
+  onChange,
+  error,
+  back,
+}: PasswordInputProps) {
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (back) {
@@ -30,7 +38,6 @@ export default function PasswordInput({ label, id, className = "", value, onChan
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
-
 
   return (
     <div className={clsx(styles.password_container, className)}>

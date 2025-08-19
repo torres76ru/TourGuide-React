@@ -5,3 +5,4 @@ export { default as SightCard } from "./SightCard/ui";
 export { default as Modal } from "./Modal/ui";
 export { default as Burger } from "./Burger/ui";
 export { default as Footer } from "./Footer";
+export { SearchList } from "./SearchList/ui";

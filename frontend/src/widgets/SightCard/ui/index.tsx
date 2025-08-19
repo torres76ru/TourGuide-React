@@ -1,5 +1,6 @@
 import Rating from "shared/ui/Rating/ui/Rating";
 import style from "./SightCard.module.scss";
+import { useNavigate } from "react-router";
 
 interface Props {
   name: string;
@@ -10,8 +11,12 @@ interface Props {
 }
 
 const SightCard = ({ name, description, prices, rating, img }: Props) => {
+  const navigate = useNavigate();
+  const handleRedirect = () => {
+    navigate("/sight");
+  };
   return (
-    <div className={style.cardBody}>
+    <div className={style.cardBody} onClick={() => handleRedirect()}>
       <div className={style.cardImage}>
         <img src={img} alt="Достопримечательность"></img>
       </div>

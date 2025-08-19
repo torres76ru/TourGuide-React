@@ -1,47 +1,31 @@
 import { useEffect, useState } from "react";
 import Button from "shared/ui/Button";
 import RegistrationChoice from "widgets/RegistrationChoice/ui/RegistrationChoice";
-import EntryForm from "widgets/EntryForm/ui/EntryForm";
-import RegistrationForm from "widgets/RegistrationForm/ui/RegistrationForm";
+import EntryForm from "features/EntryForm/ui/EntryForm";
+import RegistrationForm from "features/RegistrationForm/ui/RegistrationForm";
 import styles from "./LoginPage.module.scss";
 import clsx from "clsx";
-import arrow from "shared/assets/icons/Arrow.svg"
+import arrow from "shared/assets/icons/Arrow.svg";
 import { useNavigate } from "react-router";
 
 const LoginPage = () => {
-
   const navigate = useNavigate();
 
   const handleRedirect = (url: string) => {
     navigate(url);
   };
-  
-  const [isBack, setIsBack] = useState(false);
-  const [activeBlock, setActiveBlock] = useState<null | "entry" | "choice" | "registration">(null);
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    repeatPassword: "",
-    checkbox: false
-  });
 
-  const [errors, setErrors] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    repeatPassword: "",
-    checkbox: ""
-  });
+  const [isBack, setIsBack] = useState(false);
+  const [activeBlock, setActiveBlock] = useState<
+    null | "entry" | "choice" | "registration"
+  >(null);
 
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsMounted(true), 50);
     return () => clearTimeout(timer);
-}, []);
+  }, []);
 
   function CheckIsVisible(className?: string): string {
     return isMounted ? className || "" : "";
@@ -52,189 +36,88 @@ const LoginPage = () => {
     else if (activeBlock === "entry" || activeBlock === "choice")
       setActiveBlock(null);
     else if (activeBlock === "registration") setActiveBlock("choice");
-    setFormData({
-      firstName: "",
-      lastName: "",
-      email: "",
-      password: "",
-      repeatPassword: "",
-      checkbox: false
-    });
-    setErrors({
-      firstName: "",
-      lastName: "",
-      email: "",
-      password: "",
-      repeatPassword: "",
-      checkbox: ""
-    });
+
     setIsBack(true);
   }
 
-  const normalizeId = (id: string) => {
-    return id
-      .replace(/^(entry__|reg__)/, "")
-      .replace(/-id$/, "")
-      .replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    const fieldName = normalizeId(id);
-
-    setFormData({ ...formData, [fieldName]: fieldName === "checkbox" ? e.target.checked : value });
-    setErrors({ ...errors, [fieldName]: "" });
-  };
-
-  // Валидация
-  const validate = () => {
-    let valid = true;
-    const newErrors = { ...errors };
-
-    if (activeBlock === "registration") {
-      // Валидация имени
-      if (!formData.firstName.trim()) {
-        newErrors.firstName = "Имя обязательно";
-        valid = false;
-      }
-
-      // Валидация фамилии
-      if (!formData.lastName.trim()) {
-        newErrors.lastName = "Фамилия обязательна";
-        valid = false;
-      }
-
-      // Валидация пароля
-      if (formData.repeatPassword.length < 6) {
-        newErrors.repeatPassword = "Пароль должен быть не менее 6 символов";
-        valid = false;
-      }
-
-      // Валидация чекбокса
-      if (!formData.checkbox) {
-        newErrors.checkbox = "Чекбокс не выбран";
-        valid = false;
-      }
-    }
-
-    // Валидация email
-    if (!formData.email.includes("@")) {
-      newErrors.email = "Некорректный email";
-      valid = false;
-    }
-
-    // Валидация пароля
-    if (formData.password.length < 6) {
-      newErrors.password = "Пароль должен быть не менее 6 символов";
-      valid = false;
-    }
-
-    setErrors(newErrors);
-    return valid;
-  };
-
-  // Отправка формы
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validate()) {
-      console.log("Форма отправлена:", formData);
-      // Отправка данных...
-    }
-  };
-
   return (
-    <div>
-      {/* <button
-        className={clsx(styles.btn, CheckIsVisible(styles.btn_click) && styles.btn_click)}
-        onClick={() => setIsVisible(true)}
+    <div className={styles.registration}>
+      <button
+        className={clsx(
+          styles.btn_back,
+          CheckIsVisible(styles.btn_back_visible) && styles.btn_back_visible
+        )}
+        onClick={GoBack}
       >
-        Войти
-      </button> */}
-      <div className={styles.registration}>
-        <button
-          className={clsx(
-            styles.btn_back,
-            CheckIsVisible(styles.btn_back_visible) && styles.btn_back_visible
-          )}
-          onClick={GoBack}
-        >
-          <img src={arrow} />
-        </button>
+        <img src={arrow} />
+      </button>
+      <div
+        className={clsx(
+          styles.img,
+          CheckIsVisible(styles.img_visible) && styles.img_visible
+        )}
+      >
         <div
           className={clsx(
-            styles.img,
-            CheckIsVisible(styles.img_visible) && styles.img_visible
+            styles.blackout,
+            CheckIsVisible(styles.blackout_visible) && styles.blackout_visible
           )}
-        >
-          <div
-            className={clsx(
-              styles.blackout,
-              CheckIsVisible(styles.blackout_visible) && styles.blackout_visible
-            )}
-          ></div>
-        </div>
+        ></div>
+      </div>
+      <div
+        className={clsx(
+          styles.area,
+          styles.container,
+          CheckIsVisible(styles.area_visible) && styles.area_visible
+        )}
+      >
+        <h3 className={styles.title}>TourGuide</h3>
+        <p className={styles.slogan}>Отправляйся в путешествие с нами</p>
         <div
           className={clsx(
-            styles.area,
-            styles.container,
-            CheckIsVisible(styles.area_visible) && styles.area_visible
+            styles.registration_buttons,
+            activeBlock === null && styles.active_block
           )}
         >
-          <h3 className={styles.title}>TourGuide</h3>
-          <p className={styles.slogan}>Отправляйся в путешествие с нами</p>
-          <div
-            className={clsx(
-              styles.registration_buttons,
-              activeBlock === null && styles.active_block
-            )}
-          >
-            <Button
-              variant="black"
-              style={{ width: "100%" }}
-              onClick={() => {
-                setActiveBlock("entry")
-                setIsBack(false);
-              }}
-            >
-              Войти
-            </Button>
-            <Button
-              variant="black"
-              style={{ width: "100%" }}
-              onClick={() => {
-                setActiveBlock("choice")
-                setIsBack(false);
-              }}
-            >
-              Регистрация
-            </Button>
-          </div>
-          <EntryForm
-            className={clsx(activeBlock === "entry" && styles.active_block)}
-            formData={formData}
-            onChange={handleChange}
-            errors={errors}
-            onClick={handleSubmit}
-            back={isBack}
-          />
-          <RegistrationChoice
-            className={clsx(activeBlock === "choice" && styles.active_block)}
+          <Button
+            variant="black"
+            style={{ width: "100%" }}
             onClick={() => {
-              setActiveBlock("registration")
+              setActiveBlock("entry");
               setIsBack(false);
             }}
-          />
-          <RegistrationForm
-            className={clsx(activeBlock === "registration" && styles.active_block)}
-            formData={formData}
-            onChange={handleChange}
-            errors={errors}
-            onClick={handleSubmit}
-            back={isBack}
-          />
+          >
+            Войти
+          </Button>
+          <Button
+            variant="black"
+            style={{ width: "100%" }}
+            onClick={() => {
+              setActiveBlock("choice");
+              setIsBack(false);
+            }}
+          >
+            Регистрация
+          </Button>
         </div>
+        <EntryForm
+          className={clsx(activeBlock === "entry" && styles.active_block)}
+          back={isBack}
+        />
+        <RegistrationChoice
+          className={clsx(activeBlock === "choice" && styles.active_block)}
+          onClick={() => {
+            setActiveBlock("registration");
+            setIsBack(false);
+          }}
+        />
+        <RegistrationForm
+          className={clsx(
+            activeBlock === "registration" && styles.active_block
+          )}
+          back={isBack}
+        />
       </div>
-      {/* <button onClick={handleRedirect}>Go to Main</button> */}
     </div>
   );
 };

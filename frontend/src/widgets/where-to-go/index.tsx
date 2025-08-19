@@ -1,6 +1,6 @@
 import Button from "shared/ui/Button";
 import styles from "./WhereToGo.module.scss";
-import locationImg from "shared/assets/location.svg";
+import LocationImage from "shared/ui/LocationImage";
 
 const WhereToGo = () => {
   return (
@@ -9,7 +9,7 @@ const WhereToGo = () => {
       <hr className={styles.divider} />
       <div className={styles.row}>
         <div className={styles.locationIcon}>
-          <img src={locationImg} alt="my location" />
+          <LocationImage />
         </div>
         <Button className={styles.fullWidth}>Поиск</Button>
       </div>
