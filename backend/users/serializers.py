@@ -19,7 +19,12 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(generics.RetrieveUpdateAPIView):
     class Meta:
         model=User
         fields = ['username', 'email', 'first_name', 'last_name', 'is_guide']
+
+    def update(self, instance, validated_data):
+        if instance.email and 'email' in validated_data:
+            validated_data.pop('email')
+        return super().update(instance, validated_data)
