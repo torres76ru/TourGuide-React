@@ -12,7 +12,7 @@ urlpatterns = [
     path('api/', include('tours.urls')),
     path('api/', include('attractions.urls')),
     path('api/cities/', include('cities.urls')),
-    path("api/", include("routes.urls")),
+    path("api/", include("attraction_routes.urls")),
 
     # Регистрация / авторизация через соцсети
     path('dj-rest-auth/', include('dj_rest_auth.urls')),
