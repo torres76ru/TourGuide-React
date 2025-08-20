@@ -8,19 +8,18 @@ import Modal from "widgets/Modal/ui";
 import { useState } from "react";
 import Button from "shared/ui/Button";
 import { useNavigate } from "react-router";
-<<<<<<< HEAD
 import cross from "shared/assets/Cross.svg"
 import MenuButton from "shared/ui/MenuButton/ui/MenuButton";
-=======
-import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "app/store/mainStore";
-import { logoutRequest } from "entities/user/model/slice";
->>>>>>> origin/frontend-feature/redux+saga
+import { useSelector } from "react-redux";
+import type { RootState } from "app/store/mainStore";
+// import { logoutRequest } from "entities/user/model/slice";
+import UserName from "shared/ui/UserName/ui/UserName";
+
 
 const Header = () => {
   const [isModalOpen, setModalOpen] = useState(false);
 
-  const dispatch = useDispatch<AppDispatch>();
+  // const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
   const { user } = useSelector((state: RootState) => state.user);
@@ -30,9 +29,9 @@ const Header = () => {
     navigate(href);
   };
 
-  const logout = () => {
-    dispatch(logoutRequest());
-  };
+  // const logout = () => {
+  //   dispatch(logoutRequest());
+  // };
 
   return (
     <header className={styles.header}>
@@ -52,49 +51,34 @@ const Header = () => {
 
       <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)}>
         <div className={styles.modalContent}>
-<<<<<<< HEAD
           <div className={styles.container}>
             <button onClick={() => setModalOpen(false)} className={styles.cross}><img src={cross} alt="Крестик" /></button>
+            {!user ? (
             <Button
               variant="black"
               style={{ width: "100%" }}
               onClick={() => handleRedirect("/auth")}>
               Войти
             </Button>
+          ) : (
+            <> <button onClick={() => handleRedirect("/user")} className={styles.user_btn}> <UserName name={user.username} 
+              headingStyle={{
+                fontWeight: 300,
+                fontSize: "20px" 
+                }}
+              imageStyle={{
+                width: "50px",
+                height: "50px"
+                }}></UserName> </button>
+            </>
+          )}
           </div>
           
           <ul className={styles.buttons_list}>
-            <li><MenuButton>Поблизости</MenuButton></li>
+            <li><MenuButton onClick={() => handleRedirect("/search")}>Поблизости</MenuButton></li>
             <li><MenuButton>Поиск мест</MenuButton></li>
             <li><MenuButton>Карта</MenuButton></li>
-=======
-          {!user ? (
-            <Button
-              variant="black"
-              style={{ width: "100%" }}
-              onClick={() => handleRedirect("/auth")}
-            >
-              Войти
-            </Button>
-          ) : (
-            <>
-              <div>{user.username}</div>
-              <Button
-                variant="black"
-                style={{ width: "100%" }}
-                onClick={() => logout()}
-              >
-                Выйти из профиля
-              </Button>
-            </>
-          )}
-
-          <ul>
-            <li>Поблизости</li>
-            <li>Поиск мест</li>
-            <li>Отзывы</li>
-            <li>Карта</li>
->>>>>>> origin/frontend-feature/redux+saga
+            {user && <li><MenuButton>Добавить место</MenuButton></li>}
           </ul>
           {/* <Button
             variant="black"

@@ -45,8 +45,11 @@
   padding: 0 26px;
   display: flex;
   flex-direction: column;
-  align-items: end;
   width: 100%;
+}
+
+.container > *:first-child {
+  align-self: flex-end;
 }
 
 .cross {
@@ -57,7 +60,7 @@
 
 .buttons_list {
   margin-top: 50px;
-  border-top: 1px solid #6588E680;
+  border-bottom: 1px solid #6588E680;
   width: 100%;
 }
 
@@ -69,4 +72,8 @@
   border-bottom: 1px solid #6588E680;
   font-size: 16px;
   font-weight: 400;
+}
+
+.user_btn {
+  background-color: transparent;
 }
