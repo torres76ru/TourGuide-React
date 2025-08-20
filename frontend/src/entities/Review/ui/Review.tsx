@@ -3,6 +3,7 @@ import avatar from "shared/assets/avatar.svg";
 import star from "shared/assets/star.svg";
 import starBlue from "shared/assets/star-blue.svg";
 import { useState } from "react";
+import UserName from "shared/ui/UserName/ui/UserName";
 
 interface ReviewProps {
     name?: string;
@@ -28,10 +29,11 @@ export default function Review({ name, rating = 0, date, text }: ReviewProps) {
 
     return (
         <div className={styles.review}>
-            <div className={styles.name_section}>
+            <UserName name={name}></UserName>
+            {/* <div className={styles.name_section}>
                 <img src={avatar} alt="Аватар" />
                 <h3>{name}</h3>
-            </div>
+            </div> */}
             <div className={styles.rating_date}>
                 <div className={styles.rating}>
                     {stars}

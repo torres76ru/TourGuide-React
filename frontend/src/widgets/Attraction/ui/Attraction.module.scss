@@ -67,3 +67,9 @@
 .weekdays {
     margin-left: 4px;
 }
+
+@media (max-width: 370px) {
+        .attr_img {
+        height: 300px;
+    }
+}

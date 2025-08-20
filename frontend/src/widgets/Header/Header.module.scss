@@ -35,3 +35,45 @@
   align-items: center;
   justify-content: center;
 }
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  padding: 0 26px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.container > *:first-child {
+  align-self: flex-end;
+}
+
+.cross {
+  background-color: transparent;
+  margin-right: -7px;
+  margin-bottom: 25px;
+}
+
+.buttons_list {
+  margin-top: 50px;
+  border-bottom: 1px solid #6588E680;
+  width: 100%;
+}
+
+.button {
+  padding: 15px 25px;
+  width: 100%;
+  text-align: start;
+  background-color: transparent;
+  border-bottom: 1px solid #6588E680;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.user_btn {
+  background-color: transparent;
+}
