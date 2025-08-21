@@ -13,6 +13,7 @@ import {
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { LoginPayload, RegisterPayload, RegisterResponse } from "./types";
 
+// ---- Register ----
 function* registerSaga(action: PayloadAction<RegisterPayload>) {
   try {
     const response: RegisterResponse = yield* call(

@@ -23,6 +23,7 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
+    // ---- Register ----
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registerRequest(state, _action: PayloadAction<RegisterPayload>) {
       state.loading = true;
