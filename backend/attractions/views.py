@@ -5,6 +5,7 @@ from io import BytesIO
 from PIL import Image
 from requests.exceptions import RequestException
 from django.core.cache import cache
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.views import APIView
@@ -13,12 +14,12 @@ from rest_framework import status, permissions, generics
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
-from .models import Attraction, AttractionPhoto
+from .models import Attraction, AttractionPhoto, PendingAttractionUpdate
 from cities.models import City
 from .serializers import AttractionListSerializer, AttractionDetailSerializer, AttractionPhotoSerializer
 from django.conf import settings
 from django.db.models import Q
-
+import re
 
 class MapAttractionsView(APIView):
     def get_address_from_coordinates(self, lat, lng):
@@ -193,9 +194,9 @@ class MapAttractionsView(APIView):
                     lng = element['lon']
                     tags = element.get('tags', {})
                     relevant_tags = {k: v for k, v in tags.items() if
-                                     k in ['tourism', 'historic', 'leisure', 'natural', 'piste:type', 'aerialway',
-                                           'shop', 'amenity', 'building', 'religion', 'place', 'highway',
-                                           'wikipedia', 'wikidata', 'description']}
+                                    k in ['tourism', 'historic', 'leisure', 'natural', 'piste:type', 'aerialway',
+                                          'shop', 'amenity', 'building', 'religion', 'place', 'highway',
+                                          'wikipedia', 'wikidata', 'description']}
                     address_data = self.get_address_from_coordinates(lat, lng)
                     city_name = address_data["city_name"]
                     address = address_data["address"]
@@ -246,9 +247,9 @@ class MapAttractionsView(APIView):
                     lng = center['lon']
                     tags = element.get('tags', {})
                     relevant_tags = {k: v for k, v in tags.items() if
-                                     k in ['tourism', 'historic', 'leisure', 'natural', 'piste:type', 'aerialway',
-                                           'shop', 'amenity', 'building', 'religion', 'place', 'highway',
-                                           'wikipedia', 'wikidata', 'description']}
+                                    k in ['tourism', 'historic', 'leisure', 'natural', 'piste:type', 'aerialway',
+                                          'shop', 'amenity', 'building', 'religion', 'place', 'highway',
+                                          'wikipedia', 'wikidata', 'description']}
                     address_data = self.get_address_from_coordinates(lat, lng)
                     city_name = address_data["city_name"]
                     address = address_data["address"]
@@ -314,7 +315,6 @@ class MapAttractionsView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
 class AdminListPendingPhotosView(APIView):
     permission_classes = [IsAdminUser]
 
@@ -325,7 +325,6 @@ class AdminListPendingPhotosView(APIView):
         )
         serializer = AttractionListSerializer(pending_attractions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 class AdminFetchPhotosView(APIView):
     permission_classes = [IsAdminUser]
@@ -343,7 +342,7 @@ class AdminFetchPhotosView(APIView):
             output.seek(0)
             output.truncate(0)
             img.save(output, format='JPEG', quality=quality, optimize=True)
-            size_kb = output.getvalue().__len__() / 1024
+            size_kb = len(output.getvalue()) / 1024
 
             if size_kb <= target_size_kb or quality <= 10:
                 break
@@ -366,7 +365,7 @@ class AdminFetchPhotosView(APIView):
         updated_ids = []
 
         for attraction in pending_attractions:
-            image_url = self._fetch_and_save_image(attraction.name, attraction.tags, attraction.id)
+            image_url = self._fetch_and_save_image(attraction.name, attraction.tags, attraction.id, attraction.address)
             if image_url:
                 if image_url.startswith(settings.MEDIA_URL):
                     relative_path = image_url[len(settings.MEDIA_URL):]
@@ -395,7 +394,7 @@ class AdminFetchPhotosView(APIView):
 
         return Response({"updated_ids": updated_ids, "count": len(updated_ids)}, status=status.HTTP_200_OK)
 
-    def _fetch_and_save_image(self, place_name, tags, attraction_id):
+    def _fetch_and_save_image(self, place_name, tags, attraction_id, address=None):
         if place_name == 'Unknown_Place':
             return None
 
@@ -406,7 +405,7 @@ class AdminFetchPhotosView(APIView):
 
         image_path = os.path.join(settings.MEDIA_ROOT, f"mainphoto/{attraction_id}.jpg")
         if os.path.exists(image_path):
-            if os.path.getsize(image_path) / 1024 <= 100:
+            if os.path.getsize(image_path) / 1024 <= 100:  # Проверка размера в KB
                 return f"{settings.MEDIA_URL}mainphoto/{attraction_id}.jpg"
             else:
                 os.remove(image_path)
@@ -418,58 +417,120 @@ class AdminFetchPhotosView(APIView):
         if wikidata_id:
             try:
                 wd_url = f"https://www.wikidata.org/w/api.php?action=wbgetentities&ids={wikidata_id}&props=claims&format=json"
-                wd_response = requests.get(wd_url, headers=headers)
+                wd_response = requests.get(wd_url, headers=headers, timeout=10)
                 if wd_response.status_code == 200:
                     wd_data = wd_response.json()
-                    claims = wd_data.get('entities', {}).get(wikidata_id, {}).get('claims', {})
-                    image_prop = claims.get('P18', [])
+                    entities = wd_data.get('entities', {}).get(wikidata_id, {})
+                    claims = entities.get('claims', {})
+                    image_prop = claims.get('P18', [])  # P18 - изображение
                     if image_prop:
                         image_name = image_prop[0].get('mainsnak', {}).get('datavalue', {}).get('value')
-                        image_url = f"https://commons.wikimedia.org/wiki/Special:FilePath/{image_name}"
+                        if image_name:
+                            image_url = f"https://commons.wikimedia.org/wiki/Special:FilePath/{image_name}"
             except Exception as e:
                 print(f"Error fetching Wikidata for {place_name}: {e}")
 
         if not image_url and 'wikipedia' in tags:
             wp_page = tags['wikipedia'].split(':', 1)[-1]
-            wp_url = f"https://ru.wikipedia.org/w/api.php?action=query&titles={wp_page}&prop=pageimages&format=json&piprop=original"
+            wp_url = f"https://ru.wikipedia.org/w/api.php?action=query&titles={wp_page}&prop=pageimages|categories|extracts&format=json&piprop=original&exintro=1&explaintext=1"
             try:
-                wp_response = requests.get(wp_url, headers=headers)
+                wp_response = requests.get(wp_url, headers=headers, timeout=10)
                 if wp_response.status_code == 200:
                     wp_data = wp_response.json()
                     pages = wp_data.get('query', {}).get('pages', {})
                     for page in pages.values():
                         if 'original' in page:
-                            image_url = page['original']['source']
-                            break
+                            categories = page.get('categories', [])
+                            is_relevant = any(
+                                any(term in cat['title'].lower() for term in ['достопримечательность', 'памятник', 'музей', 'парк', 'храм'])
+                                for cat in categories
+                            )
+                            if is_relevant and address:
+                                extract_text = page.get('extract', '').lower()
+                                address_parts = [part.strip().lower() for part in address.split(',') if part.strip()]
+                                if any(part in extract_text for part in address_parts):
+                                    image_url = page['original']['source']
+                                    break
             except Exception as e:
-                print(f"Error fetching Wikipedia for {place_name}: {e}")
+                print(f"Error fetching Wikipedia page for {place_name}: {e}")
 
-        if not image_url:
-            search_url = f"https://ru.wikipedia.org/w/api.php?action=query&list=search&srsearch={place_name} достопримечательность&format=json"
+
+        if not image_url and address:
+            search_terms = f"{place_name} {address} достопримечательность"
+            search_url = f"https://ru.wikipedia.org/w/api.php?action=query&list=search&srsearch={search_terms}&format=json&srprop=snippet|titlesnippet"
             try:
-                search_response = requests.get(search_url, headers=headers)
+                search_response = requests.get(search_url, headers=headers, timeout=10)
                 if search_response.status_code == 200:
                     search_data = search_response.json()
                     search_results = search_data.get('query', {}).get('search', [])
-                    if search_results:
-                        title = search_results[0]['title']
-                        wp_url = f"https://ru.wikipedia.org/w/api.php?action=query&titles={title}&prop=pageimages&format=json&piprop=original"
-                        wp_response = requests.get(wp_url, headers=headers)
+                    for result in search_results[:5]:
+                        title = result['title']
+                        wp_url = f"https://ru.wikipedia.org/w/api.php?action=query&titles={title}&prop=pageimages|categories|extracts&format=json&piprop=original&exintro=1&explaintext=1"
+                        wp_response = requests.get(wp_url, headers=headers, timeout=10)
                         if wp_response.status_code == 200:
                             wp_data = wp_response.json()
                             pages = wp_data.get('query', {}).get('pages', {})
                             for page in pages.values():
                                 if 'original' in page:
-                                    image_url = page['original']['source']
-                                    break
+                                    categories = page.get('categories', [])
+                                    is_relevant = any(
+                                        any(term in cat['title'].lower() for term in ['достопримечательность', 'памятник', 'музей', 'парк', 'храм'])
+                                        for cat in categories
+                                    )
+                                    if is_relevant:
+                                        extract_text = page.get('extract', '').lower()
+                                        address_parts = [part.strip().lower() for part in address.split(',') if part.strip()]
+                                        if len([part for part in address_parts if part in extract_text]) >= len(address_parts) // 2:  # Более строгая проверка: хотя бы половина частей адреса совпадает
+                                            image_url = page['original']['source']
+                                            break
+                            if image_url:
+                                break
             except Exception as e:
-                print(f"Error searching Wikipedia for {place_name}: {e}")
+                print(f"Error searching Wikipedia for {place_name} with address: {e}")
+
+
+        if not image_url and address and hasattr(settings, 'GOOGLE_PLACES_API_KEY'):
+            try:
+                g_url = "https://places.googleapis.com/v1/places:searchText"
+                g_headers = {
+                    "Content-Type": "application/json",
+                    "X-Goog-Api-Key": settings.GOOGLE_PLACES_API_KEY,
+                    "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.id,places.photos"
+                }
+                g_payload = {
+                    "textQuery": f"{place_name} {address}",
+                    "languageCode": "ru"
+                }
+
+                if 'lat' in tags and 'lon' in tags:
+                    g_payload["locationBias"] = {
+                        "circle": {
+                            "center": {"latitude": float(tags['lat']), "longitude": float(tags['lon'])},
+                            "radius": 1000.0
+                        }
+                    }
+
+                g_response = requests.post(g_url, headers=g_headers, json=g_payload)
+                if g_response.status_code == 200:
+                    g_data = g_response.json()
+                    for place in g_data.get("places", []):
+                        photos = place.get("photos", [])
+                        if photos:
+                            photo_name = photos[0]["name"]
+                            photo_url = f"https://places.googleapis.com/v1/{photo_name}/media?maxHeightPx=800&key={settings.GOOGLE_PLACES_API_KEY}"
+                            image_url = photo_url
+                            break
+            except Exception as e:
+                print(f"Error fetching Google Places for {place_name}: {e}")
 
         if image_url:
             try:
-                image_response = requests.get(image_url, headers=headers)
+                image_response = requests.get(image_url, headers=headers, stream=True, timeout=10)
                 if image_response.status_code == 200:
                     os.makedirs(os.path.join(settings.MEDIA_ROOT, 'mainphoto'), exist_ok=True)
+                    img = Image.open(BytesIO(image_response.content))
+                    if img.size[0] < 200 or img.size[1] < 200:  # Минимум 200x200 пикселей
+                        return None
                     compressed_image = self.compress_image(image_response.content)
                     with open(image_path, 'wb') as f:
                         f.write(compressed_image)
@@ -479,7 +540,6 @@ class AdminFetchPhotosView(APIView):
                 return None
 
         return None
-
 
 class AttractionListView(generics.ListAPIView):
     queryset = Attraction.objects.all()
@@ -492,37 +552,74 @@ class AttractionDetailView(generics.RetrieveAPIView):
 
 
 class AttractionCreateView(generics.CreateAPIView):
-    queryset = Attraction.objects.all()
     serializer_class = AttractionDetailSerializer
-    parser_classes = [MultiPartParser, FormParser]
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
-    def perform_create(self, serializer):
-        street = self.request.data.get('street')
-        house = self.request.data.get('house')
-        entrance = self.request.data.get('entrance')
-        apartment = self.request.data.get('apartment')
-        city_name = self.request.data.get('city')
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        validated_data = serializer.validated_data
 
-        # Combine address if components are provided
-        if street or house or entrance or apartment:
-            address_parts = [part for part in [street, house, entrance, apartment] if part]
-            address = f"{city_name}, {' '.join(address_parts)}" if city_name else ' '.join(address_parts)
-            serializer.validated_data['address'] = address
+        required_fields = ['name', 'category', 'description', 'address']
+        for field in required_fields:
+            if not validated_data.get(field):
+                raise ValidationError(f"{field} является обязательным.")
 
-        instance = serializer.save(need_photo=True)
-        if not instance.address or not instance.city:
+        city = None
+        if 'city' in validated_data and validated_data['city']:
+            city_name = validated_data['city']
+            city, _ = City.objects.get_or_create(name=city_name)
+        elif 'latitude' in validated_data or 'longitude' in validated_data:
             view = MapAttractionsView()
-            address_data = view.get_address_from_coordinates(instance.latitude, instance.longitude)
+            address_data = view.get_address_from_coordinates(
+                validated_data.get('latitude'),
+                validated_data.get('longitude')
+            )
             city_name = address_data["city_name"]
-            if city_name and city_name != "Unknown":
+            if city_name != "Unknown":
                 city, _ = City.objects.get_or_create(name=city_name)
-            else:
-                city = None
-            instance.address = address_data["address"]
-            instance.city = city
-            instance.save()
+            if 'address' not in validated_data or not validated_data.get('address'):
+                validated_data['address'] = address_data["address"]
 
+        if 'description' not in validated_data or not validated_data.get('description'):
+            view = MapAttractionsView()
+            wp_description = view.get_wikipedia_description(validated_data['name'].replace(' ', '_'))
+            if wp_description:
+                validated_data['description'] = wp_description
+
+        if 'category' not in validated_data or not validated_data.get('category'):
+            name = validated_data.get('name', '').lower()
+            if 'музей' in name:
+                validated_data['category'] = 'Музей'
+            elif 'парк' in name:
+                validated_data['category'] = 'Парк'
+            else:
+                validated_data['category'] = 'Достопримечательность'
+
+        pending_update = PendingAttractionUpdate.objects.create(
+            attraction=None,
+            user=request.user,
+            name=validated_data.get('name'),
+            category=validated_data.get('category'),
+            description=validated_data.get('description'),
+            working_hours=validated_data.get('working_hours'),
+            phone_number=validated_data.get('phone_number'),
+            email=validated_data.get('email'),
+            website=validated_data.get('website'),
+            cost=validated_data.get('cost'),
+            average_check=validated_data.get('average_check'),
+            address=validated_data.get('address'),
+            latitude=validated_data.get('latitude'),
+            longitude=validated_data.get('longitude'),
+            city=city,
+            tags=validated_data.get('tags', {}),
+            status='pending'
+        )
+
+        return Response({
+            "message": "New attraction submitted for admin approval.",
+            "pending_update_id": pending_update.id
+        }, status=status.HTTP_202_ACCEPTED)
 class PhotoUploadView(generics.CreateAPIView):
     queryset = AttractionPhoto.objects.all()
     serializer_class = AttractionPhotoSerializer
@@ -542,32 +639,35 @@ class PhotoUploadView(generics.CreateAPIView):
 
 class AttractionSearchView(APIView):
     def get(self, request, name):
+        if len(name) < 3:
+            return Response({"error": "Query must be at least 3 characters long"}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
-            attraction = Attraction.objects.filter(name__icontains=name).first()
-            if attraction:
-                serializer = AttractionListSerializer(attraction)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response({"error": "Attraction not found"}, status=status.HTTP_404_NOT_FOUND)
+            cache_key = f"attraction_search_{name.lower()}"
+            cached_attractions = cache.get(cache_key)
+            if cached_attractions:
+                return Response(cached_attractions, status=status.HTTP_200_OK)
+
+            query_normalized = re.sub(r'\s+', '', name.lower())  # Удаляем пробелы
+            attractions = Attraction.objects.filter(
+                name__iregex=r'.*' + re.escape(query_normalized) + r'.*'
+            ).distinct()
+
+            if not attractions.exists():
+                attractions = Attraction.objects.filter(name__icontains=name).distinct()
+
+            if not attractions.exists():
+                return Response({"error": "No attractions found matching the query"}, status=status.HTTP_404_NOT_FOUND)
+
+            print(f"Found {attractions.count()} attractions for query '{name}'")
+            serializer = AttractionListSerializer(attractions, many=True)
+            response_data = serializer.data
+            print(f"Serialized data length: {len(response_data)}")
+            cache.set(cache_key, response_data, timeout=3600)
+            return Response(response_data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-class CityListView(APIView):
-    def get(self, request):
-        cities = City.objects.filter(attractions__isnull=False).distinct()
-        return Response([city.name for city in cities if city.name], status=status.HTTP_200_OK)
-
-
-class CityDetailView(APIView):
-    def get(self, request, name):
-        try:
-            city = City.objects.get(name=name)
-        except City.DoesNotExist:
-            return Response({"error": "City not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        attractions = Attraction.objects.filter(city=city)
-        serializer = AttractionListSerializer(attractions, many=True)
-        return Response({"city": name, "attractions": serializer.data}, status=status.HTTP_200_OK)
 
 class AttractionDetailCitiesView(APIView):
     def get_address_from_coordinates(self, lat, lng):
@@ -583,22 +683,20 @@ class AttractionDetailCitiesView(APIView):
             response = requests.get(nominatim_url, params=params, headers=headers, timeout=5)
             response.raise_for_status()
             data = response.json()
-            address = data.get("display_name", "Unknown")
             city_name = (
                 data.get("address", {}).get("city")
                 or data.get("address", {}).get("town")
                 or data.get("address", {}).get("village")
                 or "Unknown"
             )
-            return {"address": address, "city_name": city_name}
+            return city_name
         except Exception as e:
             print(f"Error fetching address from Nominatim: {str(e)}")
-            return {"address": "Unknown", "city_name": "Unknown"}
+            return "Unknown"
 
     def get(self, request):
         lat = request.query_params.get('lat')
         lng = request.query_params.get('lng')
-        tags = request.query_params.get('tags', '').split(',')
 
         if not lat or not lng:
             return Response({"error": "Latitude and longitude are required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -606,13 +704,12 @@ class AttractionDetailCitiesView(APIView):
         try:
             lat, lng = float(lat), float(lng)
 
-            cache_key = f"city_attractions_{lat}_{lng}_{','.join(tags)}"
-            cached_data = cache.get(cache_key)
-            if cached_data:
-                return Response(cached_data, status=status.HTTP_200_OK)
+            cache_key = f"city_location_{lat}_{lng}"
+            cached_city = cache.get(cache_key)
+            if cached_city:
+                return Response({"city": cached_city}, status=status.HTTP_200_OK)
 
-            address_data = self.get_address_from_coordinates(lat, lng)
-            city_name = address_data["city_name"]
+            city_name = self.get_address_from_coordinates(lat, lng)
 
             if city_name == "Unknown":
                 return Response({"error": "City not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -622,44 +719,16 @@ class AttractionDetailCitiesView(APIView):
             except City.DoesNotExist:
                 return Response({"error": "City not found in database"}, status=status.HTTP_404_NOT_FOUND)
 
-            attractions = Attraction.objects.filter(city=city)
+            cache.set(cache_key, city_name, timeout=3600)
 
-            if tags and tags != ['']:
-                tag_queries = Q()
-                for tag in tags:
-                    tag = tag.strip()
-                    if tag:
-                        # Map tags to their JSON keys (based on your tag_mapping in MapAttractionsView)
-                        tag_mapping = {
-                            'park': 'leisure',
-                            'museum': 'tourism',
-                            'garden': 'leisure',
-                            'attraction': 'tourism',
-                            'place_of_worship': 'amenity',
-                            'christian': 'religion',
-                            'muslim': 'religion',
-                            'supermarket': 'shop'
-                        }
-                        tag_key = tag_mapping.get(tag, tag)
-                        tag_queries |= Q(tags__has_key=tag_key)
-                attractions = attractions.filter(tag_queries)
-
-            serializer = AttractionListSerializer(attractions, many=True)
-            response_data = {
-                "city": city_name,
-                "attractions": serializer.data
-            }
-
-            cache.set(cache_key, response_data, timeout=3600)
-
-            return Response(response_data, status=status.HTTP_200_OK)
+            return Response({"city": city_name}, status=status.HTTP_200_OK)
 
         except ValueError:
             return Response({"error": "Invalid latitude or longitude"}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-class AttractionUpdateView(RetrieveUpdateAPIView):
+class AttractionUpdateView(generics.RetrieveUpdateAPIView):
     queryset = Attraction.objects.all()
     serializer_class = AttractionDetailSerializer
     permission_classes = [IsAuthenticated]
@@ -668,6 +737,11 @@ class AttractionUpdateView(RetrieveUpdateAPIView):
     def perform_update(self, serializer):
         instance = serializer.instance
         validated_data = serializer.validated_data
+
+        restricted_fields = ['average_rating', 'rating_count', 'created_at', 'main_photo', 'need_photo', 'admin_reviewed']
+        for field in restricted_fields:
+            if field in validated_data:
+                raise ValidationError({field: f"Поле {field} не может быть обновлено."})
 
         current_data = {
             'name': instance.name,
@@ -688,40 +762,53 @@ class AttractionUpdateView(RetrieveUpdateAPIView):
 
         view = MapAttractionsView()
 
-
-        if validated_data:
-
-            if 'city' in validated_data and validated_data['city'] != current_data['city']:
-                city_name = validated_data['city']
-                city, _ = City.objects.get_or_create(name=city_name)
-                instance.city = city
+        city = instance.city
+        if 'city' in validated_data and validated_data['city'] != current_data['city']:
+            city_name = validated_data['city']
+            city, _ = City.objects.get_or_create(name=city_name)
 
 
-            if 'latitude' in validated_data or 'longitude' in validated_data:
-                new_latitude = validated_data.get('latitude', current_data['latitude'])
-                new_longitude = validated_data.get('longitude', current_data['longitude'])
-                if new_latitude != current_data['latitude'] or new_longitude != current_data['longitude']:
-                    address_data = view.get_address_from_coordinates(new_latitude, new_longitude)
-                    city_name = address_data["city_name"]
-                    if city_name != "Unknown" and ('city' not in validated_data or not validated_data.get('city')):
-                        city, _ = City.objects.get_or_create(name=city_name)
-                        instance.city = city
-                    if 'address' not in validated_data or not validated_data.get('address'):
-                        instance.address = address_data["address"]
+        if 'latitude' in validated_data or 'longitude' in validated_data:
+            new_latitude = validated_data.get('latitude', current_data['latitude'])
+            new_longitude = validated_data.get('longitude', current_data['longitude'])
+            if new_latitude != current_data['latitude'] or new_longitude != current_data['longitude']:
+                address_data = view.get_address_from_coordinates(new_latitude, new_longitude)
+                city_name = address_data["city_name"]
+                if city_name != "Unknown" and ('city' not in validated_data or not validated_data.get('city')):
+                    city, _ = City.objects.get_or_create(name=city_name)
+                if 'address' not in validated_data or not validated_data.get('address'):
+                    validated_data['address'] = address_data["address"]
 
 
-            if 'name' in validated_data and validated_data['name'] != current_data['name']:
-                name = validated_data['name']
-                if 'description' not in validated_data or not validated_data.get('description'):
-                    wp_description = view.get_wikipedia_description(name.replace(' ', '_'))
-                    if wp_description:
-                        instance.description = wp_description
+        if 'name' in validated_data and validated_data['name'] != current_data['name']:
+            name = validated_data['name']
+            if 'description' not in validated_data or not validated_data.get('description'):
+                wp_description = view.get_wikipedia_description(name.replace(' ', '_'))
+                if wp_description:
+                    validated_data['description'] = wp_description
 
+        pending_update = PendingAttractionUpdate.objects.create(
+            attraction=instance,
+            user=self.request.user,
+            name=validated_data.get('name', instance.name),
+            category=validated_data.get('category', instance.category),
+            description=validated_data.get('description', instance.description),
+            working_hours=validated_data.get('working_hours', instance.working_hours),
+            phone_number=validated_data.get('phone_number', instance.phone_number),
+            email=validated_data.get('email', instance.email),
+            website=validated_data.get('website', instance.website),
+            cost=validated_data.get('cost', instance.cost),
+            average_check=validated_data.get('average_check', instance.average_check),
+            address=validated_data.get('address', instance.address),
+            latitude=validated_data.get('latitude', instance.latitude),
+            longitude=validated_data.get('longitude', instance.longitude),
+            city=city,
+            tags=validated_data.get('tags', instance.tags),
+            status='pending'
+        )
 
+        return Response({
+            "message": "Changes submitted for admin approval.",
+            "pending_update_id": pending_update.id
+        }, status=status.HTTP_202_ACCEPTED)
 
-            for field in ['working_hours', 'phone_number', 'email', 'website', 'cost', 'average_check', 'tags', 'category', 'description', 'address']:
-                if field in validated_data:
-                    setattr(instance, field, validated_data[field])
-
-
-        serializer.save()

@@ -12,6 +12,7 @@ urlpatterns = [
     path('api/', include('tours.urls')),
     path('api/', include('attractions.urls')),
     path('api/cities/', include('cities.urls')),
+    path('api/', include('leaderboard.urls')),
     path("api/", include("attraction_routes.urls")),
 
     # Регистрация / авторизация через соцсети

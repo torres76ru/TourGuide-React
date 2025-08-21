@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'ratings',
     'tours',
     'attraction_routes',
+    'leaderboard'
 ]
 
 SITE_ID = 2
