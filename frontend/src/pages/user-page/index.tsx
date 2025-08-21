@@ -38,7 +38,7 @@ const UserPage = () => {
       <ul className={styles.buttons_list}>
             <li><MenuButton onClick={() => handleRedirect("/user/data")}>Личные данные</MenuButton></li>
             <li><MenuButton>Хочу посетить</MenuButton></li>
-            <li><MenuButton>Запланированные экскурсии</MenuButton></li>
+            <li><MenuButton onClick={() => handleRedirect("/user/scheduled_excursions")}>Запланированные экскурсии</MenuButton></li>
             <li><MenuButton onClick={() => handleRedirect("/user/visited_excursions")}>Посещённые экскурсии</MenuButton></li>
             <li><MenuButton>Мои отзывы</MenuButton></li>
             <li><MenuButton onClick={() => {setIsExit(true);}}>Выйти <img src={exit} alt="Выход"/></MenuButton></li>

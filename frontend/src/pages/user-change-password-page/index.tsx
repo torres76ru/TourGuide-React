@@ -48,7 +48,7 @@ const UserChangePasswordPage = () => {
   return (
     <div className={styles.userChangePasswordPage}>
       <BackHeader title="Смена пароля"></BackHeader>
-      <div className={styles.change_password_section}>
+      <form action="" className={styles.change_password_section}>
         <PasswordInput
                 label="Введите старый пароль"
                 id="old_password-id"
@@ -59,8 +59,6 @@ const UserChangePasswordPage = () => {
                 classInput={styles.size}
                 classLable={styles.font_weight}
                 classEye={styles.eye}
-
-                // back={back}
               />
         <PasswordInput
                 label="Введите новый пароль"
@@ -72,7 +70,6 @@ const UserChangePasswordPage = () => {
                 classInput={styles.size}
                 classLable={styles.font_weight}
                 classEye={styles.eye}
-                // back={back}
               />
         <PasswordInput
                 label="Повторите новый пароль"
@@ -84,18 +81,17 @@ const UserChangePasswordPage = () => {
                 classInput={styles.size}
                 classLable={styles.font_weight}
                 classEye={styles.eye}
-                // back={back}
               />
         <Button 
             variant="black" 
             style={{ width: "278px" }} 
-            type="button" 
+            type="submit" 
             className={styles.margin_btn}
             onClick={handleSubmit}
           >
             Сохранить
-          </Button>
-        </div>
+        </Button>
+      </form>
     </div>
   );
 };

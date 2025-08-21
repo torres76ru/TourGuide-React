@@ -11,8 +11,8 @@ const UserEditingPage = () => {
   const { user } = useSelector((state: RootState) => state.user);
   const [formData, setFormData] = useState({
     username: user?.username || '',
-    firstName: user?.first_name || '',
-    lastName: user?.last_name || ''
+    first_name: user?.first_name || '',
+    last_name: user?.last_name || ''
   });
 
   // Функция для обработки изменений
@@ -37,8 +37,8 @@ const UserEditingPage = () => {
         </div>
         <button className={styles.btn}>Изменить фото</button>
       </div>
-      <div className={styles.editing_section}>
-        <Input 
+      <form className={styles.editing_section} action="">
+          <Input 
           label="Имя пользователя" 
           classLable={styles.font_weight} 
           value={formData.username}
@@ -49,29 +49,29 @@ const UserEditingPage = () => {
         <Input 
           label="Имя" 
           classLable={styles.font_weight} 
-          value={formData.firstName}
-          onChange={handleInputChange('firstName')}
+          value={formData.first_name}
+          onChange={handleInputChange('first_name')}
           classInput={styles.size}
           id="user_firstname"
         />
         <Input 
           label="Фамилия" 
           classLable={styles.font_weight} 
-          value={formData.lastName}
-          onChange={handleInputChange('lastName')}
+          value={formData.last_name}
+          onChange={handleInputChange('last_name')}
           classInput={styles.size}
           id="user_lastname"
         />
         <Button 
           variant="black" 
           style={{ width: "278px" }} 
-          type="button" 
+          type="submit" 
           className={styles.margin}
           onClick={handleSave}
         >
           Сохранить
         </Button>
-      </div>
+      </form>
     </div>
   );
 };
