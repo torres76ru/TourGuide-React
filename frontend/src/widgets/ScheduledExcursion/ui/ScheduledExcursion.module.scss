@@ -1,0 +1,39 @@
+.excursion_section {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border-radius: 5px;
+    border: 0.5px solid #6588E6;
+    gap: 15px;
+    padding: 15px;
+    box-shadow: 0px 0px 4px 0px #24242426;
+}
+
+.title {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 400;
+    text-decoration: underline;
+}
+
+.text {
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.time_section {
+    display: flex;
+    justify-content: center;
+    padding: 5px 0;
+    gap: 30px;
+    width: 100%;
+    border-radius: 5px;
+    border: 0.5px solid #6588E6;
+}
+
+.place_section, .contacts_section {
+    padding: 10px;
+    width: 100%;
+    border-radius: 5px;
+    border: 0.5px solid #6588E6;
+}

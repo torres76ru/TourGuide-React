@@ -13,6 +13,9 @@ interface PasswordInputProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
   back?: boolean;
+  classLable?: string;
+  classInput?: string;
+  classEye?: string 
 }
 
 export default function PasswordInput({
@@ -23,6 +26,9 @@ export default function PasswordInput({
   onChange,
   error,
   back,
+  classLable = "",
+  classInput = "", 
+  classEye = ""
 }: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -48,10 +54,12 @@ export default function PasswordInput({
         value={value}
         onChange={onChange}
         error={error}
+        classInput={classInput}
+        classLable={classLable}
       />
       <button
         type="button"
-        className={styles.eye_btn}
+        className={clsx(styles.eye_btn, classEye)}
         onClick={togglePasswordVisibility}
         aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
       >

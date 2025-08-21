@@ -40,20 +40,24 @@ export default function DisplayingRating({
       />
     ));
 
-  return (
-    <>
-      <div className={styles.displaying_ating}>
-        <div className={styles.rating_section}>
-          <span className={styles.rating}>{rating?.toFixed(1)}</span>
-          <div className={styles.stars}>{stars}</div>
-          <span className={styles.reviews}>{reviews.length}</span>
+    return (
+        <>
+        <div className={styles.displaying_ating}>
+            <div className={styles.rating_section}>
+                <span className={styles.rating}>{rating?.toFixed(1)}</span>
+                <div className={styles.stars}>{stars}</div>
+                <span className={styles.reviews}>{reviews.length}</span>
+            </div>
+            <div className={styles.rating_scale_section}>
+                {ratingPercentages.map(({ star, percentage }) => (
+                    <RatingScale 
+                        key={star}
+                        number={star}
+                        width={percentage}
+                    />
+                    ))}
+            </div>
         </div>
-        <div className={styles.rating_scale_section}>
-          {ratingPercentages.map(({ star, percentage }) => (
-            <RatingScale key={star} number={star} width={percentage} />
-          ))}
-        </div>
-      </div>
-    </>
-  );
+        </>
+    )
 }
