@@ -629,7 +629,7 @@ class AttractionDetailCitiesView(APIView):
                 for tag in tags:
                     tag = tag.strip()
                     if tag:
-                        # Map tags to their JSON keys (based on your tag_mapping in MapAttractionsView)
+
                         tag_mapping = {
                             'park': 'leisure',
                             'museum': 'tourism',
