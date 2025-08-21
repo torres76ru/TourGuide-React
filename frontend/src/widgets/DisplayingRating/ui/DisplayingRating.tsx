@@ -37,7 +37,7 @@ export default function DisplayingRating({rating} : DisplayingRatingProps) {
 
     return (
         <>
-        <div className={styles.displaying_ating}>
+        <div className={styles.displaying_rating}>
             <div className={styles.rating_section}>
                 <span className={styles.rating}>{rating?.toFixed(1)}</span>
                 <div className={styles.stars}>{stars}</div>

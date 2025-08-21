@@ -6,6 +6,7 @@ import LocationImage from "shared/ui/LocationImage";
 import { useNavigate } from "react-router";
 import { SearchList } from "widgets/index";
 import { getCurrentLocation } from "shared/lib/geolocation";
+import BackHeader from "shared/ui/BackHeader/ui/BachHeader";
 
 const SearchPage = () => {
   const [query, setQuery] = useState("");
@@ -33,7 +34,7 @@ const SearchPage = () => {
   };
   return (
     <div className={style.searchPage}>
-      <BackButton className={style.buttonBack} />
+      <BackHeader className={style.buttonBack}></BackHeader>
       <SearchInput value={query} onChange={setQuery} />
       <div onClick={() => handleRedirect("/")} className={style.nearestPlaces}>
         <LocationImage />

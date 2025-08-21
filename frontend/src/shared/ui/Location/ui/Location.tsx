@@ -5,13 +5,14 @@ interface Props {
   location: number;
   classSize?: string
   classSizeIcon?: string
+  sity?: string
 }
 
-const Location = ({ location, classSize ="", classSizeIcon =""}: Props) => {
+const Location = ({ location, classSize ="", classSizeIcon ="", sity = ""}: Props) => {
   return (
     <div className={styles.location}>
       <img src={locationSharp} alt="Локация" className={classSizeIcon}/>
-      <span className={`${styles.location_size} ${classSize}`}>{location?.toFixed(1)}м</span>
+      {sity ? <span>{sity}</span> : <span className={`${styles.location_size} ${classSize}`}>{location?.toFixed(1)}м</span>}
     </div>
   );
 };
