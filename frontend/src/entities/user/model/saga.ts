@@ -1,11 +1,6 @@
 // import { call, put, takeLatest } from "redux-saga/effects";
 import { call, put, takeLatest } from "typed-redux-saga";
-import {
-  authApi,
-  type LoginPayload,
-  type RegisterPayload,
-  type RegisterResponse,
-} from "./api";
+import { authApi } from "./api";
 
 import {
   registerRequest,
@@ -16,6 +11,7 @@ import {
   loginRequest,
 } from "./slice";
 import type { PayloadAction } from "@reduxjs/toolkit";
+import type { LoginPayload, RegisterPayload, RegisterResponse } from "./types";
 
 function* registerSaga(action: PayloadAction<RegisterPayload>) {
   try {
