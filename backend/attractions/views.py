@@ -315,6 +315,7 @@ class MapAttractionsView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 class AdminListPendingPhotosView(APIView):
     permission_classes = [IsAdminUser]
 
@@ -325,6 +326,7 @@ class AdminListPendingPhotosView(APIView):
         )
         serializer = AttractionListSerializer(pending_attractions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class AdminFetchPhotosView(APIView):
     permission_classes = [IsAdminUser]
@@ -525,7 +527,7 @@ class AdminFetchPhotosView(APIView):
 
         if image_url:
             try:
-                image_response = requests.get(image_url, headers=headers, stream=True, timeout=10)
+                image_response = requests.get(image_url, headers=headers)
                 if image_response.status_code == 200:
                     os.makedirs(os.path.join(settings.MEDIA_ROOT, 'mainphoto'), exist_ok=True)
                     img = Image.open(BytesIO(image_response.content))
@@ -807,8 +809,10 @@ class AttractionUpdateView(generics.RetrieveUpdateAPIView):
             status='pending'
         )
 
-        return Response({
-            "message": "Changes submitted for admin approval.",
-            "pending_update_id": pending_update.id
-        }, status=status.HTTP_202_ACCEPTED)
 
+            for field in ['working_hours', 'phone_number', 'email', 'website', 'cost', 'average_check', 'tags', 'category', 'description', 'address']:
+                if field in validated_data:
+                    setattr(instance, field, validated_data[field])
+
+
+        serializer.save()
