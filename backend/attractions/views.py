@@ -103,19 +103,20 @@ class MapAttractionsView(APIView):
             if 'all' in tags or not any(tag.strip() for tag in tags):
                 print("Using all tags by default")
                 tag_groups = {
-                    'historic': ['memorial', 'archaeological_site'],
-                    'tourism': ['museum', 'attraction'],
+                    'historic': ['memorial', 'archaeological_site', 'monument'],
+                    'tourism': ['museum', 'attraction', 'zoo'],
                     'leisure': ['park', 'garden'],
-                    'amenity': ['place_of_worship'],
-                    'shop': ['supermarket'],
+                    'amenity': ['theatre', 'cinema', 'library', 'restaurant', 'cafe'],
                 }
             else:
                 print(f"Using filtered tags: {tags}")
                 tag_groups = {}
                 tag_mapping = {
-                    'park': 'leisure', 'museum': 'tourism', 'garden': 'leisure', 'attraction': 'tourism',
+                    'park': 'leisure', 'garden': 'leisure', 'museum': 'tourism', 'attraction': 'tourism',
                     'place_of_worship': 'amenity', 'christian': 'religion', 'muslim': 'religion',
-                    'supermarket': 'shop'
+                    'theatre': 'amenity', 'cinema': 'amenity', 'library': 'amenity',
+                    'restaurant': 'amenity', 'cafe': 'amenity', 'monument': 'historic',
+                    'zoo': 'tourism',  # Добавлен
                 }
                 for tag in tags:
                     tag = tag.strip()
@@ -315,7 +316,6 @@ class MapAttractionsView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
 class AdminListPendingPhotosView(APIView):
     permission_classes = [IsAdminUser]
 
@@ -326,7 +326,6 @@ class AdminListPendingPhotosView(APIView):
         )
         serializer = AttractionListSerializer(pending_attractions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 class AdminFetchPhotosView(APIView):
     permission_classes = [IsAdminUser]
@@ -527,7 +526,7 @@ class AdminFetchPhotosView(APIView):
 
         if image_url:
             try:
-                image_response = requests.get(image_url, headers=headers)
+                image_response = requests.get(image_url, headers=headers, stream=True, timeout=10)
                 if image_response.status_code == 200:
                     os.makedirs(os.path.join(settings.MEDIA_ROOT, 'mainphoto'), exist_ok=True)
                     img = Image.open(BytesIO(image_response.content))
@@ -809,10 +808,8 @@ class AttractionUpdateView(generics.RetrieveUpdateAPIView):
             status='pending'
         )
 
+        return Response({
+            "message": "Changes submitted for admin approval.",
+            "pending_update_id": pending_update.id
+        }, status=status.HTTP_202_ACCEPTED)
 
-            for field in ['working_hours', 'phone_number', 'email', 'website', 'cost', 'average_check', 'tags', 'category', 'description', 'address']:
-                if field in validated_data:
-                    setattr(instance, field, validated_data[field])
-
-
-        serializer.save()
