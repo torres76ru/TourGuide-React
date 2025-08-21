@@ -8,7 +8,7 @@ interface ReviewsProps {
   attraction: AttractionDetails;
 }
 
-export default function Reviews() {
+export default function Reviews({ attraction }: ReviewsProps) {
   return (
     <>
       <div className={styles.container}>
@@ -18,9 +18,19 @@ export default function Reviews() {
             Написать отзыв
           </a>
         </div>
-        <DisplayingRating rating={4.2}></DisplayingRating>
-        <GalleryCarousel count={8}></GalleryCarousel>
-        <ReviewList />
+
+        {attraction?.ratings && (
+          <DisplayingRating
+            rating={attraction.average_rating}
+            reviews={attraction.ratings}
+          ></DisplayingRating>
+        )}
+        {attraction?.additional_photos && (
+          <GalleryCarousel
+            photos={attraction.additional_photos}
+          ></GalleryCarousel>
+        )}
+        {attraction?.ratings && <ReviewList ratings={attraction.ratings} />}
       </div>
     </>
   );

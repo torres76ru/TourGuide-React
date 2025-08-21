@@ -47,7 +47,7 @@ const SightPage = () => {
     <div className={styles.body}>
       <Attraction attraction={attraction} />
       <AttractionCarousel category="Для вас:" count={8} />
-      <Reviews />
+      <Reviews attraction={attraction} />
     </div>
   );
 };

@@ -12,20 +12,22 @@ export interface Attraction {
   rating_count: number;
 }
 
+export interface iReview {
+  id: number;
+  user: User;
+  value: number;
+  comment: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface AttractionDetails extends Attraction {
   description: string;
   additional_photos: string[];
   phone_number: string;
   email: string;
   website: string;
-  ratings: {
-    id: number;
-    user: User;
-    value: number;
-    comment: string;
-    created_at: string;
-    updated_at: string;
-  }[];
+  ratings: iReview[];
 }
 
 export type AttractionDetailsResponse = AttractionDetails;
