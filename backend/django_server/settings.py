@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'tours',
 
 		'corsheaders',
+    'attraction_routes',
 ]
 
 SITE_ID = 2
