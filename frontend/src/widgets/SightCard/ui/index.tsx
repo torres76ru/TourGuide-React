@@ -1,24 +1,29 @@
 import Rating from "shared/ui/Rating/ui/Rating";
 import style from "./SightCard.module.scss";
 import { useNavigate } from "react-router";
-
+import attractionPlaceholder from "shared/assets/attraction_placeholder.png";
+import { BASE_URL } from "shared/config/constants";
 interface Props {
+  id: number;
   name: string;
   description: string;
-  prices: string;
+  prices?: string;
   rating: number;
-  img: string;
+  img?: string | null;
 }
 
-const SightCard = ({ name, description, prices, rating, img }: Props) => {
+const SightCard = ({ id, name, description, prices, rating, img }: Props) => {
   const navigate = useNavigate();
   const handleRedirect = () => {
-    navigate("/sight");
+    navigate(`/sight/${id}`);
   };
   return (
     <div className={style.cardBody} onClick={() => handleRedirect()}>
       <div className={style.cardImage}>
-        <img src={img} alt="Достопримечательность"></img>
+        <img
+          src={img ? BASE_URL + img : attractionPlaceholder}
+          alt="Достопримечательность"
+        ></img>
       </div>
       <div className={style.context}>
         <div className={style.info}>
@@ -28,7 +33,7 @@ const SightCard = ({ name, description, prices, rating, img }: Props) => {
           </div>
           <div className={style.description}>{description}</div>
         </div>
-        <div className={style.prices}>От {prices} рублей</div>
+        {prices && <div className={style.prices}>От {prices} рублей</div>}
       </div>
     </div>
   );

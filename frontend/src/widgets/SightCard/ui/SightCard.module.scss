@@ -24,11 +24,11 @@
 
       .row {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
         h3 {
           font-weight: 400;
-          font-size: 20px;
+          font-size: 16px;
           letter-spacing: -4%;
         }
       }

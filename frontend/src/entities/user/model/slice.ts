@@ -1,11 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
-import type {
-  LoginPayload,
-  RegisterPayload,
-  RegisterResponse,
-} from "../api/userApi";
+import type { LoginPayload, RegisterPayload, RegisterResponse } from "./api";
 
 interface UserState {
   user: RegisterResponse["user"] | null;

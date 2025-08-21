@@ -1,34 +1,99 @@
 import Rating from "shared/ui/Rating/ui/Rating";
-import styles from "./Attraction.module.scss"
+import styles from "./Attraction.module.scss";
 import clsx from "clsx";
-import attraction from "shared/assets/attraction.png"
 import Location from "shared/ui/Location/ui/Location";
 import AttractionMap from "widgets/AttractionMap/ui/AttractionMap";
 import AttractionContacts from "widgets/AttractionContacts/ui/AttractionContacts";
 import AttractionDescription from "widgets/AttractionDescription/ui/AttractionDescription";
 import AttractionWorkingTime from "widgets/AttractionWorkingTime/ui/AttractionWorkingTime";
-import {mockAttractions} from "widgets/Attraction/lib/getAttraction"
+import AttractionPlaceholder from "shared/assets/attraction_placeholder.png";
+import type { AttractionDetails } from "entities/attraction/model/types";
+import { BASE_URL } from "shared/config/constants";
+import { useWatchLocation } from "entities/location/hooks/useWatchLocation";
+import type { RootState } from "app/store/mainStore";
+import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import {
+  formatDistance,
+  haversineDistance,
+} from "entities/location/lib/haversinDistance";
 
-export default function Attraction() {
-    return (
-        <>
-        <div className={styles.attr_img}>
-            <img className={styles.img} src={attraction} alt="Достопримечательность" />
-        </div>
-        <div className={clsx(styles.attr_description, styles.container)}>
-            <div className={styles.attr_title_rating}>
-                <h2 className={styles.attr_title}>{mockAttractions[0].name}</h2>
-                <Rating rating={mockAttractions[0].rating}></Rating>
-            </div>
-            <div className={styles.location}>
-                <Location location={mockAttractions[0].location}></Location>
-                <a href="#!" className={styles.link}>посмотреть на карте</a>
-            </div>
-            <AttractionWorkingTime titleClassName={styles.title} textClassName={styles.text}></AttractionWorkingTime>
-            <AttractionDescription titleClassName={styles.title} textClassName={styles.text}  description={mockAttractions[0].description}></AttractionDescription>
-            <AttractionMap titleClassName={styles.title} textClassName={styles.text} address={mockAttractions[0].address}></AttractionMap>
-            <AttractionContacts titleClassName={styles.title} textClassName={styles.text} linkClassName={styles.link} phone={mockAttractions[0].phone} email={mockAttractions[0].email} website={mockAttractions[0].website}></AttractionContacts>
-        </div>
-        </>
-    )
+interface AttractionProps {
+  attraction: AttractionDetails;
 }
+
+const Attraction = ({ attraction }: AttractionProps) => {
+  useWatchLocation();
+  const [distance, setDistance] = useState<string>("");
+
+  const coords = useSelector((state: RootState) => state.location.coords);
+
+  useEffect(() => {
+    if (!coords) return;
+    const distance_ = haversineDistance(
+      coords.latitude,
+      coords.longitude,
+      attraction.latitude,
+      attraction.longitude
+    );
+
+    setDistance(formatDistance(distance_));
+  }, [coords, attraction.latitude, attraction.longitude]);
+
+  return (
+    <>
+      <div className={styles.attr_img}>
+        <img
+          className={styles.img}
+          src={
+            attraction?.main_photo_url
+              ? BASE_URL + attraction?.main_photo_url
+              : AttractionPlaceholder
+          }
+          alt="Достопримечательность"
+        />
+      </div>
+      <div className={clsx(styles.attr_description, styles.container)}>
+        <div className={styles.attr_title_rating}>
+          <h2 className={styles.attr_title}>{attraction.name}</h2>
+          <Rating rating={attraction.average_rating}></Rating>
+        </div>
+        <div className={styles.location}>
+          {distance && <Location distance={distance} />}
+
+          <a href="#!" className={styles.link}>
+            посмотреть на карте
+          </a>
+        </div>
+        <AttractionWorkingTime
+          titleClassName={styles.title}
+          textClassName={styles.text}
+        ></AttractionWorkingTime>
+        <AttractionDescription
+          titleClassName={styles.title}
+          textClassName={styles.text}
+          description={attraction.description}
+        ></AttractionDescription>
+        <AttractionMap
+          titleClassName={styles.title}
+          textClassName={styles.text}
+          address={attraction.address}
+        ></AttractionMap>
+        {(attraction.phone_number ||
+          attraction.email ||
+          attraction.website) && (
+          <AttractionContacts
+            titleClassName={styles.title}
+            textClassName={styles.text}
+            linkClassName={styles.link}
+            phone={attraction.phone_number}
+            email={attraction.email}
+            website={attraction.website}
+          ></AttractionContacts>
+        )}
+      </div>
+    </>
+  );
+};
+
+export default Attraction;

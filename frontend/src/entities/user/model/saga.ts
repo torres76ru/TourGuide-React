@@ -5,7 +5,7 @@ import {
   type LoginPayload,
   type RegisterPayload,
   type RegisterResponse,
-} from "../api/userApi";
+} from "./api";
 
 import {
   registerRequest,
