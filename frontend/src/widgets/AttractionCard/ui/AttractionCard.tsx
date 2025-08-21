@@ -11,7 +11,14 @@ interface Props {
   categories: string;
 }
 
-const AttractionCard = ({ name, isOpen, rating, img, location, categories }: Props) => {
+const AttractionCard = ({
+  name,
+  isOpen,
+  rating,
+  img,
+  location,
+  categories,
+}: Props) => {
   return (
     <div className={styles.cardBody}>
       <div className={styles.cardImage}>
@@ -21,8 +28,16 @@ const AttractionCard = ({ name, isOpen, rating, img, location, categories }: Pro
         <h4>{name}</h4>
         <p>{isOpen}</p>
         <div className={styles.rating_location}>
-           <Rating rating={rating} classSize={styles.size} classSizeIcon={styles.size_icon}/>
-           <Location location={location} classSize={styles.size} classSizeIcon={styles.size_icon}/>
+          <Rating
+            rating={rating}
+            classSize={styles.size}
+            classSizeIcon={styles.size_icon}
+          />
+          <Location
+            distance={location + ""}
+            classSize={styles.size}
+            classSizeIcon={styles.size_icon}
+          />
         </div>
         <p>{categories}</p>
       </div>
