@@ -7,7 +7,7 @@ import img from "shared/assets/attraction.png"
 // import Input from "shared/ui/Input/Input";
 // import { useNavigate } from "react-router-dom";
 
-const UserVisitedExcursions = () => {
+const UserVisitedExcursionsPage = () => {
 //   const { user } = useSelector((state: RootState) => state.user);
 //   const navigate = useNavigate();
 
@@ -36,5 +36,5 @@ const UserVisitedExcursions = () => {
   );
 };
 
-export default UserVisitedExcursions;
+export default UserVisitedExcursionsPage;
 

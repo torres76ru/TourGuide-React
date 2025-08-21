@@ -32,6 +32,7 @@ const Header = () => {
   // const logout = () => {
   //   dispatch(logoutRequest());
   // };
+  
 
   return (
     <header className={styles.header}>
@@ -80,12 +81,12 @@ const Header = () => {
             <li><MenuButton>Карта</MenuButton></li>
             {user && <li><MenuButton>Добавить место</MenuButton></li>}
           </ul>
-          {/* <Button
+          <Button
             variant="black"
             style={{ width: "100%" }}
             onClick={() => handleRedirect("/sight")}>
             Достопримечательность
-          </Button> */}
+          </Button>
         </div>
       </Modal>
     </header>

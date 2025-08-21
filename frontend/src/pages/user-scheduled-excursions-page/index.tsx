@@ -8,7 +8,7 @@ import BackHeader from "shared/ui/BackHeader/ui/BachHeader";
 
 
 
-const UserScheduledExcursions = () => {
+const UserScheduledExcursionsPage = () => {
 //   const { user } = useSelector((state: RootState) => state.user);
 //   const navigate = useNavigate();
 
@@ -43,5 +43,5 @@ const UserScheduledExcursions = () => {
   );
 };
 
-export default UserScheduledExcursions;
+export default UserScheduledExcursionsPage;
 

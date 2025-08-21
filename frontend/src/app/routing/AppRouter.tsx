@@ -8,6 +8,7 @@ import UserEditingPage from "pages/user-editing-page";
 import UserChangePasswordPage from "pages/user-change-password-page";
 import UserVisitedExcursionsPage from "pages/user-visited-excursions-page";
 import UserScheduledExcursionsPage from "pages/user-scheduled-excursions-page";
+import ReviewPage from "pages/review-page"
 
 export const Routing = () => {
   return (
@@ -24,6 +25,7 @@ export const Routing = () => {
         <Route path="/user/data/change_password" element={<UserChangePasswordPage />} />
         <Route path="/user/visited_excursions" element={<UserVisitedExcursionsPage />} />
         <Route path="/user/scheduled_excursions" element={<UserScheduledExcursionsPage />} />
+        <Route path="/sight/review" element={<ReviewPage />} />
       </Routes>
     </BrowserRouter>
   );
