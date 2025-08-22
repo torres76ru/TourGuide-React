@@ -1,0 +1,47 @@
+.cardBody {
+  width: 238px;
+
+  border-radius: 15px;
+  box-shadow: 0 0 10px 0 rgba(36, 36, 36, 0.25);
+  overflow: hidden;
+
+  .cardImage {
+    width: 100%;
+
+    img {
+      width: 100%;
+      height: 100%;
+      aspect-ratio: 1.15 / 1;
+      border-radius: 15px;
+    }
+  }
+  .context {
+    padding: 17px 9px;
+    display: flex;
+    flex-direction: column;
+    .info {
+      flex: 1 1 auto;
+
+      .row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        h3 {
+          font-weight: 400;
+          font-size: 16px;
+          letter-spacing: -4%;
+        }
+      }
+
+      .description {
+        font-weight: 200;
+        font-size: 12px;
+        height: 77px;
+      }
+    }
+    .prices {
+      font-weight: 400;
+      font-size: 12px;
+    }
+  }
+}

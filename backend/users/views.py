@@ -1,20 +1,14 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.urls import reverse
 
 from .serializers import RegisterSerializer, UserSerializer
-from django.contrib.auth import get_user_model
-
-from django.core.mail import send_mail
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
-from django.urls import reverse
-from django.utils.http import urlsafe_base64_decode
-from django.utils.encoding import force_str
 from .tokens import account_activation_token
-
-
 
 
 User = get_user_model()
@@ -27,7 +21,7 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
 
     def perform_create(self, serializer):
-        self.user = serializer.save(is_active=True)  # создаем неактивного пользователя
+        self.user = serializer.save(is_active=True)  # создаем сразу активного пользователя
 
         uid = urlsafe_base64_encode(force_bytes(self.user.pk))
         token = account_activation_token.make_token(self.user)
@@ -43,7 +37,7 @@ class RegisterView(generics.CreateAPIView):
         )
 
     def create(self, request, *args, **kwargs):
-        """Переопределяем create, чтобы добавить JWT токены в ответ"""
+        """Добавляем JWT токены в ответ"""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -61,7 +55,7 @@ class RegisterView(generics.CreateAPIView):
 # POST /api/auth/login/
 class LoginView(generics.GenericAPIView):
     permission_classes = [permissions.AllowAny]
-    #лучше бы сделать по нормальному, а не костыль, но это если вспомню)
+
     def post(self, request):
         login = request.data.get("username")
         password = request.data.get("password")
@@ -82,7 +76,6 @@ class LoginView(generics.GenericAPIView):
         if not user.is_active:
             return Response({"error": "Аккаунт не активирован"}, status=status.HTTP_400_BAD_REQUEST)
 
-
         refresh = RefreshToken.for_user(user)
         return Response({
             "user": UserSerializer(user).data,
@@ -92,13 +85,15 @@ class LoginView(generics.GenericAPIView):
 
 
 # GET /api/auth/me/
-class MeView(generics.RetrieveAPIView):
+class MeView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
         return self.request.user
 
+
+# GET /api/auth/activate/<uidb64>/<token>/
 class ActivateAccountView(generics.GenericAPIView):
     permission_classes = [permissions.AllowAny]
 

@@ -1,0 +1,22 @@
+.button {
+  padding: 6px 20px;
+  font-size: 24px;
+  border-radius: 15px;
+  font-weight: 300;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family-main, inherit);
+}
+
+.primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.black {
+  background: #242424;
+  color: #FFFFFF;
+  padding: 13px 0;
+  font-size: 20px;
+  margin: 0 auto;
+}

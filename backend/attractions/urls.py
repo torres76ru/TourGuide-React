@@ -9,6 +9,7 @@ from .views import (
     PhotoUploadView,
     AttractionSearchView,
     AttractionDetailCitiesView,
+    AttractionUpdateView
 )
 
 urlpatterns = [
@@ -20,7 +21,7 @@ urlpatterns = [
     path('attractions/<int:attraction_id>/photos/', PhotoUploadView.as_view(), name='photo-upload'),
     path('map/attractions/', MapAttractionsView.as_view(), name='map_attractions'),
     path('map/attractions/cities/', AttractionDetailCitiesView.as_view(), name='map_attractions_cities'),
-
+    path('attractions/update/<int:id>/', AttractionUpdateView.as_view(), name='attraction-update'),
     # Админские эндпоинты
     path('admin/attractions/pending-photos/', AdminListPendingPhotosView.as_view(), name='admin_pending_photos'),
     path('admin/attractions/fetch-photos/', AdminFetchPhotosView.as_view(), name='admin_fetch_photos')

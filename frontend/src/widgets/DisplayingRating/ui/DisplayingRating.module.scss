@@ -1,0 +1,38 @@
+.displaying_rating {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 10px 0 10px;
+}
+
+.rating_section {
+    display: flex;
+    flex-direction: column;
+
+}
+
+.rating {
+    font-weight: 400;
+    font-size: 32px;
+}
+
+.stars {
+    margin-top: -7px;
+    img {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+.reviews {
+    font-weight: 400;
+    font-size: 9px;
+    margin-left: 2px;
+    margin-top: -3px;
+}
+
+.rating_scale_section {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    height: 55px;
+}
