@@ -25,3 +25,5 @@ export interface RegisterResponse {
   refresh: string;
   access: string;
 }
+
+export type UserType = 'tourist' | 'guide';
