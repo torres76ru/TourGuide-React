@@ -6,12 +6,10 @@ from attractions.models import Attraction
 from attractions.serializers import AttractionListSerializer
 from .models import City
 
-
 class CityListView(APIView):
     def get(self, request):
         cities = City.objects.filter(attractions__isnull=False).distinct()
         return Response([city.name for city in cities if city.name], status=status.HTTP_200_OK)
-
 
 class CityDetailView(APIView):
     def get(self, request, name):
@@ -20,10 +18,15 @@ class CityDetailView(APIView):
         except City.DoesNotExist:
             return Response({"error": "City not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        attractions = Attraction.objects.filter(city=city)
+        tags = request.query_params.get('tags', '').split(',')
+        attractions_query = Attraction.objects.filter(city=city)
+
+        if tags and any(tag.strip() for tag in tags):
+            attractions_query = attractions_query.filter(tags__icontains=tags[0])  # Используем icontains для текстового поиска
+
+        attractions = attractions_query
         serializer = AttractionListSerializer(attractions, many=True)
         return Response({"city": name, "attractions": serializer.data}, status=status.HTTP_200_OK)
-
 
 class CitySearchView(APIView):
     def get(self, request, query):
@@ -45,5 +48,3 @@ class CitySearchView(APIView):
             return Response(response_data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
