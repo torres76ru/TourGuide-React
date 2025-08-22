@@ -1,6 +1,5 @@
 import SearchInput from "features/search-input";
 import style from "./styles.module.scss";
-import BackButton from "features/back-button";
 import { useState } from "react";
 import LocationImage from "shared/ui/LocationImage";
 import { useNavigate } from "react-router";
