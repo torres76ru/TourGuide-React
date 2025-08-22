@@ -1,15 +1,14 @@
-import SearchInput from "features/search-input";
-import style from "./styles.module.scss";
-import BackButton from "features/back-button";
-import { useState } from "react";
-import LocationImage from "shared/ui/LocationImage";
-import { useNavigate } from "react-router";
-import { SearchList } from "widgets/index";
-import { getCurrentLocation } from "shared/lib/geolocation";
-import BackHeader from "shared/ui/BackHeader/ui/BachHeader";
+import SearchInput from 'features/search-input';
+import style from './styles.module.scss';
+import { useState } from 'react';
+import LocationImage from 'shared/ui/LocationImage';
+import { useNavigate } from 'react-router';
+import { SearchList } from 'widgets/index';
+import { getCurrentLocation } from 'shared/lib/geolocation';
+import BackHeader from 'shared/ui/BackHeader/ui/BachHeader';
 
 const SearchPage = () => {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const navigate = useNavigate();
 
   const handleRedirect = (url: string) => {
@@ -36,7 +35,7 @@ const SearchPage = () => {
     <div className={style.searchPage}>
       <BackHeader className={style.buttonBack}></BackHeader>
       <SearchInput value={query} onChange={setQuery} />
-      <div onClick={() => handleRedirect("/")} className={style.nearestPlaces}>
+      <div onClick={() => handleRedirect('/')} className={style.nearestPlaces}>
         <LocationImage />
         <span>Рядом со мной</span>
       </div>

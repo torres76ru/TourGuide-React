@@ -1,10 +1,10 @@
 // entities/attraction/model/slice.ts
-import { createSlice } from "@reduxjs/toolkit";
-import type { PayloadAction } from "@reduxjs/toolkit";
-import type { AttractionListResponse } from "./types";
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import type { AttractionListResponse } from './types';
 
 interface AttractionByTag {
-  attractions: AttractionListResponse["attractions"];
+  attractions: AttractionListResponse['attractions'];
   loading: boolean;
   error: string | null;
 }
@@ -18,10 +18,10 @@ const initialState: AttractionListState = {
 };
 
 const attractionSlice = createSlice({
-  name: "attraction",
+  name: 'attraction',
   initialState,
   reducers: {
-    fetchAttractionsRequest(state, action: PayloadAction<{ tag: string }>) {
+    fetchAttractionsRequest(state, action: PayloadAction<{ city: string; tag: string }>) {
       const { tag } = action.payload;
       // инициализация под тег, если его ещё нет
       if (!state.attractionsByTag[tag]) {
@@ -46,10 +46,7 @@ const attractionSlice = createSlice({
         error: null,
       };
     },
-    fetchAttractionsFailure(
-      state,
-      action: PayloadAction<{ tag: string; error: string }>
-    ) {
+    fetchAttractionsFailure(state, action: PayloadAction<{ tag: string; error: string }>) {
       const { tag, error } = action.payload;
       if (!state.attractionsByTag[tag]) {
         state.attractionsByTag[tag] = {
@@ -65,10 +62,7 @@ const attractionSlice = createSlice({
   },
 });
 
-export const {
-  fetchAttractionsRequest,
-  fetchAttractionsSuccess,
-  fetchAttractionsFailure,
-} = attractionSlice.actions;
+export const { fetchAttractionsRequest, fetchAttractionsSuccess, fetchAttractionsFailure } =
+  attractionSlice.actions;
 
 export default attractionSlice.reducer;

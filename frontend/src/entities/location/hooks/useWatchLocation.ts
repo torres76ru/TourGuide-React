@@ -1,7 +1,8 @@
 // features/location/hooks/useWatchLocation.ts
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { setCoords, setError } from '../model/slice';
+import { setCity, setCoords, setError } from '../model/slice';
+import { locationApi } from '../model/api';
 
 export const useWatchLocation = () => {
   const dispatch = useDispatch();
@@ -12,6 +13,19 @@ export const useWatchLocation = () => {
       return;
     }
 
+    async function getCity(lat: number, lon: number) {
+      try {
+        const data = await locationApi.getByCity(lat, lon);
+        if (!data) {
+          console.error(`City not found by your coords: lat=${lat}, lon=${lon}}`);
+          return;
+        }
+        dispatch(setCity(data.city));
+      } catch (error) {
+        console.error(`City not found by your coords: lat=${lat}, lon=${lon}}`, error);
+      }
+    }
+
     const watcherId = navigator.geolocation.watchPosition(
       (position) => {
         dispatch(
@@ -20,9 +34,13 @@ export const useWatchLocation = () => {
             longitude: position.coords.longitude,
           })
         );
+
+        getCity(position.coords.latitude, position.coords.longitude);
       },
       (err) => {
         dispatch(setError(err.message));
+
+        getCity(59.934, 30.306); // DELETE THIS
       },
       {
         enableHighAccuracy: true,

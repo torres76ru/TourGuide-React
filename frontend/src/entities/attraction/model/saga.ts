@@ -1,27 +1,20 @@
 // entities/attraction/model/saga.ts
-import { call, put, takeEvery } from "typed-redux-saga";
-import {
-  fetchAttractionsRequest,
-  fetchAttractionsSuccess,
-  fetchAttractionsFailure,
-} from "./slice";
-import type { PayloadAction } from "@reduxjs/toolkit";
-import type { AttractionListResponse } from "./types";
-import { attractionApi } from "./api";
+import { call, put, takeEvery } from 'typed-redux-saga';
+import { fetchAttractionsRequest, fetchAttractionsSuccess, fetchAttractionsFailure } from './slice';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import type { AttractionListResponse } from './types';
+import { attractionApi } from './api';
 
-function* handleFetchAttractions(action: PayloadAction<{ tag: string }>) {
-  const { tag } = action.payload;
+function* handleFetchAttractions(action: PayloadAction<{ city: string; tag: string }>) {
+  const { city, tag } = action.payload;
   try {
-    const data: AttractionListResponse = yield* call(
-      attractionApi.getByCity,
-      tag
-    );
+    const data: AttractionListResponse = yield* call(attractionApi.getByCity, city, tag);
 
     yield* put(fetchAttractionsSuccess({ tag, data }));
   } catch (err: unknown) {
-    let message = "Loading attractions failed";
+    let message = 'Loading attractions failed';
 
-    if (err && typeof err === "object" && "response" in err) {
+    if (err && typeof err === 'object' && 'response' in err) {
       const axiosErr = err as {
         response?: { data?: { detail?: string } };
         message?: string;
