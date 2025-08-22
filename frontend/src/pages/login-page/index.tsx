@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
-import Button from "shared/ui/Button";
-import RegistrationChoice from "widgets/RegistrationChoice/ui/RegistrationChoice";
-import EntryForm from "features/EntryForm/ui/EntryForm";
-import RegistrationForm from "features/RegistrationForm/ui/RegistrationForm";
-import styles from "./LoginPage.module.scss";
-import clsx from "clsx";
-import arrow from "shared/assets/icons/Arrow.svg";
-import { useNavigate } from "react-router";
+import { useEffect, useState } from 'react';
+import Button from 'shared/ui/Button';
+import RegistrationChoice from 'widgets/RegistrationChoice/ui/RegistrationChoice';
+import EntryForm from 'features/EntryForm/ui/EntryForm';
+import RegistrationForm from 'features/RegistrationForm/ui/RegistrationForm';
+import styles from './LoginPage.module.scss';
+import clsx from 'clsx';
+import arrow from 'shared/assets/icons/Arrow.svg';
+import { useNavigate } from 'react-router';
+import type { UserType } from 'entities/user/model/types';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -16,10 +17,8 @@ const LoginPage = () => {
   };
 
   const [isBack, setIsBack] = useState(false);
-  const [activeBlock, setActiveBlock] = useState<
-    null | "entry" | "choice" | "registration"
-  >(null);
-
+  const [activeBlock, setActiveBlock] = useState<null | 'entry' | 'choice' | 'registration'>(null);
+  const [userType, setUserType] = useState<UserType>('tourist');
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -28,17 +27,22 @@ const LoginPage = () => {
   }, []);
 
   function CheckIsVisible(className?: string): string {
-    return isMounted ? className || "" : "";
+    return isMounted ? className || '' : '';
   }
 
   function GoBack() {
-    if (activeBlock === null) handleRedirect("/");
-    else if (activeBlock === "entry" || activeBlock === "choice")
-      setActiveBlock(null);
-    else if (activeBlock === "registration") setActiveBlock("choice");
+    if (activeBlock === null) handleRedirect('/');
+    else if (activeBlock === 'entry' || activeBlock === 'choice') setActiveBlock(null);
+    else if (activeBlock === 'registration') setActiveBlock('choice');
 
     setIsBack(true);
   }
+
+  const handleChoice = (userType: UserType) => {
+    setActiveBlock('registration');
+    setIsBack(false);
+    setUserType(userType);
+  };
 
   return (
     <div className={styles.registration}>
@@ -51,12 +55,7 @@ const LoginPage = () => {
       >
         <img src={arrow} />
       </button>
-      <div
-        className={clsx(
-          styles.img,
-          CheckIsVisible(styles.img_visible) && styles.img_visible
-        )}
-      >
+      <div className={clsx(styles.img, CheckIsVisible(styles.img_visible) && styles.img_visible)}>
         <div
           className={clsx(
             styles.blackout,
@@ -74,16 +73,13 @@ const LoginPage = () => {
         <h3 className={styles.title}>TourGuide</h3>
         <p className={styles.slogan}>Отправляйся в путешествие с нами</p>
         <div
-          className={clsx(
-            styles.registration_buttons,
-            activeBlock === null && styles.active_block
-          )}
+          className={clsx(styles.registration_buttons, activeBlock === null && styles.active_block)}
         >
           <Button
             variant="black"
-            style={{ width: "100%" }}
+            style={{ width: '100%' }}
             onClick={() => {
-              setActiveBlock("entry");
+              setActiveBlock('entry');
               setIsBack(false);
             }}
           >
@@ -91,31 +87,24 @@ const LoginPage = () => {
           </Button>
           <Button
             variant="black"
-            style={{ width: "100%" }}
+            style={{ width: '100%' }}
             onClick={() => {
-              setActiveBlock("choice");
+              setActiveBlock('choice');
               setIsBack(false);
             }}
           >
             Регистрация
           </Button>
         </div>
-        <EntryForm
-          className={clsx(activeBlock === "entry" && styles.active_block)}
-          back={isBack}
-        />
+        <EntryForm className={clsx(activeBlock === 'entry' && styles.active_block)} back={isBack} />
         <RegistrationChoice
-          className={clsx(activeBlock === "choice" && styles.active_block)}
-          onClick={() => {
-            setActiveBlock("registration");
-            setIsBack(false);
-          }}
+          className={clsx(activeBlock === 'choice' && styles.active_block)}
+          onClick={handleChoice}
         />
         <RegistrationForm
-          className={clsx(
-            activeBlock === "registration" && styles.active_block
-          )}
+          className={clsx(activeBlock === 'registration' && styles.active_block)}
           back={isBack}
+          userType={userType}
         />
       </div>
     </div>

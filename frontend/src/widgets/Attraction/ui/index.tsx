@@ -1,30 +1,25 @@
-import Rating from "shared/ui/Rating/ui/Rating";
-import styles from "./Attraction.module.scss";
-import clsx from "clsx";
-import Location from "shared/ui/Location/ui/Location";
-import AttractionMap from "widgets/AttractionMap/ui/AttractionMap";
-import AttractionContacts from "widgets/AttractionContacts/ui/AttractionContacts";
-import AttractionDescription from "widgets/AttractionDescription/ui/AttractionDescription";
-import AttractionWorkingTime from "widgets/AttractionWorkingTime/ui/AttractionWorkingTime";
-import AttractionPlaceholder from "shared/assets/attraction_placeholder.png";
-import type { AttractionDetails } from "entities/attraction/model/types";
-import { BASE_URL } from "shared/config/constants";
-import { useWatchLocation } from "entities/location/hooks/useWatchLocation";
-import type { RootState } from "app/store/mainStore";
-import { useSelector } from "react-redux";
-import { useEffect, useState } from "react";
-import {
-  formatDistance,
-  haversineDistance,
-} from "entities/location/lib/haversinDistance";
+import Rating from 'shared/ui/Rating/ui/Rating';
+import styles from './Attraction.module.scss';
+import clsx from 'clsx';
+import Location from 'shared/ui/Location/ui/Location';
+import AttractionMap from 'widgets/AttractionMap/ui/AttractionMap';
+import AttractionContacts from 'widgets/AttractionContacts/ui/AttractionContacts';
+import AttractionDescription from 'widgets/AttractionDescription/ui/AttractionDescription';
+import AttractionWorkingTime from 'widgets/AttractionWorkingTime/ui/AttractionWorkingTime';
+import AttractionPlaceholder from 'shared/assets/attraction_placeholder.png';
+import type { AttractionDetails } from 'entities/attraction/model/types';
+import { BASE_URL } from 'shared/config/constants';
+import type { RootState } from 'app/store/mainStore';
+import { useSelector } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { formatDistance, haversineDistance } from 'entities/location/lib/haversinDistance';
 
 interface AttractionProps {
   attraction: AttractionDetails;
 }
 
 const Attraction = ({ attraction }: AttractionProps) => {
-  useWatchLocation();
-  const [distance, setDistance] = useState<string>("");
+  const [distance, setDistance] = useState<string>('');
 
   const coords = useSelector((state: RootState) => state.location.coords);
 
@@ -79,9 +74,7 @@ const Attraction = ({ attraction }: AttractionProps) => {
           textClassName={styles.text}
           address={attraction.address}
         ></AttractionMap>
-        {(attraction.phone_number ||
-          attraction.email ||
-          attraction.website) && (
+        {(attraction.phone_number || attraction.email || attraction.website) && (
           <AttractionContacts
             titleClassName={styles.title}
             textClassName={styles.text}

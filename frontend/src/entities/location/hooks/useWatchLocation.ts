@@ -1,14 +1,14 @@
 // features/location/hooks/useWatchLocation.ts
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { setCoords, setError } from "../model/slice";
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { setCoords, setError } from '../model/slice';
 
 export const useWatchLocation = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (!navigator.geolocation) {
-      dispatch(setError("Geolocation is not supported by your browser"));
+      dispatch(setError('Geolocation is not supported by your browser'));
       return;
     }
 
@@ -26,8 +26,8 @@ export const useWatchLocation = () => {
       },
       {
         enableHighAccuracy: true,
-        maximumAge: 10000,
-        timeout: 10000,
+        maximumAge: 30000,
+        timeout: 30000,
       }
     );
 
