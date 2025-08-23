@@ -61,6 +61,7 @@ INSTALLED_APPS = [
 
 		'corsheaders',
     'attraction_routes',
+    'leaderboard'
 ]
 
 SITE_ID = 2
