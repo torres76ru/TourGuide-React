@@ -8,8 +8,23 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 
-CORS_ALLOWED_ORIGINS =  ["http://176.123.161.85:5173",
-                         "http://localhost:5173",]
+CORS_ALLOWED_ORIGINS = [
+    "http://176.123.161.85",      
+    "http://localhost:5173",     
+    "http://127.0.0.1:5173",      
+]
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -65,13 +80,12 @@ SIMPLE_JWT = {
 }
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-
-		'corsheaders.middleware.CorsMiddleware',
 
     'allauth.account.middleware.AccountMiddleware',
 
