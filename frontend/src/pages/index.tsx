@@ -11,3 +11,6 @@ export { default as UserChangePasswordPage } from "./user-change-password-page";
 export { default as UserVisitedExcursionsPage } from "./user-visited-excursions-page";
 export { default as UserScheduledExcursionsPage } from "./user-scheduled-excursions-page";
 export { default as ReviewPage } from "./review-page";
+export { default as GuideExcursionsPage } from "./guide-excursions-page";
+export { default as ExcursionPage } from "./excursion-page";
+export { default as JoinPage } from "./join-page";

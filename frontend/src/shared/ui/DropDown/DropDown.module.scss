@@ -1,0 +1,18 @@
+.drop_down {
+    width: 75px;
+    height: 30px;
+    font-size: 16px;
+    font-weight: 400;
+    padding: 0 5px;
+    border-radius: 5px;
+    border: 0.5px solid rgba(36, 36, 36, 0.3);
+    outline: none;
+    &:focus {
+    background: #FFFFFF;
+    box-shadow: 0px 0px 4px 0px #2424244D;
+    }
+}
+
+.select_error {
+  border: 1px solid red !important;
+}

@@ -84,8 +84,8 @@ const Header = () => {
           <Button
             variant="black"
             style={{ width: "100%" }}
-            onClick={() => handleRedirect("/sight")}>
-            Достопримечательность
+            onClick={() => handleRedirect("/excursion")}>
+            Экскурсия
           </Button>
         </div>
       </Modal>

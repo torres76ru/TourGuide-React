@@ -34,15 +34,25 @@ const UserPage = () => {
               height: "32px"
             }}></UserName>
       </div>
-      
-      <ul className={styles.buttons_list}>
+      {user?.is_guide ? 
+        <ul className={styles.buttons_list}>
+            <li><MenuButton onClick={() => handleRedirect("/user/data")}>Личные данные</MenuButton></li>
+            <li><MenuButton>Расписание</MenuButton></li>
+            <li><MenuButton onClick={() => handleRedirect("/user/guide-excursions")}>Мои экскурсии</MenuButton></li>
+            <li><MenuButton>Отзывы</MenuButton></li>
+            <li><MenuButton onClick={() => {setIsExit(true);}}>Выйти <img src={exit} alt="Выход"/></MenuButton></li>
+        </ul>
+        :
+         <ul className={styles.buttons_list}>
             <li><MenuButton onClick={() => handleRedirect("/user/data")}>Личные данные</MenuButton></li>
             <li><MenuButton>Хочу посетить</MenuButton></li>
             <li><MenuButton onClick={() => handleRedirect("/user/scheduled_excursions")}>Запланированные экскурсии</MenuButton></li>
             <li><MenuButton onClick={() => handleRedirect("/user/visited_excursions")}>Посещённые экскурсии</MenuButton></li>
             <li><MenuButton>Мои отзывы</MenuButton></li>
             <li><MenuButton onClick={() => {setIsExit(true);}}>Выйти <img src={exit} alt="Выход"/></MenuButton></li>
-      </ul>
+          </ul>
+      }
+      
       {isExit && 
       <div className={styles.black_section} onClick={() => {setIsExit(false);}}>
         <div className={styles.notification}>

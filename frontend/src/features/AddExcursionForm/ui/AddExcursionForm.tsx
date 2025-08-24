@@ -1,0 +1,285 @@
+import Input from "shared/ui/Input/Input"
+import styles from "./AddExcursionForm.module.scss"
+import DropDownSection from "shared/ui/DropDownSection/DropDownSection"
+import { useState } from "react";
+import AddPhotoButton from "shared/ui/AddPhotoButton/AddPhotoButton";
+import Button from "shared/ui/Button";
+import DateExcursion from "widgets/DateExcursion/DateExcursion";
+import TextArea from "shared/ui/TextArea/TextArea";
+import {updateMockExcursion } from "features/AddExcursionForm/lib/getExcursion"
+
+export default function AddExcursionForm() {
+    const numbArray = Array.from({ length: 101 }, (_, index) => index.toString());
+    const [formData, setFormData] = useState({
+        title: "",
+        price: "",
+        min_people: "",
+        max_people: "",
+        description: "",
+        date: "",
+        min_time: "",
+        max_time: "",
+        phone: "",
+        email: "",
+        city: "",
+        street: "",
+        house: "",
+        entrance: "",
+        flat: "",
+      });
+
+    const [errors, setErrors] = useState({
+        title: "",
+        price: "",
+        min_people: "",
+        max_people: "",
+        description: "",
+        date: "",
+        min_time: "",
+        max_time: "",
+        phone: "",
+        email: "",
+        city: "",
+        street: "",
+        house: "",
+        entrance: "",
+        flat: "",
+    });
+
+    const validate = () => {
+    let valid = true;
+    const newErrors = { ...errors };
+
+    if (!formData.title) {
+      newErrors.title = "Пустое поле";
+      valid = false;
+    }
+
+    if (!formData.price) {
+      newErrors.price = "Пустое поле";
+      valid = false;
+    }
+
+    if (!formData.min_people) {
+      newErrors.min_people = "Пустое поле";
+      valid = false;
+    }
+
+     if (!formData.max_people) {
+      newErrors.max_people = "Пустое поле";
+      valid = false;
+    }
+
+    if (!formData.description) {
+      newErrors.description = "Пустое поле";
+      valid = false;
+    }
+
+     if (!formData.date) {
+      newErrors.date = "Пустое поле";
+      valid = false;
+    }
+
+     if (!formData.min_time) {
+      newErrors.min_time = "Пустое поле";
+      valid = false;
+    }
+
+     if (!formData.max_time) {
+      newErrors.max_time = "Пустое поле";
+      valid = false;
+    }
+
+    if (!formData.phone) {
+      newErrors.phone = "Пустое поле";
+      valid = false;
+    }
+
+    if (!formData.email) {
+      newErrors.email = "Пустое поле";
+      valid = false;
+    }
+
+    if (!formData.city) {
+      newErrors.city = "Пустое поле";
+      valid = false;
+    }
+
+    if (!formData.street) {
+      newErrors.street = "Пустое поле";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
+      // Создание массива времени с интервалом 30 минут
+      const timeArray = Array.from({ length: 48 }, (_, i) => {
+        const hours = Math.floor(i / 2);
+        const minutes = (i % 2) * 30;
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        });
+        
+
+    const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+     setFormData(prev => ({
+       ...prev,
+       [field]: e.target.value
+     }));
+     setErrors((prev) => ({ ...prev, [field]: "" }));
+   };
+
+   const handleSubmit = (e: React.FormEvent) => {
+    if (validate()) {
+      updateMockExcursion(formData)
+      console.log(formData)
+    }
+      
+     };
+    return (
+        <>
+            <form className={styles.addExcursionForm}>
+                <Input 
+                label="Название"
+                classLable={styles.font_weight} 
+                placeholder="Введите название..."
+                value={formData.title}
+                onChange={handleChange('title')}
+                classInput={styles.size}
+                id="excursion_title"
+                error={errors.title}
+                ></Input>
+                <div className={styles.price_section}>
+                  <Input 
+                  label="Цена"
+                  classLable={styles.font_weight} 
+                  value={formData.price}
+                  onChange={handleChange('price')}
+                  classInput={styles.small_size}
+                  id="excursion_price"
+                  error={errors.price}
+                  pattern="[0-9]*"
+                  inputMode="numeric"
+                  ></Input>
+                  <p>рублей с человека</p>
+                </div>
+                <DropDownSection 
+                title="Количество человек"
+                options={numbArray}
+                selectedValue_1={formData.min_people}
+                onValueChange_1={handleChange('min_people')}
+                error_1={errors.min_people}
+                selectedValue_2={formData.max_people}
+                onValueChange_2={handleChange('max_people')}
+                error_2={errors.max_people}
+                ></DropDownSection>
+                <div className={styles.description_section}>
+                    <p>Описание</p>
+                    <TextArea
+                    placeholder="Введите описание..."
+                    value={formData.description}
+                    onChange={handleChange('description')}
+                    error={errors.description}>
+                    </TextArea>
+                </div>
+                <p>Дата экскурсии</p>
+                <DateExcursion
+                value={formData.date}
+                onChange={handleChange('date')}
+                options={timeArray}
+                selectedValue_1={formData.min_time}
+                onValueChange_1={handleChange('min_time')}
+                error_1={errors.min_time}
+                selectedValue_2={formData.max_time}
+                onValueChange_2={handleChange('max_time')}
+                error_2={errors.max_time}
+                error_3={errors.date}>
+                </DateExcursion>
+                <Input 
+                label="Номер телефона"
+                classLable={styles.font_weight} 
+                placeholder="Введите номер..."
+                value={formData.phone}
+                onChange={handleChange('phone')}
+                classInput={styles.size}
+                id="excursion_phone"
+                type="tel"
+                pattern="[0-9]*"
+                maxLength={11} 
+                error={errors.phone}
+                ></Input>
+                <Input 
+                label="Эл. почта"
+                classLable={styles.font_weight} 
+                placeholder="Введите эл. почту..."
+                value={formData.email}
+                onChange={handleChange('email')}
+                classInput={styles.size}
+                id="excursion_email"
+                type="email"
+                error={errors.email}
+                ></Input>
+                <div className={styles.address_section}>
+                    <p>Укажите адрес</p>
+                    <Input 
+                    label="Город"
+                    classLable={styles.font_weight} 
+                    placeholder="Введите город..."
+                    value={formData.city}
+                    onChange={handleChange('city')}
+                    classInput={`${styles.size} ${styles.margin}`}
+                    id="excursion_city"
+                    error={errors.city}
+                    ></Input>
+                    <Input 
+                    label="Улица"
+                    classLable={styles.font_weight} 
+                    placeholder="Введите название улицы..."
+                    value={formData.street}
+                    onChange={handleChange('street')}
+                    classInput={`${styles.size} ${styles.margin}`}
+                    id="excursion_street"
+                    error={errors.street}
+                    ></Input>
+                    <div className={styles.adress}>
+                        <Input 
+                        label="Дом"
+                        classLable={styles.font_weight} 
+                        value={formData.house}
+                        onChange={handleChange('house')}
+                        classInput={styles.size}
+                        id="excursion_house"
+                        pattern="[0-9]*"
+                        inputMode="numeric"
+                        ></Input>
+                        <Input 
+                        label="Подъезд"
+                        classLable={styles.font_weight} 
+                        value={formData.entrance}
+                        onChange={handleChange('entrance')}
+                        classInput={styles.size}
+                        id="excursion_entrance"
+                        pattern="[0-9]*"
+                        inputMode="numeric"
+                        ></Input>
+                        <Input 
+                        label="Квартира"
+                        classLable={styles.font_weight} 
+                        value={formData.flat}
+                        onChange={handleChange('flat')}
+                        classInput={styles.size}
+                        id="excursion_flat"
+                        pattern="[0-9]*"
+                        inputMode="numeric"
+                        ></Input>
+                    </div>
+                </div>
+                <AddPhotoButton />
+               <Button variant="black" style={{ width: "278px", marginTop: "60px"}} onClick={handleSubmit} type="button">
+                    Создать экскурсию
+                </Button>
+            </form>
+        </>
+    )
+}

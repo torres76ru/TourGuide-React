@@ -1,0 +1,23 @@
+.ModalAddExcursion {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    width: 100%;
+    padding: 20px;
+    background: linear-gradient(to bottom, #FEF6ED 0%, #FFFFFF 17%, #FFFFFF 100%);
+}
+
+.title_section {
+    display: flex;
+    align-items: center;
+    h3 {
+        font-weight: 400;
+        font-size: 20px;
+        margin-left: 15px;
+    }
+}
+
+.back_button {
+    background-color: transparent;
+}

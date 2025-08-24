@@ -12,7 +12,7 @@ const Location = ({ distance, classSize ="", classSizeIcon ="", sity = ""}: Prop
   return (
     <div className={styles.location}>
       <img src={locationSharp} alt="Локация" className={classSizeIcon}/>
-      {sity ? <span>{sity}</span> : <span className={`${styles.location_size} ${classSize}`}>{distance}м</span>}
+      {sity ? <span>{sity}</span> : <span className={`${styles.location_size} ${classSize}`}>{distance}</span>}
     </div>
   );
 };

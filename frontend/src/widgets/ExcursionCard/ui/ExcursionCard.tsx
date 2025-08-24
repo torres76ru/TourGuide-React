@@ -33,7 +33,7 @@ export default function ExcursionCard({img, name, date, rating, sity} : Excursio
                         <h3 className={styles.text}>{name}</h3>
                     </div>
                     <p className={styles.text}>{date}</p>
-                    <Location location={0} sity={sity}></Location>
+                    <Location distance="" sity={sity}></Location>
                     <div className={styles.stars}>{stars}</div>
                 </div>
             </div>

@@ -9,6 +9,8 @@ import UserChangePasswordPage from "pages/user-change-password-page";
 import UserVisitedExcursionsPage from "pages/user-visited-excursions-page";
 import UserScheduledExcursionsPage from "pages/user-scheduled-excursions-page";
 import ReviewPage from "pages/review-page"
+import GuideExcursionsPage from "pages/guide-excursions-page"
+import JoinPage from "pages/join-page"
 
 export const Routing = () => {
   return (
@@ -26,6 +28,8 @@ export const Routing = () => {
         <Route path="/user/visited_excursions" element={<UserVisitedExcursionsPage />} />
         <Route path="/user/scheduled_excursions" element={<UserScheduledExcursionsPage />} />
         <Route path="/sight/review" element={<ReviewPage />} />
+        <Route path="/user/guide-excursions" element={<GuideExcursionsPage />} />
+        <Route path="/excursion/join" element={<JoinPage />} />
       </Routes>
     </BrowserRouter>
   );

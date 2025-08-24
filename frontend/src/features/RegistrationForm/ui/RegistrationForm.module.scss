@@ -1,10 +1,6 @@
 .registration_form {
     display: none;
-    /* display: flex; */
     flex-direction: column;
-    margin-bottom: 73px;
-    /* opacity: 0;
-    transition: opacity 1s ease 0.5s; */
 }
 
 .container_margin {
@@ -36,10 +32,6 @@
     margin-left: 6px;
 }
 
-// .checkbox_error {
-//     border: 1px solid red;
-// }
-
 /* Кастомный чекбокс */
 .checkbox_icon {
   display: inline-block;
@@ -51,7 +43,7 @@
   cursor: pointer;
 }
 
-/* Галочка (можно заменить на SVG) */
+/* Галочка */
 .hidden_checkbox:checked + .checkbox_icon::after {
   content: "✓";
   color: #C4BBB0;
@@ -64,4 +56,10 @@
 /* Красная обводка при ошибке */
 .hidden_checkbox.checkbox_error + .checkbox_icon {
   border-color: red;
+}
+
+@media (max-width: 376px) {
+    .checkbox_container {
+    margin-top: 20px;
+}
 }
