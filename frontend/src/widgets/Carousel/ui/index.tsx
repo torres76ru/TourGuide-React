@@ -1,10 +1,10 @@
 // widgets/Carousel/ui/index.tsx
 
-import SightCard from "widgets/SightCard/ui";
-import style from "./Carousel.module.scss";
-import arrowLeft from "shared/assets/arro-left.svg";
-import type { Attraction } from "entities/attraction/model/types";
-import Loader from "shared/ui/Loader/Loader";
+import SightCard from 'widgets/SightCard/ui';
+import style from './Carousel.module.scss';
+import arrowLeft from 'shared/assets/arro-left.svg';
+import type { Attraction } from 'entities/attraction/model/types';
+import Loader from 'shared/ui/Loader/Loader';
 
 interface Props {
   attractions: Attraction[];
@@ -26,7 +26,21 @@ const Carousel = ({ category, attractions, loading = false, error }: Props) => {
           <Loader size={40} color="#000" />
         </div>
       ) : error ? (
-        <div className={style.error}>Ошибка: {error}</div>
+        <div className={style.carousel}>
+          <div className={style.error}>Ошибка: {error}</div>
+          <div className={style.carousel_list}>
+            {attractions.map((sight) => (
+              <SightCard
+                key={sight.id}
+                id={sight.id}
+                name={sight.name}
+                description={sight.address}
+                rating={sight.average_rating}
+                img={sight.main_photo_url}
+              />
+            ))}
+          </div>
+        </div>
       ) : (
         <div className={style.carousel}>
           <div className={style.carousel_list}>

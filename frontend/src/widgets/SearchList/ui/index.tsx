@@ -1,27 +1,23 @@
-import { SightTiny } from "entities/sight-tiny";
+import type { Attraction } from 'entities/attraction/model/types';
+import { SightTiny } from 'entities/sight-tiny';
 
-const sightList = [
-  {
-    img_url: "",
-    title: "Театр Волкова",
-    town: "Ярославль",
-  },
-  {
-    img_url: "",
-    title: "Sight 2",
-    town: "Town 2",
-  },
-];
+interface SearchListProps {
+  attractions?: Attraction[];
+}
 
-export const SearchList = () => {
+export const SearchList = ({ attractions }: SearchListProps) => {
+  if (!attractions || attractions.length === 0) {
+    return <div>Ничего не найдено</div>;
+  }
   return (
     <div>
-      {sightList.map((sight, index) => (
+      {attractions.map((sight, index) => (
         <SightTiny
           key={index}
-          img_url={sight.img_url}
-          title={sight.title}
-          town={sight.town}
+          id={sight.id}
+          img_url={sight.main_photo_url}
+          title={sight.name}
+          town={sight.city}
         />
       ))}
     </div>

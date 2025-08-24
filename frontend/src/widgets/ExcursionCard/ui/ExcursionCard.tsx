@@ -1,7 +1,7 @@
-import styles from "./ExcursionCard.module.scss";
-import starBlue from "shared/assets/star-blue.svg";
-import star from "shared/assets/star.svg";
-import Location from "shared/ui/Location/ui/Location";
+import styles from './ExcursionCard.module.scss';
+import starBlue from 'shared/assets/star-blue.svg';
+import star from 'shared/assets/star.svg';
+import Location from 'shared/ui/Location/ui/Location';
 
 interface ExcursionCardProps {
   img?: string;
@@ -11,13 +11,7 @@ interface ExcursionCardProps {
   sity?: string;
 }
 
-export default function ExcursionCard({
-  img,
-  name,
-  date,
-  rating,
-  sity,
-}: ExcursionCardProps) {
+export default function ExcursionCard({ img, name, date, rating, sity }: ExcursionCardProps) {
   const roundedRating = Math.round(rating);
 
   // Создаем массив из 5 элементов и заполняем звёздами
@@ -27,7 +21,7 @@ export default function ExcursionCard({
       <img
         key={index}
         src={index < roundedRating ? starBlue : star}
-        alt={index < roundedRating ? "Голубая звезда" : "Обычная звезда"}
+        alt={index < roundedRating ? 'Голубая звезда' : 'Обычная звезда'}
       />
     ));
   return (
@@ -41,7 +35,7 @@ export default function ExcursionCard({
             <h3 className={styles.text}>{name}</h3>
           </div>
           <p className={styles.text}>{date}</p>
-          <Location distance={"0"} sity={sity}></Location>
+          <Location distance={''} sity={sity}></Location>
           <div className={styles.stars}>{stars}</div>
         </div>
       </div>
