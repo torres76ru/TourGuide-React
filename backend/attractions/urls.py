@@ -1,6 +1,5 @@
 from django.urls import path
 from .views import (
-    MapAttractionsView,
     AdminFetchPhotosView,
     AdminListPendingPhotosView,
     AttractionListView,
@@ -8,7 +7,6 @@ from .views import (
     AttractionCreateView,
     PhotoUploadView,
     AttractionSearchView,
-    AttractionDetailCitiesView,
     AttractionUpdateView
 )
 
@@ -19,8 +17,6 @@ urlpatterns = [
     path('attractions/<int:pk>/', AttractionDetailView.as_view(), name='attraction-detail'),# детали места
     path('attractions/search/', AttractionSearchView.as_view(), name='attraction-search'),  # Поиск по названию
     path('attractions/<int:attraction_id>/photos/', PhotoUploadView.as_view(), name='photo-upload'),#Пользователь отправляет фото свое
-    path('map/attractions/', MapAttractionsView.as_view(), name='map_attractions'),# Основная карта ищет по долготе и широте город и рядом какие места по категориям
-    path('map/attractions/city/', AttractionDetailCitiesView.as_view(), name='map_attractions_cities'),#<-Поскт по широте и долготе в каком ты городе
     path('attractions/update/<int:id>/', AttractionUpdateView.as_view(), name='attraction-update'),#Обновления данных от пользователя для достопримечательности
     # Админские эндпоинты
     path('admin/attractions/pending-photos/', AdminListPendingPhotosView.as_view(), name='admin_pending_photos'),
