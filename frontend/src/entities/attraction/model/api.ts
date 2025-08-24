@@ -20,7 +20,7 @@ export const attractionApi = {
     tags?: string[]
   ): Promise<AttractionListResponse> => {
     const { data } = await axios.get(
-      `${API_BASE_URL}/api/map/attractions/?lat=${lat}&lon=${lon}${tags ? `&tags=${tags.join(',')}` : ''}`
+      `${API_BASE_URL}/map/attractions/?lat=${lat}&lng=${lon}${tags ? `&tags=${tags.join(',')}` : ''}`
     );
     return data;
   },

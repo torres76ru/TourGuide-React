@@ -14,6 +14,7 @@ export const SearchList = ({ attractions }: SearchListProps) => {
       {attractions.map((sight, index) => (
         <SightTiny
           key={index}
+          id={sight.id}
           img_url={sight.main_photo_url}
           title={sight.name}
           town={sight.city}

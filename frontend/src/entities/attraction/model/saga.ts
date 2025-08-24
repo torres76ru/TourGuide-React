@@ -37,25 +37,26 @@ function* handleSearchAttractions(action: PayloadAction<{ query: string }>) {
   }
 }
 
-function* handleFetchAttractions(action: PayloadAction<{ city: string; tag: string }>) {
-  const { city, tag } = action.payload;
+function* handleFetchAttractions(
+  action: PayloadAction<{ city?: string; tag: string; nearby?: { lat: number; lon: number } }>
+) {
+  const { city, tag, nearby } = action.payload;
+
   try {
-    const data: AttractionListResponse = yield* call(attractionApi.getByCity, city, tag);
+    let data: AttractionListResponse;
+
+    if (nearby) {
+      data = yield* call(attractionApi.getByCoords, nearby.lat, nearby.lon, [tag]);
+    } else if (city) {
+      data = yield* call(attractionApi.getByCity, city, tag);
+    } else {
+      throw new Error('Either city or nearby coordinates must be provided');
+    }
 
     yield* put(fetchAttractionsSuccess({ tag, data }));
   } catch (err: unknown) {
     let message = 'Loading attractions failed';
-
-    if (err && typeof err === 'object' && 'response' in err) {
-      const axiosErr = err as {
-        response?: { data?: { detail?: string } };
-        message?: string;
-      };
-      message = axiosErr.response?.data?.detail ?? axiosErr.message ?? message;
-    } else if (err instanceof Error) {
-      message = err.message;
-    }
-
+    if (err instanceof Error) message = err.message;
     yield* put(fetchAttractionsFailure({ tag, error: message }));
   }
 }

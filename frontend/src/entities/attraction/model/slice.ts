@@ -50,15 +50,13 @@ const attractionSlice = createSlice({
       state.search.loading = false;
       state.search.error = action.payload;
     },
-    fetchAttractionsRequest(state, action: PayloadAction<{ city: string; tag: string }>) {
+    fetchAttractionsRequest(
+      state,
+      action: PayloadAction<{ city?: string; tag: string; nearby?: { lat: number; lon: number } }>
+    ) {
       const { tag } = action.payload;
-      // инициализация под тег, если его ещё нет
       if (!state.attractionsByTag[tag]) {
-        state.attractionsByTag[tag] = {
-          attractions: [],
-          loading: true,
-          error: null,
-        };
+        state.attractionsByTag[tag] = { attractions: [], loading: true, error: null };
       } else {
         state.attractionsByTag[tag].loading = true;
         state.attractionsByTag[tag].error = null;
@@ -69,20 +67,12 @@ const attractionSlice = createSlice({
       action: PayloadAction<{ tag: string; data: AttractionListResponse }>
     ) {
       const { tag, data } = action.payload;
-      state.attractionsByTag[tag] = {
-        attractions: data.attractions,
-        loading: false,
-        error: null,
-      };
+      state.attractionsByTag[tag] = { attractions: data.attractions, loading: false, error: null };
     },
     fetchAttractionsFailure(state, action: PayloadAction<{ tag: string; error: string }>) {
       const { tag, error } = action.payload;
       if (!state.attractionsByTag[tag]) {
-        state.attractionsByTag[tag] = {
-          attractions: [],
-          loading: false,
-          error,
-        };
+        state.attractionsByTag[tag] = { attractions: [], loading: false, error };
       } else {
         state.attractionsByTag[tag].loading = false;
         state.attractionsByTag[tag].error = error;

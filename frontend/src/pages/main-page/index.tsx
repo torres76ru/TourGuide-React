@@ -8,6 +8,8 @@ import type { AppDispatch, RootState } from 'app/store/mainStore';
 import { useEffect } from 'react';
 import { fetchAttractionsRequest } from 'entities/attraction/model/slice';
 import { selectAttractionsByTags } from 'entities/attraction/model/selectors';
+import { useWatchLocation } from 'entities/location/hooks/useWatchLocation';
+import { useSearchParams } from 'react-router';
 
 const categories = [
   { tag: 'museum', label: 'Лучшие музеи' },
@@ -19,6 +21,13 @@ const categories = [
 const MainPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const city = useSelector((state: RootState) => state.location.city);
+  const coords = useSelector((state: RootState) => state.location.coords);
+
+  const [searchParams] = useSearchParams();
+
+  const hasNearby = searchParams.has('nearby');
+
+  useWatchLocation();
 
   const attractionsByTag = useSelector((state: RootState) =>
     selectAttractionsByTags(
@@ -27,13 +36,28 @@ const MainPage = () => {
     )
   );
 
+  // Только для загрузки по городу
   useEffect(() => {
-    if (city) {
+    if (city && !hasNearby) {
       categories.forEach(({ tag }) => {
         dispatch(fetchAttractionsRequest({ city, tag }));
       });
     }
-  }, [dispatch, city]);
+  }, [dispatch, city, hasNearby]);
+
+  // Только для nearby
+  useEffect(() => {
+    if (hasNearby && coords) {
+      categories.forEach(({ tag }) => {
+        dispatch(
+          fetchAttractionsRequest({
+            tag,
+            nearby: { lat: coords.latitude, lon: coords.longitude },
+          })
+        );
+      });
+    }
+  }, [dispatch, hasNearby, coords]);
 
   return (
     <div className={styles.body}>

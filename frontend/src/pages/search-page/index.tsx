@@ -12,6 +12,7 @@ import debounce from 'lodash.debounce';
 import { useSelector } from 'react-redux';
 import type { RootState } from 'app/store/mainStore';
 import type { Attraction } from 'entities/attraction/model/types';
+import { setCoords } from 'entities/location/model/slice';
 
 const SearchPage = () => {
   const dispatch = useDispatch();
@@ -42,12 +43,21 @@ const SearchPage = () => {
 
   const handleRedirect = (url: string) => {
     handleGetLocation();
-    navigate(url);
+    navigate({
+      pathname: url,
+      search: '?nearby',
+    });
   };
 
   const handleGetLocation = async () => {
     try {
       const loc = await getCurrentLocation();
+      dispatch(
+        setCoords({
+          latitude: loc.lat,
+          longitude: loc.lon,
+        })
+      );
       alert(`Ваше местоположение: ${loc.lat}, ${loc.lon}`);
     } catch (e) {
       alert(`Ошибка получения местоположения: ${e}`);
