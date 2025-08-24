@@ -1,6 +1,5 @@
 import os
-from typing import re
-
+import re
 import requests
 from io import BytesIO
 from PIL import Image
@@ -358,17 +357,25 @@ class AttractionSearchView(APIView):
             return Response({"error": "Name must be at least 3 characters long"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
+            print(f"Processing query: {name}")
             cache_key = f"attraction_search_{name.lower()}"
             cached_attractions = cache.get(cache_key)
             if cached_attractions:
+                print(f"Returning cached data for {cache_key}")
                 return Response(cached_attractions, status=status.HTTP_200_OK)
 
-            query_normalized = re.sub(r'\s+', '', name.lower())
-            attractions = Attraction.objects.filter(
-                name__iregex=r'.*' + re.escape(query_normalized) + r'.*'
-            ).distinct()
+            query_words = [word for word in re.split(r'\s+', name.lower()) if word]
+            print(f"Query words: {query_words}")
+
+            query = Q()
+            for word in query_words:
+                query &= Q(name__icontains=word)
+
+            print("Performing search with Q query")
+            attractions = Attraction.objects.filter(query).distinct()
 
             if not attractions.exists():
+                print("Falling back to icontains search for original query")
                 attractions = Attraction.objects.filter(name__icontains=name).distinct()
 
             if not attractions.exists():
@@ -380,10 +387,13 @@ class AttractionSearchView(APIView):
             print(f"Found {attractions.count()} attractions for query '{name}'")
             serializer = AttractionListSerializer(attractions, many=True)
             response_data = serializer.data
-            print(f"Serialized data length: {len(response_data)}")
+            print(f"Serialized data: {response_data}")
             cache.set(cache_key, response_data, timeout=3600)
             return Response(response_data, status=status.HTTP_200_OK)
         except Exception as e:
+            print(f"Error occurred: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class AttractionUpdateView(generics.RetrieveUpdateAPIView):
