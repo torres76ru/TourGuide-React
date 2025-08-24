@@ -1,27 +1,23 @@
-import Button from "shared/ui/Button";
-import Input from "shared/ui/Input/Input";
-import PasswordInput from "shared/ui/PasswordInput/PasswordInput";
-import styles from "./RegistrationForm.module.scss";
-import clsx from "clsx";
-import { useRegistrationForm } from "../model/hooks/useRegistrationForm";
+import Button from 'shared/ui/Button';
+import Input from 'shared/ui/Input/Input';
+import PasswordInput from 'shared/ui/PasswordInput/PasswordInput';
+import styles from './RegistrationForm.module.scss';
+import clsx from 'clsx';
+import { useRegistrationForm } from '../model/hooks/useRegistrationForm';
+import type { UserType } from 'entities/user/model/types';
 
 interface RegistrationFormProps {
   className?: string;
   back: boolean;
+  userType: UserType;
 }
 
-export default function RegistrationForm({
-  className,
-  back,
-}: RegistrationFormProps) {
-  const { formData, errors, handleChange, handleSubmit, loading, error } =
-    useRegistrationForm();
+export default function RegistrationForm({ className, back, userType }: RegistrationFormProps) {
+  const { formData, errors, handleChange, handleSubmit, loading, error } = useRegistrationForm();
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className={clsx(styles.registration_form, className)}
-    >
+    <form onSubmit={handleSubmit} className={clsx(styles.registration_form, className)}>
+      {userType}
       <Input
         label="Почта"
         id="reg__email-id"
@@ -61,10 +57,7 @@ export default function RegistrationForm({
       <div className={styles.checkbox_container}>
         <label className={styles.custom_checkbox}>
           <input
-            className={clsx(
-              styles.hidden_checkbox,
-              errors.checkbox && styles.checkbox_error
-            )}
+            className={clsx(styles.hidden_checkbox, errors.checkbox && styles.checkbox_error)}
             type="checkbox"
             id="reg__checkbox-id"
             onChange={handleChange}
@@ -76,16 +69,11 @@ export default function RegistrationForm({
           Я прочитал и согласен с политикой данного сервиса.
         </label>
       </div>
-      <Button
-        variant="black"
-        style={{ width: "278px" }}
-        type="submit"
-        disabled={loading}
-      >
-        {loading ? "Загрузка..." : "Зарегистрироваться"}
+      <Button variant="black" style={{ width: '278px' }} type="submit" disabled={loading}>
+        {loading ? 'Загрузка...' : 'Зарегистрироваться'}
       </Button>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
     </form>
   );
 }
