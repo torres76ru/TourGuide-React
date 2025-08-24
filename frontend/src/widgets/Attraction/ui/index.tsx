@@ -46,6 +46,10 @@ const Attraction = ({ attraction }: AttractionProps) => {
               : AttractionPlaceholder
           }
           alt="Достопримечательность"
+          onError={(e) => {
+            // заменяем на плейсхолдер, если картинка не загрузилась
+            (e.currentTarget as HTMLImageElement).src = AttractionPlaceholder;
+          }}
         />
       </div>
       <div className={clsx(styles.attr_description, styles.container)}>
