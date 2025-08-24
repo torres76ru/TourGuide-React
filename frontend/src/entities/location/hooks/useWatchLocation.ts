@@ -23,6 +23,8 @@ export const useWatchLocation = () => {
         dispatch(setCity(data.city));
       } catch (error) {
         console.error(`City not found by your coords: lat=${lat}, lon=${lon}}`, error);
+        getCity(59.934, 30.306); // DELETE THIS // St. Petersburg coords
+
       }
     }
 
@@ -40,7 +42,7 @@ export const useWatchLocation = () => {
       (err) => {
         dispatch(setError(err.message));
 
-        getCity(59.934, 30.306); // DELETE THIS
+        getCity(59.934, 30.306); // DELETE THIS // St. Petersburg coords
       },
       {
         enableHighAccuracy: true,
