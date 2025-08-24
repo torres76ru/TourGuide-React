@@ -1,142 +1,19 @@
 import Input from "shared/ui/Input/Input"
 import styles from "./AddExcursionForm.module.scss"
 import DropDownSection from "shared/ui/DropDownSection/DropDownSection"
-import { useState } from "react";
+import { type MouseEventHandler } from "react";
 import AddPhotoButton from "shared/ui/AddPhotoButton/AddPhotoButton";
 import Button from "shared/ui/Button";
 import DateExcursion from "widgets/DateExcursion/DateExcursion";
 import TextArea from "shared/ui/TextArea/TextArea";
-import {updateMockExcursion } from "features/AddExcursionForm/lib/getExcursion"
+import { useAddExcursionForm } from "../model/hooks/setAddExcursionForm";
 
-export default function AddExcursionForm() {
-    const numbArray = Array.from({ length: 101 }, (_, index) => index.toString());
-    const [formData, setFormData] = useState({
-        title: "",
-        price: "",
-        min_people: "",
-        max_people: "",
-        description: "",
-        date: "",
-        min_time: "",
-        max_time: "",
-        phone: "",
-        email: "",
-        city: "",
-        street: "",
-        house: "",
-        entrance: "",
-        flat: "",
-      });
+interface AddExcursionForm{
+  onClick?: MouseEventHandler<HTMLButtonElement>;
+}
 
-    const [errors, setErrors] = useState({
-        title: "",
-        price: "",
-        min_people: "",
-        max_people: "",
-        description: "",
-        date: "",
-        min_time: "",
-        max_time: "",
-        phone: "",
-        email: "",
-        city: "",
-        street: "",
-        house: "",
-        entrance: "",
-        flat: "",
-    });
-
-    const validate = () => {
-    let valid = true;
-    const newErrors = { ...errors };
-
-    if (!formData.title) {
-      newErrors.title = "Пустое поле";
-      valid = false;
-    }
-
-    if (!formData.price) {
-      newErrors.price = "Пустое поле";
-      valid = false;
-    }
-
-    if (!formData.min_people) {
-      newErrors.min_people = "Пустое поле";
-      valid = false;
-    }
-
-     if (!formData.max_people) {
-      newErrors.max_people = "Пустое поле";
-      valid = false;
-    }
-
-    if (!formData.description) {
-      newErrors.description = "Пустое поле";
-      valid = false;
-    }
-
-     if (!formData.date) {
-      newErrors.date = "Пустое поле";
-      valid = false;
-    }
-
-     if (!formData.min_time) {
-      newErrors.min_time = "Пустое поле";
-      valid = false;
-    }
-
-     if (!formData.max_time) {
-      newErrors.max_time = "Пустое поле";
-      valid = false;
-    }
-
-    if (!formData.phone) {
-      newErrors.phone = "Пустое поле";
-      valid = false;
-    }
-
-    if (!formData.email) {
-      newErrors.email = "Пустое поле";
-      valid = false;
-    }
-
-    if (!formData.city) {
-      newErrors.city = "Пустое поле";
-      valid = false;
-    }
-
-    if (!formData.street) {
-      newErrors.street = "Пустое поле";
-      valid = false;
-    }
-
-    setErrors(newErrors);
-    return valid;
-  };
-
-      // Создание массива времени с интервалом 30 минут
-      const timeArray = Array.from({ length: 48 }, (_, i) => {
-        const hours = Math.floor(i / 2);
-        const minutes = (i % 2) * 30;
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-        });
-        
-
-    const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-     setFormData(prev => ({
-       ...prev,
-       [field]: e.target.value
-     }));
-     setErrors((prev) => ({ ...prev, [field]: "" }));
-   };
-
-   const handleSubmit = (e: React.FormEvent) => {
-    if (validate()) {
-      updateMockExcursion(formData)
-      console.log(formData)
-    }
-      
-     };
+export default function AddExcursionForm({onClick} : AddExcursionForm) {
+    const { formData, errors, handleChange, handleSubmit, numbArray, timeArray} = useAddExcursionForm();
     return (
         <>
             <form className={styles.addExcursionForm}>
@@ -276,7 +153,9 @@ export default function AddExcursionForm() {
                     </div>
                 </div>
                 <AddPhotoButton />
-               <Button variant="black" style={{ width: "278px", marginTop: "60px"}} onClick={handleSubmit} type="button">
+               <Button variant="black" style={{ width: "278px", marginTop: "60px"}} onClick={(event) => {
+    handleSubmit(event); 
+    onClick?.(event);}} type="button">
                     Создать экскурсию
                 </Button>
             </form>

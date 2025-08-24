@@ -11,7 +11,6 @@ import People from "shared/ui/People/People";
 import blueArrow from "shared/assets/blue_arrow.svg"
 import Button from "shared/ui/Button";
 import type { MouseEventHandler } from "react";
-import { useNavigate } from "react-router-dom";
 
 
 interface ExcursionProps {
@@ -19,11 +18,6 @@ interface ExcursionProps {
 }
 
 const Excursion = ({TimetableClick} : ExcursionProps) => {
-    const navigate = useNavigate();
-
-    const handleRedirect = (href: string) => {
-      navigate(href);
-    };
 
     const formatAddress = (excursion: {
     city: string;
@@ -90,7 +84,7 @@ const Excursion = ({TimetableClick} : ExcursionProps) => {
             email={excursion.email}
           ></AttractionContacts>
         )}
-        <Button className={styles.button_size} onClick={() => handleRedirect('/excursion/join')}>Записаться на экскурсию</Button>
+        <Button className={styles.button_size} onClick={TimetableClick}>Записаться на экскурсию</Button>
       </div>
     </>
   );

@@ -24,20 +24,24 @@ export default function DropDownSection({title, options,
         <div className={styles.section}>
             <p>{title}</p>
             <div className={styles.drop_down_section}>
-                <DropDown 
-                options={options}
-                selectedValue={selectedValue_1}
-                handleChange={onValueChange_1}
-                label="от"
-                error={error_1}
-                ></DropDown>
-                <DropDown 
-                options={options}
-                selectedValue={selectedValue_2}
-                handleChange={onValueChange_2}
-                label="до"
-                error={error_2}
-                ></DropDown>
+                <div>
+                    <DropDown 
+                    options={options}
+                    selectedValue={selectedValue_1}
+                    handleChange={onValueChange_1}
+                    label="от"
+                    error={error_1}
+                    ></DropDown>
+                </div>
+                <div>
+                    <DropDown 
+                    options={options}
+                    selectedValue={selectedValue_2}
+                    handleChange={onValueChange_2}
+                    label="до"
+                    error={error_2}
+                    ></DropDown>
+                </div>
             </div>
         </div>
     )

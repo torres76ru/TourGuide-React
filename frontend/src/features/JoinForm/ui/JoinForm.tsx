@@ -1,71 +1,13 @@
 import Input from "shared/ui/Input/Input"
 import styles from "./JoinForm.module.scss"
-import { useState } from "react";
 import Button from "shared/ui/Button";
 import TextArea from "shared/ui/TextArea/TextArea";
 import {excursion } from "features/AddExcursionForm/lib/getExcursion"
 import DropDown from "shared/ui/DropDown/DropDown";
+import { useJoinForm } from "../model/hooks/useJoinForm";
 
 export default function JoinForm() {
-    
-    const formattedDate = excursion.date.replace(/-/g, '.');
-    const [formData, setFormData] = useState({
-        name: "",
-        phone: "",
-        email: "",
-        comment: "",
-      });
-
-    const [errors, setErrors] = useState({
-        name: "",
-        phone: "",
-        email: "",
-        comment: "",
-    });
-
-    const validate = () => {
-    let valid = true;
-    const newErrors = { ...errors };
-
-    if (!formData.name) {
-      newErrors.name = "Пустое поле";
-      valid = false;
-    }
-
-    if (!formData.phone) {
-      newErrors.phone = "Пустое поле";
-      valid = false;
-    }
-
-    if (!formData.email) {
-      newErrors.email = "Пустое поле";
-      valid = false;
-    }
-
-    if (!formData.comment) {
-      newErrors.comment = "Пустое поле";
-      valid = false;
-    }
-
-    setErrors(newErrors);
-    return valid;
-  };
-        
-
-    const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-     setFormData(prev => ({
-       ...prev,
-       [field]: e.target.value
-     }));
-     setErrors((prev) => ({ ...prev, [field]: "" }));
-   };
-
-   const handleSubmit = (e: React.FormEvent) => {
-    if (validate()) {
-      console.log(formData)
-    }
-      
-     };
+    const { formData, errors, handleChange, handleSubmit, formattedDate, peopleArray} = useJoinForm();
     return (
         <>
             <form className={styles.JoinForm}>
@@ -83,9 +25,15 @@ export default function JoinForm() {
                 readOnly={true} 
                 onFocus={(e) => e.target.blur()} 
                 classInput={styles.size}></Input>
-                <DropDown>
-                    
+                <div className={styles.dropDown_section}>
+                <DropDown
+                options={peopleArray}
+                selectedValue={formData.people}
+                handleChange={handleChange('people')}
+                label={`Количество человек (до ${excursion.max_people})`}
+                error={errors.people}>
                 </DropDown>
+                </div>
                 <Input 
                 label="Ваше имя"
                 classLable={styles.font_weight} 
@@ -126,7 +74,7 @@ export default function JoinForm() {
                     error={errors.comment}>
                     </TextArea>
                 </div>
-               <Button variant="black" style={{ width: "278px", marginTop: "60px"}} onClick={handleSubmit} type="button">
+               <Button variant="black" style={{ width: "278px", marginTop: "20px"}} onClick={handleSubmit} type="button">
                     Оплатить
                 </Button>
             </form>

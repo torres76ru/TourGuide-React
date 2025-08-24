@@ -15,7 +15,7 @@ export default function ModalAddExcursion({onClick} : ModalAddExcursionProps) {
                 <button className={styles.back_button} onClick={onClick}> <IconArrowBack /> </button>
                 <h3>Добавить экскурию</h3>
             </div>
-            <AddExcursionForm></AddExcursionForm>
+            <AddExcursionForm onClick={onClick}></AddExcursionForm>
         </div>
         </>
     )

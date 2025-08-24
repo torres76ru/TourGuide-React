@@ -18,7 +18,7 @@ export default function DropDown({
 }: DropDownProps) {
 
   return (
-    <div>
+    <>
       <span>{label}</span>
       <select 
         className={`${styles.drop_down} ${error && styles.select_error}`}
@@ -32,6 +32,6 @@ export default function DropDown({
           </option>
         ))}
       </select>
-    </div>
+    </>
   );
 }
