@@ -1,3 +1,6 @@
+import logging
+
+from django.db.models import Q
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -11,23 +14,9 @@ class CityListView(APIView):
         cities = City.objects.filter(attractions__isnull=False).distinct()
         return Response([city.name for city in cities if city.name], status=status.HTTP_200_OK)
 
+logger = logging.getLogger(__name__)
+
 class CityDetailView(APIView):
-    def get(self, request, name):
-        try:
-            city = City.objects.get(name=name)
-        except City.DoesNotExist:
-            return Response({"error": "City not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        tags = request.query_params.get('tags', '').split(',')
-        attractions_query = Attraction.objects.filter(city=city)
-
-        if tags and any(tag.strip() for tag in tags):
-            attractions_query = attractions_query.filter(tags__icontains=tags[0])
-
-        attractions = attractions_query
-        serializer = AttractionListSerializer(attractions, many=True)
-        return Response({"city": name, "attractions": serializer.data}, status=status.HTTP_200_OK)
-
     def post(self, request):
         city_name = request.data.get('city')
         tags = request.data.get('tags', '')
@@ -42,7 +31,29 @@ class CityDetailView(APIView):
 
         attractions_query = Attraction.objects.filter(city=city)
         if tags and tags.strip():
-            attractions_query = attractions_query.filter(tags__icontains=tags)
+            tag_list = [tag.strip() for tag in tags.split(',') if tag.strip()]
+            tag_query = Q()
+            for tag in tag_list:
+                tag_query |= (
+                        Q(tags__tourism=tag) |
+                        Q(tags__historic=tag) |
+                        Q(tags__leisure=tag) |
+                        Q(tags__natural=tag) |
+                        Q(tags__piste__type=tag) |
+                        Q(tags__aerialway=tag) |
+                        Q(tags__shop=tag) |
+                        Q(tags__amenity=tag) |
+                        Q(tags__building=tag) |
+                        Q(tags__religion=tag) |
+                        Q(tags__place=tag) |
+                        Q(tags__highway=tag) |
+                        Q(tags__wikipedia=tag) |
+                        Q(tags__wikidata=tag) |
+                        Q(tags__description=tag)
+                )
+            attractions_query = attractions_query.filter(tag_query)
+            logger.info(
+                f"POST: Filtered attractions for city '{city_name}' with tags '{tags}': {attractions_query.count()}")
 
         attractions = attractions_query
         serializer = AttractionListSerializer(attractions, many=True)

@@ -4,7 +4,7 @@ from django.utils.html import format_html
 
 @admin.register(PendingAttractionUpdate)
 class PendingAttractionUpdateAdmin(admin.ModelAdmin):
-    list_display = ('name', 'user', 'status', 'is_creation_request', 'created_at', 'updated_at')
+    list_display = ('name', 'user', 'status', 'is_creation_request', 'created_at', 'updated_at', 'get_city')
     list_filter = ('status', 'created_at')
     search_fields = ('name', 'user__username', 'attraction__name')
     actions = ['approve_updates', 'reject_updates']
@@ -14,10 +14,21 @@ class PendingAttractionUpdateAdmin(admin.ModelAdmin):
     is_creation_request.short_description = 'Новый объект?'
     is_creation_request.boolean = True
 
+    def get_city(self, obj):
+        return obj.city.name if obj.city else None
+    get_city.short_description = 'Город'
+
     def approve_updates(self, request, queryset):
+        errors = []
         for pending_update in queryset.filter(status='pending'):
-            pending_update.apply_update()
-        self.message_user(request, "Выбранные запросы подтверждены и применены.")
+            try:
+                pending_update.apply_update()
+            except Exception as e:
+                errors.append(f"Ошибка при обработке {pending_update.id}: {str(e)}")
+        if errors:
+            self.message_user(request, f"Ошибки при подтверждении: {'; '.join(errors)}", level='error')
+        else:
+            self.message_user(request, "Выбранные запросы подтверждены и применены.")
 
     approve_updates.short_description = "Подтвердить выбранные запросы"
 
@@ -32,9 +43,13 @@ class PendingAttractionUpdateAdmin(admin.ModelAdmin):
 
 @admin.register(Attraction)
 class AttractionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'city', 'average_rating', 'rating_count', 'need_photo', 'admin_reviewed')
+    list_display = ('name', 'get_city', 'average_rating', 'rating_count', 'need_photo', 'admin_reviewed')
     list_filter = ('city', 'category', 'need_photo', 'admin_reviewed')
     search_fields = ('name', 'address')
+
+    def get_city(self, obj):
+        return obj.city.name if obj.city else None
+    get_city.short_description = 'Город'
 
 @admin.register(AttractionPhoto)
 class AttractionPhotoAdmin(admin.ModelAdmin):
