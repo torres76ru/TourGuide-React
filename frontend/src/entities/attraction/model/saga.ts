@@ -1,27 +1,29 @@
 // entities/attraction/model/saga.ts
-import { call, put, takeEvery } from "typed-redux-saga";
+import { call, put, takeEvery, takeLatest } from 'typed-redux-saga';
 import {
   fetchAttractionsRequest,
   fetchAttractionsSuccess,
   fetchAttractionsFailure,
-} from "./slice";
-import type { PayloadAction } from "@reduxjs/toolkit";
-import type { AttractionListResponse } from "./types";
-import { attractionApi } from "./api";
+  searchAttractionsSuccess,
+  searchAttractionsFailure,
+  searchAttractionsRequest,
+} from './slice';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import type { AttractionListResponse, AttractionResponse } from './types';
+import { attractionApi } from './api';
 
-function* handleFetchAttractions(action: PayloadAction<{ tag: string }>) {
-  const { tag } = action.payload;
+function* handleSearchAttractions(action: PayloadAction<{ query: string }>) {
   try {
-    const data: AttractionListResponse = yield* call(
-      attractionApi.getByCity,
-      tag
+    const data: AttractionResponse = yield* call(
+      attractionApi.searchAttractions,
+      action.payload.query
     );
-
-    yield* put(fetchAttractionsSuccess({ tag, data }));
+    console.log('handleSearchAttractions data:', data);
+    yield* put(searchAttractionsSuccess(data));
   } catch (err: unknown) {
-    let message = "Loading attractions failed";
+    let message = 'Search failed';
 
-    if (err && typeof err === "object" && "response" in err) {
+    if (err && typeof err === 'object' && 'response' in err) {
       const axiosErr = err as {
         response?: { data?: { detail?: string } };
         message?: string;
@@ -31,10 +33,35 @@ function* handleFetchAttractions(action: PayloadAction<{ tag: string }>) {
       message = err.message;
     }
 
+    yield* put(searchAttractionsFailure(message));
+  }
+}
+
+function* handleFetchAttractions(
+  action: PayloadAction<{ city?: string; tag: string; nearby?: { lat: number; lon: number } }>
+) {
+  const { city, tag, nearby } = action.payload;
+
+  try {
+    let data: AttractionListResponse;
+
+    if (nearby) {
+      data = yield* call(attractionApi.getByCoords, nearby.lat, nearby.lon, [tag]);
+    } else if (city) {
+      data = yield* call(attractionApi.getByCity, city, tag);
+    } else {
+      throw new Error('Either city or nearby coordinates must be provided');
+    }
+
+    yield* put(fetchAttractionsSuccess({ tag, data }));
+  } catch (err: unknown) {
+    let message = 'Loading attractions failed';
+    if (err instanceof Error) message = err.message;
     yield* put(fetchAttractionsFailure({ tag, error: message }));
   }
 }
 
 export function* attractionSaga() {
   yield* takeEvery(fetchAttractionsRequest.type, handleFetchAttractions);
+  yield* takeLatest(searchAttractionsRequest.type, handleSearchAttractions);
 }

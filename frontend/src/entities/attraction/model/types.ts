@@ -1,4 +1,4 @@
-import type { User } from "entities/user/model/types";
+import type { User } from 'entities/user/model/types';
 
 export interface Attraction {
   id: number;
@@ -36,3 +36,5 @@ export interface AttractionListResponse {
   city: string;
   attractions: Attraction[];
 }
+
+export type AttractionResponse = Attraction[];
