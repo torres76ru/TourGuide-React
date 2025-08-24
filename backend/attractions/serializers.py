@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Attraction, AttractionPhoto, PendingAttractionUpdate
-from ratings.serializers import RatingSerializer  # Предполагаем, что RatingSerializer уже есть
-from users.serializers import UserSerializer  # Предполагаем, что UserSerializer уже есть
+from ratings.serializers import RatingSerializer
+from users.serializers import UserSerializer
 from cities.models import City
 
 class AttractionSerializer(serializers.ModelSerializer):
@@ -10,7 +10,7 @@ class AttractionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attraction
         fields = [
-            'id', 'name', 'latitude', 'longitude', 'image_url', 'tags', 'created_at',
+            'id', 'name', 'latitude', 'longitude', 'image_url', 'description_short', 'tags', 'created_at',
             'ratings', 'average_rating', 'rating_count'
         ]
 
@@ -28,7 +28,7 @@ class AttractionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attraction
         fields = [
-            'id', 'name', 'latitude', 'longitude', 'city', 'address',
+            'id', 'name', 'latitude', 'longitude', 'city', 'description_short', 'address',
             'main_photo_url', 'average_rating', 'rating_count', 'tags'
         ]
 
@@ -47,10 +47,10 @@ class AttractionDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attraction
         fields = [
-            'id', 'name', 'category', 'description', 'working_hours', 'phone_number',
-            'email', 'website', 'cost', 'average_check', 'address', 'latitude',
-            'longitude', 'city', 'tags', 'created_at', 'average_rating', 'rating_count',
-            'main_photo_url', 'additional_photos', 'ratings'
+            'id', 'name', 'category', 'description', 'description_short',  # Добавляем description_short
+            'working_hours', 'phone_number', 'email', 'website', 'cost', 'average_check',
+            'address', 'latitude', 'longitude', 'city', 'tags', 'created_at',
+            'average_rating', 'rating_count', 'main_photo_url', 'additional_photos', 'ratings'
         ]
 
     def get_main_photo_url(self, obj):
@@ -84,6 +84,7 @@ class AttractionDetailSerializer(serializers.ModelSerializer):
         instance.name = validated_data.get('name', instance.name)
         instance.category = validated_data.get('category', instance.category)
         instance.description = validated_data.get('description', instance.description)
+        instance.description_short = validated_data.get('description_short', instance.description_short)  # Добавляем description_short
         instance.address = validated_data.get('address', instance.address)
         instance.latitude = validated_data.get('latitude', instance.latitude)
         instance.longitude = validated_data.get('longitude', instance.longitude)
@@ -96,10 +97,9 @@ class PendingAttractionUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PendingAttractionUpdate
         fields = [
-            'id', 'attraction', 'user', 'name', 'category', 'description',
-            'working_hours', 'phone_number', 'email', 'website', 'cost',
-            'average_check', 'address', 'latitude', 'longitude', 'city',
-            'tags', 'status', 'created_at', 'updated_at'
+            'id', 'attraction', 'user', 'name', 'category', 'description', 'description_short',  # Добавляем description_short
+            'working_hours', 'phone_number', 'email', 'website', 'cost', 'average_check',
+            'address', 'latitude', 'longitude', 'city', 'tags', 'status', 'created_at', 'updated_at'
         ]
         read_only_fields = ['created_at', 'updated_at']
 
@@ -116,6 +116,7 @@ class PendingAttractionUpdateSerializer(serializers.ModelSerializer):
         instance.name = validated_data.get('name', instance.name)
         instance.category = validated_data.get('category', instance.category)
         instance.description = validated_data.get('description', instance.description)
+        instance.description_short = validated_data.get('description_short', instance.description_short)  # Добавляем description_short
         instance.working_hours = validated_data.get('working_hours', instance.working_hours)
         instance.phone_number = validated_data.get('phone_number', instance.phone_number)
         instance.email = validated_data.get('email', instance.email)

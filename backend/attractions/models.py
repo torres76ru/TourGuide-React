@@ -1,5 +1,3 @@
-# attractions/models.py
-
 from django.db import models
 from django.db.models import Avg, Count
 from users.models import User
@@ -16,16 +14,17 @@ class Attraction(models.Model):
     name = models.CharField(max_length=255)
     category = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
-    address = models.CharField(max_length=255, blank=True, null=True)  # Combined address
+    description_short = models.CharField(max_length=255, blank=True, null=True)
+    address = models.CharField(max_length=255, blank=True, null=True)
     latitude = models.FloatField()
     longitude = models.FloatField()
 
-    working_hours = models.CharField(max_length=255, blank=True, null=True)  # Время работы
-    phone_number = models.CharField(max_length=20, blank=True, null=True)  # Номер телефона
-    email = models.EmailField(blank=True, null=True)  # Эл. почта
-    website = models.URLField(blank=True, null=True)  # Сайт
-    cost = models.CharField(max_length=100, blank=True, null=True)  # Стоимость
-    average_check = models.CharField(max_length=100, blank=True, null=True)  # Средний чек
+    working_hours = models.CharField(max_length=255, blank=True, null=True)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    website = models.URLField(blank=True, null=True)
+    cost = models.CharField(max_length=100, blank=True, null=True)
+    average_check = models.CharField(max_length=100, blank=True, null=True)
 
     city = models.ForeignKey(City, on_delete=models.SET_NULL, blank=True, null=True, related_name='attractions')
     street = models.CharField(max_length=255, blank=True, null=True)
@@ -55,6 +54,7 @@ class Attraction(models.Model):
             wp_description = view.get_wikipedia_description(new_name.replace(' ', '_'))
             if wp_description:
                 self.description = wp_description
+                self.description_short = wp_description[:255] if wp_description else None  # Добавляем description_short
 
         if not self.category:
             if 'музей' in new_name.lower():
@@ -64,7 +64,7 @@ class Attraction(models.Model):
             else:
                 self.category = 'Достопримечательность'
 
-        self.save(update_fields=['description', 'category'])
+        self.save(update_fields=['description', 'description_short', 'category'])
 
 class AttractionPhoto(models.Model):
     attraction = models.ForeignKey(
@@ -101,6 +101,7 @@ class PendingAttractionUpdate(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
     category = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+    description_short = models.CharField(max_length=255, blank=True, null=True)  # Добавляем description_short
     working_hours = models.CharField(max_length=255, blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
@@ -130,6 +131,7 @@ class PendingAttractionUpdate(models.Model):
                 name=self.name,
                 category=self.category,
                 description=self.description,
+                description_short=self.description_short,  # Добавляем description_short
                 working_hours=self.working_hours,
                 phone_number=self.phone_number,
                 email=self.email,
@@ -146,9 +148,9 @@ class PendingAttractionUpdate(models.Model):
             self.attraction = attraction
         else:
             fields = [
-                'name', 'category', 'description', 'working_hours', 'phone_number',
-                'email', 'website', 'cost', 'average_check', 'address', 'latitude',
-                'longitude', 'city', 'tags'
+                'name', 'category', 'description', 'description_short',  # Добавляем description_short
+                'working_hours', 'phone_number', 'email', 'website', 'cost',
+                'average_check', 'address', 'latitude', 'longitude', 'city', 'tags'
             ]
             attraction = self.attraction
             for field in fields:

@@ -116,7 +116,7 @@ class MapAttractionsView(APIView):
                     'place_of_worship': 'amenity', 'christian': 'religion', 'muslim': 'religion',
                     'theatre': 'amenity', 'cinema': 'amenity', 'library': 'amenity',
                     'restaurant': 'amenity', 'cafe': 'amenity', 'monument': 'historic',
-                    'zoo': 'tourism',  # Добавлен
+                    'zoo': 'tourism',
                 }
                 for tag in tags:
                     tag = tag.strip()
@@ -219,7 +219,8 @@ class MapAttractionsView(APIView):
                             'tags': relevant_tags if relevant_tags else None,
                             'city': city,
                             'address': address,
-                            'description': description
+                            'description': description,
+                            'description_short': description[:255] if description else None  # Добавляем description_short
                         }
                     )
                     if created:
@@ -229,11 +230,13 @@ class MapAttractionsView(APIView):
                             attraction.tags != relevant_tags or
                             attraction.city != city or
                             attraction.address != address or
-                            attraction.description != description):
+                            attraction.description != description or
+                            attraction.description_short != (description[:255] if description else None)):
                         attraction.tags = relevant_tags
                         attraction.city = city
                         attraction.address = address
                         attraction.description = description
+                        attraction.description_short = description[:255] if description else None
                         attraction.save()
                     if not attraction.main_photo:
                         attraction.need_photo = True
@@ -272,7 +275,8 @@ class MapAttractionsView(APIView):
                             'tags': relevant_tags if relevant_tags else None,
                             'city': city,
                             'address': address,
-                            'description': description
+                            'description': description,
+                            'description_short': description[:255] if description else None  # Добавляем description_short
                         }
                     )
                     if created:
@@ -282,11 +286,13 @@ class MapAttractionsView(APIView):
                             attraction.tags != relevant_tags or
                             attraction.city != city or
                             attraction.address != address or
-                            attraction.description != description):
+                            attraction.description != description or
+                            attraction.description_short != (description[:255] if description else None)):
                         attraction.tags = relevant_tags
                         attraction.city = city
                         attraction.address = address
                         attraction.description = description
+                        attraction.description_short = description[:255] if description else None
                         attraction.save()
                     if not attraction.main_photo:
                         attraction.need_photo = True
@@ -406,7 +412,7 @@ class AdminFetchPhotosView(APIView):
 
         image_path = os.path.join(settings.MEDIA_ROOT, f"mainphoto/{attraction_id}.jpg")
         if os.path.exists(image_path):
-            if os.path.getsize(image_path) / 1024 <= 100:  # Проверка размера в KB
+            if os.path.getsize(image_path) / 1024 <= 100:
                 return f"{settings.MEDIA_URL}mainphoto/{attraction_id}.jpg"
             else:
                 os.remove(image_path)
@@ -423,7 +429,7 @@ class AdminFetchPhotosView(APIView):
                     wd_data = wd_response.json()
                     entities = wd_data.get('entities', {}).get(wikidata_id, {})
                     claims = entities.get('claims', {})
-                    image_prop = claims.get('P18', [])  # P18 - изображение
+                    image_prop = claims.get('P18', [])
                     if image_prop:
                         image_name = image_prop[0].get('mainsnak', {}).get('datavalue', {}).get('value')
                         if image_name:
@@ -455,7 +461,6 @@ class AdminFetchPhotosView(APIView):
             except Exception as e:
                 print(f"Error fetching Wikipedia page for {place_name}: {e}")
 
-
         if not image_url and address:
             search_terms = f"{place_name} {address} достопримечательность"
             search_url = f"https://ru.wikipedia.org/w/api.php?action=query&list=search&srsearch={search_terms}&format=json&srprop=snippet|titlesnippet"
@@ -481,14 +486,13 @@ class AdminFetchPhotosView(APIView):
                                     if is_relevant:
                                         extract_text = page.get('extract', '').lower()
                                         address_parts = [part.strip().lower() for part in address.split(',') if part.strip()]
-                                        if len([part for part in address_parts if part in extract_text]) >= len(address_parts) // 2:  # Более строгая проверка: хотя бы половина частей адреса совпадает
+                                        if len([part for part in address_parts if part in extract_text]) >= len(address_parts) // 2:
                                             image_url = page['original']['source']
                                             break
                             if image_url:
                                 break
             except Exception as e:
                 print(f"Error searching Wikipedia for {place_name} with address: {e}")
-
 
         if not image_url and address and hasattr(settings, 'GOOGLE_PLACES_API_KEY'):
             try:
@@ -530,7 +534,7 @@ class AdminFetchPhotosView(APIView):
                 if image_response.status_code == 200:
                     os.makedirs(os.path.join(settings.MEDIA_ROOT, 'mainphoto'), exist_ok=True)
                     img = Image.open(BytesIO(image_response.content))
-                    if img.size[0] < 200 or img.size[1] < 200:  # Минимум 200x200 пикселей
+                    if img.size[0] < 200 or img.size[1] < 200:
                         return None
                     compressed_image = self.compress_image(image_response.content)
                     with open(image_path, 'wb') as f:
@@ -546,11 +550,9 @@ class AttractionListView(generics.ListAPIView):
     queryset = Attraction.objects.all()
     serializer_class = AttractionListSerializer
 
-
 class AttractionDetailView(generics.RetrieveAPIView):
     queryset = Attraction.objects.all()
     serializer_class = AttractionDetailSerializer
-
 
 class AttractionCreateView(generics.CreateAPIView):
     serializer_class = AttractionDetailSerializer
@@ -587,6 +589,7 @@ class AttractionCreateView(generics.CreateAPIView):
             wp_description = view.get_wikipedia_description(validated_data['name'].replace(' ', '_'))
             if wp_description:
                 validated_data['description'] = wp_description
+                validated_data['description_short'] = wp_description[:255] if wp_description else None
 
         if 'category' not in validated_data or not validated_data.get('category'):
             name = validated_data.get('name', '').lower()
@@ -603,6 +606,7 @@ class AttractionCreateView(generics.CreateAPIView):
             name=validated_data.get('name'),
             category=validated_data.get('category'),
             description=validated_data.get('description'),
+            description_short=validated_data.get('description_short'),  # Добавляем description_short
             working_hours=validated_data.get('working_hours'),
             phone_number=validated_data.get('phone_number'),
             email=validated_data.get('email'),
@@ -621,6 +625,7 @@ class AttractionCreateView(generics.CreateAPIView):
             "message": "New attraction submitted for admin approval.",
             "pending_update_id": pending_update.id
         }, status=status.HTTP_202_ACCEPTED)
+
 class PhotoUploadView(generics.CreateAPIView):
     queryset = AttractionPhoto.objects.all()
     serializer_class = AttractionPhotoSerializer
@@ -637,11 +642,15 @@ class PhotoUploadView(generics.CreateAPIView):
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-
 class AttractionSearchView(APIView):
-    def get(self, request, name):
+    def post(self, request):
+        name = request.data.get('name', '')
+
+        if not name:
+            return Response({"error": "Name is required"}, status=status.HTTP_400_BAD_REQUEST)
+
         if len(name) < 3:
-            return Response({"error": "Query must be at least 3 characters long"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Name must be at least 3 characters long"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             cache_key = f"attraction_search_{name.lower()}"
@@ -649,7 +658,7 @@ class AttractionSearchView(APIView):
             if cached_attractions:
                 return Response(cached_attractions, status=status.HTTP_200_OK)
 
-            query_normalized = re.sub(r'\s+', '', name.lower())  # Удаляем пробелы
+            query_normalized = re.sub(r'\s+', '', name.lower())
             attractions = Attraction.objects.filter(
                 name__iregex=r'.*' + re.escape(query_normalized) + r'.*'
             ).distinct()
@@ -668,7 +677,6 @@ class AttractionSearchView(APIView):
             return Response(response_data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 class AttractionDetailCitiesView(APIView):
     def get_address_from_coordinates(self, lat, lng):
@@ -748,6 +756,7 @@ class AttractionUpdateView(generics.RetrieveUpdateAPIView):
             'name': instance.name,
             'category': instance.category,
             'description': instance.description,
+            'description_short': instance.description_short,  # Добавляем description_short
             'working_hours': instance.working_hours,
             'phone_number': instance.phone_number,
             'email': instance.email,
@@ -768,7 +777,6 @@ class AttractionUpdateView(generics.RetrieveUpdateAPIView):
             city_name = validated_data['city']
             city, _ = City.objects.get_or_create(name=city_name)
 
-
         if 'latitude' in validated_data or 'longitude' in validated_data:
             new_latitude = validated_data.get('latitude', current_data['latitude'])
             new_longitude = validated_data.get('longitude', current_data['longitude'])
@@ -780,13 +788,13 @@ class AttractionUpdateView(generics.RetrieveUpdateAPIView):
                 if 'address' not in validated_data or not validated_data.get('address'):
                     validated_data['address'] = address_data["address"]
 
-
         if 'name' in validated_data and validated_data['name'] != current_data['name']:
             name = validated_data['name']
             if 'description' not in validated_data or not validated_data.get('description'):
                 wp_description = view.get_wikipedia_description(name.replace(' ', '_'))
                 if wp_description:
                     validated_data['description'] = wp_description
+                    validated_data['description_short'] = wp_description[:255] if wp_description else None
 
         pending_update = PendingAttractionUpdate.objects.create(
             attraction=instance,
@@ -794,6 +802,7 @@ class AttractionUpdateView(generics.RetrieveUpdateAPIView):
             name=validated_data.get('name', instance.name),
             category=validated_data.get('category', instance.category),
             description=validated_data.get('description', instance.description),
+            description_short=validated_data.get('description_short', instance.description_short),  # Добавляем description_short
             working_hours=validated_data.get('working_hours', instance.working_hours),
             phone_number=validated_data.get('phone_number', instance.phone_number),
             email=validated_data.get('email', instance.email),
@@ -812,4 +821,3 @@ class AttractionUpdateView(generics.RetrieveUpdateAPIView):
             "message": "Changes submitted for admin approval.",
             "pending_update_id": pending_update.id
         }, status=status.HTTP_202_ACCEPTED)
-
