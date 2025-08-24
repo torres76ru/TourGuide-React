@@ -42,7 +42,7 @@ class AttractionDetailSerializer(serializers.ModelSerializer):
     additional_photos = AttractionPhotoSerializer(many=True, read_only=True)
     ratings = RatingSerializer(many=True, read_only=True)
     rating_count = serializers.IntegerField(read_only=True)
-    city = serializers.CharField(source='city.name', allow_null=True)
+    city = serializers.CharField(max_length=255, required=False, allow_blank=True)
 
     class Meta:
         model = Attraction
