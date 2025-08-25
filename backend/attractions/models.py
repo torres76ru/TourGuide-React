@@ -1,5 +1,3 @@
-# attractions/models.py
-
 from django.db import models
 from django.db.models import Avg, Count
 from users.models import User
@@ -16,16 +14,17 @@ class Attraction(models.Model):
     name = models.CharField(max_length=255)
     category = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
-    address = models.CharField(max_length=255, blank=True, null=True)  # Combined address
+    description_short = models.CharField(max_length=255, blank=True, null=True)
+    address = models.CharField(max_length=255, blank=True, null=True)
     latitude = models.FloatField()
     longitude = models.FloatField()
 
-    working_hours = models.CharField(max_length=255, blank=True, null=True)  # Время работы
-    phone_number = models.CharField(max_length=20, blank=True, null=True)  # Номер телефона
-    email = models.EmailField(blank=True, null=True)  # Эл. почта
-    website = models.URLField(blank=True, null=True)  # Сайт
-    cost = models.CharField(max_length=100, blank=True, null=True)  # Стоимость
-    average_check = models.CharField(max_length=100, blank=True, null=True)  # Средний чек
+    working_hours = models.CharField(max_length=255, blank=True, null=True)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    website = models.URLField(blank=True, null=True)
+    cost = models.CharField(max_length=100, blank=True, null=True)
+    average_check = models.CharField(max_length=100, blank=True, null=True)
 
     city = models.ForeignKey(City, on_delete=models.SET_NULL, blank=True, null=True, related_name='attractions')
     street = models.CharField(max_length=255, blank=True, null=True)
@@ -41,6 +40,7 @@ class Attraction(models.Model):
     need_photo = models.BooleanField(default=True)
     admin_reviewed = models.BooleanField(default=False)
 
+
     def save(self, *args, **kwargs):
         if self.street or self.house or self.entrance or self.apartment:
             address_parts = [part for part in [self.street, self.house, self.entrance, self.apartment] if part]
@@ -55,6 +55,7 @@ class Attraction(models.Model):
             wp_description = view.get_wikipedia_description(new_name.replace(' ', '_'))
             if wp_description:
                 self.description = wp_description
+                self.description_short = wp_description[:255] if wp_description else None  # Добавляем description_short
 
         if not self.category:
             if 'музей' in new_name.lower():
@@ -64,7 +65,7 @@ class Attraction(models.Model):
             else:
                 self.category = 'Достопримечательность'
 
-        self.save(update_fields=['description', 'category'])
+        self.save(update_fields=['description', 'description_short', 'category'])
 
 class AttractionPhoto(models.Model):
     attraction = models.ForeignKey(
@@ -101,6 +102,7 @@ class PendingAttractionUpdate(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
     category = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+    description_short = models.CharField(max_length=255, blank=True, null=True)
     working_hours = models.CharField(max_length=255, blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
@@ -125,40 +127,53 @@ class PendingAttractionUpdate(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def apply_update(self):
-        if not self.attraction:
-            attraction = Attraction(
-                name=self.name,
-                category=self.category,
-                description=self.description,
-                working_hours=self.working_hours,
-                phone_number=self.phone_number,
-                email=self.email,
-                website=self.website,
-                cost=self.cost,
-                average_check=self.average_check,
-                address=self.address,
-                latitude=self.latitude,
-                longitude=self.longitude,
-                city=self.city,
-                tags=self.tags
-            )
-            attraction.save()
-            self.attraction = attraction
-        else:
-            fields = [
-                'name', 'category', 'description', 'working_hours', 'phone_number',
-                'email', 'website', 'cost', 'average_check', 'address', 'latitude',
-                'longitude', 'city', 'tags'
-            ]
-            attraction = self.attraction
-            for field in fields:
-                value = getattr(self, field)
-                if value is not None:
-                    setattr(attraction, field, value)
-            attraction.save()
-
-        self.status = 'approved'
-        self.save()
-
+        try:
+            if not self.attraction:
+                # Проверка обязательных полей
+                if not all([self.name, self.category, self.latitude is not None, self.longitude is not None]):
+                    raise ValueError(
+                        f"Обязательные поля отсутствуют: name={self.name}, "
+                        f"category={self.category}, latitude={self.latitude}, longitude={self.longitude}"
+                    )
+                attraction = Attraction(
+                    name=self.name,
+                    category=self.category,
+                    description=self.description,
+                    description_short=self.description_short,
+                    working_hours=self.working_hours,
+                    phone_number=self.phone_number,
+                    email=self.email,
+                    website=self.website,
+                    cost=self.cost,
+                    average_check=self.average_check,
+                    address=self.address,
+                    latitude=self.latitude,
+                    longitude=self.longitude,
+                    city=self.city,
+                    tags=self.tags,
+                    admin_reviewed=True  # Устанавливаем, что запись проверена
+                )
+                attraction.save()
+                self.attraction = attraction
+            else:
+                fields = [
+                    'name', 'category', 'description', 'description_short',
+                    'working_hours', 'phone_number', 'email', 'website', 'cost',
+                    'average_check', 'address', 'latitude', 'longitude', 'city', 'tags'
+                ]
+                attraction = self.attraction
+                for field in fields:
+                    value = getattr(self, field)
+                    if value is not None:
+                        setattr(attraction, field, value)
+                attraction.admin_reviewed = True
+                attraction.save()
+            self.status = 'approved'
+            self.save()
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Ошибка при применении обновления {self.id}: {str(e)}")
+            raise
     def __str__(self):
         return f"Pending update for {self.name or 'Unnamed'} by {self.user}"
