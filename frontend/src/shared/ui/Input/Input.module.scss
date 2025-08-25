@@ -1,3 +1,8 @@
+.input_section {
+  display: flex;
+  flex-direction: column;
+}
+
 .input {
     width: 100%;
     padding: 9.5px 10px;
@@ -7,6 +12,7 @@
     background: transparent;
     outline: none;
     color: #242424;
+    font-size: 16px;
     margin-bottom: 15px;
     font-family: var(--font-family-main);
 }
@@ -24,8 +30,8 @@
 }
 
 .input_error {
-  border: 1px solid red;
-  margin-bottom: 0;
+  border: 1px solid red !important;
+  margin-bottom: 0 !important;
 }
 
 .error_message {

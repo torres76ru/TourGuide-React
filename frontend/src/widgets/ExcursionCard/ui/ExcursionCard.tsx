@@ -8,10 +8,10 @@ interface ExcursionCardProps {
   name?: string;
   date?: string;
   rating: number;
-  sity?: string;
+  сity?: string;
 }
 
-export default function ExcursionCard({ img, name, date, rating, sity }: ExcursionCardProps) {
+export default function ExcursionCard({ img, name, date, rating, сity }: ExcursionCardProps) {
   const roundedRating = Math.round(rating);
 
   // Создаем массив из 5 элементов и заполняем звёздами
@@ -35,7 +35,7 @@ export default function ExcursionCard({ img, name, date, rating, sity }: Excursi
             <h3 className={styles.text}>{name}</h3>
           </div>
           <p className={styles.text}>{date}</p>
-          <Location distance={''} sity={sity}></Location>
+          <Location distance={''} сity={сity}></Location>
           <div className={styles.stars}>{stars}</div>
         </div>
       </div>

@@ -1,0 +1,113 @@
+.container {
+  padding: 0 20px;
+}
+
+.attr_img {
+  width: 100%;
+  height: 342px;
+  border-radius: 15px;
+  box-shadow: 0px 0px 10px 0px #2424244d;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  margin-top: 50px;
+}
+
+.img {
+  width: 100%;
+  height: 100%;
+}
+
+.attr_description {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+  margin-bottom: 40px;
+}
+
+.attr_title_rating {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+}
+
+.attr_title {
+  font-weight: 400;
+  font-size: 20px;
+}
+
+.location {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  margin: 15px 0 6px 0;
+}
+
+.link {
+  font-weight: 400;
+  font-size: 14px;
+  color: #6588e6;
+}
+
+.button_section {
+    display: flex;
+    gap: 14px;
+    img {
+        margin-bottom: 5px;
+    }
+}
+
+.btn {
+    display: flex;
+    justify-content: start;
+    font-weight: 600;
+    font-size: 14px;
+    color: #6588e6;
+    text-decoration: underline;
+    background-color: transparent;
+    margin: 15px 0 20px 0;
+}
+
+.location .link {
+  margin-left: 17px;
+}
+
+.title {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.text {
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.weekdays {
+  margin-left: 4px;
+}
+
+.price_section {
+  margin-top: 15px;
+  span {
+    text-decoration: underline;
+  }
+}
+
+.button_size {
+    padding: 13px 0;
+    width: 314px;
+    border-radius: 15px;
+    font-weight: 400;
+    font-size: 20px;
+    margin: 10px auto 0 auto;
+}
+
+@media (max-width: 380px) {
+  .attr_img {
+    height: 300px;
+  }
+
+  .button_size {
+    width: 280px;
+}
+}

@@ -15,4 +15,16 @@
     box-shadow: 0px 0px 4px 0px #00000026;
     margin-bottom: 3px;
     background: transparent;
+    padding: 15px 0;
+    img {
+        height: 100%;
+    }
+}
+
+@media (max-width: 360px) {
+    .choice_btn {
+    width: 125px;
+    height: 125px;
+    padding: 10px 0;
+}
 }

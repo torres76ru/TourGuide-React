@@ -14,9 +14,7 @@ export default function Reviews({ attraction }: ReviewsProps) {
       <div className={styles.container}>
         <div className={styles.title_section}>
           <h3 className={styles.title}>Отзывы</h3>
-          <a href="#!" className={styles.link}>
-            Написать отзыв
-          </a>
+          <button className={styles.link}>Написать отзыв</button>
         </div>
 
         {attraction?.ratings && (
