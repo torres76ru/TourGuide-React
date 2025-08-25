@@ -11,6 +11,8 @@ import UserScheduledExcursionsPage from "pages/user-scheduled-excursions-page";
 import ReviewPage from "pages/review-page"
 import GuideExcursionsPage from "pages/guide-excursions-page"
 import JoinPage from "pages/join-page"
+import EditingExcursionPage from "pages/editing-excursion-page";
+import JoinListPage from "pages/join-list-page";
 
 export const Routing = () => {
   return (
@@ -30,6 +32,8 @@ export const Routing = () => {
         <Route path="/sight/review" element={<ReviewPage />} />
         <Route path="/user/guide-excursions" element={<GuideExcursionsPage />} />
         <Route path="/excursion/join" element={<JoinPage />} />
+        <Route path="/user/guide-excursions/editing" element={<EditingExcursionPage />} />
+        <Route path="/user/guide-excursions/join-list" element={<JoinListPage />} />
       </Routes>
     </BrowserRouter>
   );

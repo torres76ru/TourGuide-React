@@ -1,22 +1,27 @@
 import Input from "shared/ui/Input/Input"
-import styles from "./AddExcursionForm.module.scss"
+import styles from "./EditingForm.module.scss"
 import DropDownSection from "shared/ui/DropDownSection/DropDownSection"
-import { type MouseEventHandler } from "react";
 import AddPhotoButton from "shared/ui/AddPhotoButton/AddPhotoButton";
 import Button from "shared/ui/Button";
 import DateExcursion from "widgets/DateExcursion/DateExcursion";
 import TextArea from "shared/ui/TextArea/TextArea";
-import { useAddExcursionForm } from "../model/hooks/setAddExcursionForm";
+import { useEditingForm } from "../model/hooks/useEditingForm";
+import AttractionPlaceholder from "shared/assets/attraction_placeholder.png";
 
-interface AddExcursionFormProps{
-  onClick?: MouseEventHandler<HTMLButtonElement>;
-}
 
-export default function AddExcursionForm({onClick} : AddExcursionFormProps) {
-    const { formData, errors, handleChange, handleSubmit, numbArray, timeArray} = useAddExcursionForm();
+export default function EditingForm() {
+    const { formData, errors, handleChange, handleSubmit, numbArray, timeArray} = useEditingForm();
     return (
         <>
-            <form className={styles.addExcursionForm}>
+            <form className={styles.EditingForm}>
+                <div className={styles.attr_img}>
+                    <img
+                    className={styles.img}
+                    src={AttractionPlaceholder}
+                    alt="Достопримечательность"
+                    />
+                </div>
+                <AddPhotoButton children="Изменить фото" className={styles.addPhotoButton}/>
                 <Input 
                 label="Название"
                 classLable={styles.font_weight} 
@@ -152,11 +157,10 @@ export default function AddExcursionForm({onClick} : AddExcursionFormProps) {
                         ></Input>
                     </div>
                 </div>
-                <AddPhotoButton children="Добавить фото"/>
-               <Button variant="black" style={{ width: "278px", marginTop: "60px"}} onClick={(event) => {
-    handleSubmit(event); 
-    onClick?.(event);}} type="button">
-                    Создать экскурсию
+               <Button variant="black" style={{ width: "278px", marginTop: "40px"}} onClick={(event) => {
+                handleSubmit(event); 
+                window.history.back();}} type="button">
+                    Сохранить
                 </Button>
             </form>
         </>

@@ -1,4 +1,4 @@
-import { LoginPage, MainPage, SightPage, Test, UserPage, ExcursionPage } from "pages";
+import { LoginPage, MainPage, SightPage, Test, UserPage, ExcursionPage, EditingExcursionPage } from "pages";
 
 export const routes = [
   { path: "/", element: MainPage },

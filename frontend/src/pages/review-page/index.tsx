@@ -6,6 +6,9 @@ import type { RootState } from "app/store/mainStore";
 import starBlue from "shared/assets/star-blue.svg";
 import star from "shared/assets/star.svg";
 import { useState } from "react";
+import TextArea from "shared/ui/TextArea/TextArea";
+import AddPhotoButton from "shared/ui/AddPhotoButton/AddPhotoButton";
+import Button from "shared/ui/Button";
 
 const ReviewPage = () => {
   const { user } = useSelector((state: RootState) => state.user);
@@ -45,16 +48,14 @@ const ReviewPage = () => {
         
         <div className={styles.rating}>{stars}</div>
 
-        {/* Блок с текстовым полем */}
-        <div className={styles.review_input_container}>
-          <textarea
-            className={styles.review_input}
-            placeholder="Напишите свой отзыв..."
-            value={reviewText}
-            onChange={(e) => setReviewText(e.target.value)}
-            rows={4}
-          />
-        </div>
+        <TextArea
+          placeholder="Напишите свой отзыв...">
+        </TextArea>
+        <AddPhotoButton children="Добавить фото"/>
+         <Button variant="black" style={{ width: "278px", position: "absolute", bottom: "35px", left: "50%", transform: "translate(-50%, -50%)"}} 
+          type="button">
+              Опубликовать    
+          </Button>
       </div>
     </div>
   );
