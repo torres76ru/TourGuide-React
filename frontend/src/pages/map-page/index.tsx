@@ -7,50 +7,7 @@ import type { RootState } from 'app/store/mainStore';
 import { setCity, setCoords } from 'entities/location/model/slice';
 import { locationApi } from 'entities/location/model/api';
 import { fetchAttractionsRequest } from 'entities/attraction/model/slice';
-
-// Simple modal component
-const ConfirmModal: React.FC<{
-  coords: [number, number];
-  onConfirm: () => void;
-  onCancel: () => void;
-}> = ({ coords, onConfirm, onCancel }) => (
-  <div
-    style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100vw',
-      height: '100vh',
-      background: 'rgba(0,0,0,0.3)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000,
-    }}
-  >
-    <div
-      style={{
-        background: '#fff',
-        padding: 24,
-        borderRadius: 8,
-        minWidth: 300,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-      }}
-    >
-      <h3>Подтвердите точку</h3>
-      <p>
-        Координаты:{' '}
-        <b>
-          {coords[0].toFixed(5)}, {coords[1].toFixed(5)}
-        </b>
-      </p>
-      <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-        <button onClick={onConfirm}>Подтвердить</button>
-        <button onClick={onCancel}>Отмена</button>
-      </div>
-    </div>
-  </div>
-);
+import ConfirmModal from 'widgets/ConfirmModal';
 
 // Custom marker icon (fixes default icon issue)
 const markerIcon = new L.Icon({
@@ -125,6 +82,7 @@ const MapPage: React.FC = () => {
         );
       });
       getCity(selectedCoords[0], selectedCoords[1]);
+
       setModalOpen(false);
     }
   };

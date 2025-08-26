@@ -10,4 +10,14 @@ export const locationApi = {
     );
     return data;
   },
+  getCity: async (latitude: number, longitude: number): Promise<string | null> => {
+    const { data } = await axios.get(
+      `${API_BASE_URL}/map/attractions/city/?lat=${latitude}&lng=${longitude}`
+    );
+    return data.city || null;
+  },
+  getCities: async (): Promise<string[]> => {
+    const { data } = await axios.get(`${API_BASE_URL}/map/cities/`);
+    return data;
+  },
 };
