@@ -103,8 +103,7 @@ INSTALLED_APPS = [
     'attractions',
     'ratings',
     'tours',
-
-		'corsheaders',
+    
     'attraction_routes',
     'leaderboard',
     'attractions_map'
