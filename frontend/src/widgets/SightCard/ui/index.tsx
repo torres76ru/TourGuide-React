@@ -1,8 +1,8 @@
-import Rating from "shared/ui/Rating/ui/Rating";
-import style from "./SightCard.module.scss";
-import { useNavigate } from "react-router";
-import attractionPlaceholder from "shared/assets/attraction_placeholder.png";
-import { BASE_URL } from "shared/config/constants";
+import Rating from 'shared/ui/Rating/ui/Rating';
+import style from './SightCard.module.scss';
+import { useNavigate } from 'react-router';
+import attractionPlaceholder from 'shared/assets/attraction_placeholder.png';
+import { BASE_URL } from 'shared/config/constants';
 interface Props {
   id: number;
   name: string;
@@ -23,6 +23,10 @@ const SightCard = ({ id, name, description, prices, rating, img }: Props) => {
         <img
           src={img ? BASE_URL + img : attractionPlaceholder}
           alt="Достопримечательность"
+          onError={(e) => {
+            // заменяем на плейсхолдер, если картинка не загрузилась
+            (e.currentTarget as HTMLImageElement).src = attractionPlaceholder;
+          }}
         ></img>
       </div>
       <div className={style.context}>
