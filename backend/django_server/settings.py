@@ -58,6 +58,10 @@ INSTALLED_APPS = [
     'dj_rest_auth',
     'dj_rest_auth.registration',
 
+    # для Swagger UI и ReDoc
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
+
     # Apps
     'cities',
     'users',
@@ -73,9 +77,10 @@ INSTALLED_APPS = [
 SITE_ID = 2
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 
