@@ -1,4 +1,4 @@
-import style from "./Footer.module.scss";
+import style from './Footer.module.scss';
 
 const Footer = () => {
   return (
@@ -17,7 +17,7 @@ const Footer = () => {
         <br />
         <span>
           ИНН:
-          <br /> тут будет инн
+          <br /> 760212073618
         </span>
       </div>
     </footer>
