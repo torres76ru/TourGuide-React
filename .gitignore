@@ -145,4 +145,5 @@ media/
 backend/media/
 backend/db.sqlite3
 __pycache__/
+backend/django_server/__pycache__
 *.pyc
