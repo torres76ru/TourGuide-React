@@ -38,14 +38,21 @@ function* handleSearchAttractions(action: PayloadAction<{ query: string }>) {
 }
 
 function* handleFetchAttractions(
-  action: PayloadAction<{ city?: string; tag: string; nearby?: { lat: number; lon: number } }>
+  action: PayloadAction<{
+    city?: string;
+    tag: string;
+    nearby?: { lat: number; lon: number };
+    leaders?: boolean;
+  }>
 ) {
-  const { city, tag, nearby } = action.payload;
+  const { city, tag, nearby, leaders } = action.payload;
 
   try {
     let data: AttractionListResponse;
 
-    if (nearby) {
+    if (leaders) {
+      data = yield* call(attractionApi.getLeaders, tag);
+    } else if (nearby) {
       data = yield* call(attractionApi.getByCoords, nearby.lat, nearby.lon, [tag]);
     } else if (city) {
       data = yield* call(attractionApi.getByCity, city, tag);

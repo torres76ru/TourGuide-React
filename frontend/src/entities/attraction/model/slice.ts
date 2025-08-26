@@ -52,7 +52,12 @@ const attractionSlice = createSlice({
     },
     fetchAttractionsRequest(
       state,
-      action: PayloadAction<{ city?: string; tag: string; nearby?: { lat: number; lon: number } }>
+      action: PayloadAction<{
+        city?: string;
+        tag: string;
+        nearby?: { lat: number; lon: number };
+        leaders?: boolean;
+      }>
     ) {
       const { tag } = action.payload;
       if (!state.attractionsByTag[tag]) {

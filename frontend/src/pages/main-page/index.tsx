@@ -20,16 +20,17 @@ const categories = [
 
 const MainPage = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const city = useSelector((state: RootState) => state.location.city);
-  const coords = useSelector((state: RootState) => state.location.coords);
 
   const [searchParams] = useSearchParams();
+
+  const city = useSelector((state: RootState) => state.location.city);
+  const coords = useSelector((state: RootState) => state.location.coords);
 
   const [user] = useSelector((state: RootState) => [state.user.user]);
 
   const hasNearby = searchParams.has('nearby');
 
-  useWatchLocation();
+  // useWatchLocation();
 
   const attractionsByTag = useSelector((state: RootState) =>
     selectAttractionsByTags(
@@ -37,33 +38,40 @@ const MainPage = () => {
       categories.map((c) => c.tag)
     )
   );
-
-  // Только для загрузки по городу
   useEffect(() => {
-    if (city && !hasNearby) {
-      categories.forEach(({ tag }) => {
-        dispatch(fetchAttractionsRequest({ city, tag }));
-      });
-    } else {
-      categories.forEach(({ tag }) => {
-        dispatch(fetchAttractionsRequest({ tag }));
-      });
-    }
-  }, [dispatch, city, hasNearby, user]);
+    categories.forEach(({ tag }) => {
+      const { loading, error } = attractionsByTag[tag];
+      if (!loading && !error) {
+        dispatch(fetchAttractionsRequest({ tag, leaders: true }));
+      }
+    });
+  }, [dispatch, attractionsByTag]);
+  // // Только для загрузки по городу
+  // useEffect(() => {
+  //   if (city && !hasNearby) {
+  //     categories.forEach(({ tag }) => {
+  //       dispatch(fetchAttractionsRequest({ city, tag }));
+  //     });
+  //   } else {
+  //     categories.forEach(({ tag }) => {
+  //       dispatch(fetchAttractionsRequest({ tag }));
+  //     });
+  //   }
+  // }, [dispatch, city, hasNearby, user]);
 
-  // Только для nearby
-  useEffect(() => {
-    if (hasNearby && coords) {
-      categories.forEach(({ tag }) => {
-        dispatch(
-          fetchAttractionsRequest({
-            tag,
-            nearby: { lat: coords.latitude, lon: coords.longitude },
-          })
-        );
-      });
-    }
-  }, [dispatch, hasNearby, coords]);
+  // // Только для nearby
+  // useEffect(() => {
+  //   if (hasNearby && coords) {
+  //     categories.forEach(({ tag }) => {
+  //       dispatch(
+  //         fetchAttractionsRequest({
+  //           tag,
+  //           nearby: { lat: coords.latitude, lon: coords.longitude },
+  //         })
+  //       );
+  //     });
+  //   }
+  // }, [dispatch, hasNearby, coords]);
 
   return (
     <div className={styles.body}>

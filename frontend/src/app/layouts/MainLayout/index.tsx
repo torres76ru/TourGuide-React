@@ -8,10 +8,10 @@ import Footer from 'widgets/Footer';
 import Header from 'widgets/Header';
 
 const MainLayout = () => {
-  const dispatch = useDispatch();
-  const { coords, error } = useGeolocation();
-  const city = useSelector((state: RootState) => state.location.city);
-  const [showModal, setShowModal] = useState(false);
+  // const dispatch = useDispatch();
+  // const { coords, error } = useGeolocation();
+  // const city = useSelector((state: RootState) => state.location.city);
+  // const [showModal, setShowModal] = useState(false);
 
   // useEffect(() => {
   //   if (coords) {

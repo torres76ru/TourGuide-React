@@ -14,6 +14,18 @@ export const attractionApi = {
     });
     return data;
   },
+  getLeaders: async (
+    city?: string,
+    tag?: string,
+    limit: number = 5
+  ): Promise<AttractionListResponse> => {
+    const { data } = await axios.post(`${API_BASE_URL}/leaderboard/`, {
+      city,
+      tag,
+      limit,
+    });
+    return data;
+  },
   getByCoords: async (
     lat: number,
     lon: number,

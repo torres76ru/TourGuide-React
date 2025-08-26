@@ -32,6 +32,7 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     # "https://tourguide.yar",
     # "https://www.tourguide.yar",
+    "http://localhost",   
     "http://176.123.161.85",
 ]
 
