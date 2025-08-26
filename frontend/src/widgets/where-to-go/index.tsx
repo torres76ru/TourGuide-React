@@ -7,7 +7,7 @@ const WhereToGo = () => {
   const navigate = useNavigate();
 
   const handleRedirect = () => {
-    navigate('/search');
+    navigate('/map');
   };
 
   return (
