@@ -35,7 +35,12 @@ def get_yearly_leaderboard(limit=10, min_ratings=1, tags=None, city=None):
     for rating in ratings:
         attraction_id = rating.attraction_id
         if attraction_id not in leaderboard_data:
-            leaderboard_data[attraction_id] = {'total_weighted': 0, 'count': 0, 'attraction': rating.attraction}
+            leaderboard_data[attraction_id] = {
+                'total_weighted': 0,
+                'count': 0,
+                'attraction': rating.attraction,
+                'average_rating': rating.attraction.average_rating
+            }
         weight = calculate_weighted_rating(rating.created_at)
         leaderboard_data[attraction_id]['total_weighted'] += rating.value * weight
         leaderboard_data[attraction_id]['count'] += 1
@@ -44,6 +49,7 @@ def get_yearly_leaderboard(limit=10, min_ratings=1, tags=None, city=None):
         {
             'attraction': data['attraction'],
             'weighted_average': data['total_weighted'] / data['count'] if data['count'] > 0 else 0,
+            'average_rating': data['average_rating'], 
             'rating_count': data['count']
         }
         for attr_id, data in leaderboard_data.items()
