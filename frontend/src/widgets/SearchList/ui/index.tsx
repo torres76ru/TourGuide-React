@@ -11,15 +11,16 @@ export const SearchList = ({ attractions }: SearchListProps) => {
   }
   return (
     <div>
-      {attractions.map((sight, index) => (
-        <SightTiny
-          key={index}
-          id={sight.id}
-          img_url={sight.main_photo_url}
-          title={sight.name}
-          town={sight.city}
-        />
-      ))}
+      {attractions &&
+        attractions.map((sight, index) => (
+          <SightTiny
+            key={index}
+            id={sight.id}
+            img_url={sight.main_photo_url}
+            title={sight.name}
+            town={sight.city}
+          />
+        ))}
     </div>
   );
 };

@@ -30,7 +30,7 @@ export const attractionApi = {
     lat: number,
     lon: number,
     tags?: string[],
-    radius: number = 0.001
+    radius: number = 0.01
   ): Promise<AttractionListResponse> => {
     const { data } = await axios.get(
       `${API_BASE_URL}/map/attractions/?lat=${lat}&lng=${lon}${tags ? `&radius=${radius}&tags=${tags.join(',')}` : ''}`
