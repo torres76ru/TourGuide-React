@@ -10,7 +10,7 @@ export default function AddDeleteButton({addOrDelete} : AddDeleteButtonProps) {
     const img = addOrDelete === "add" ? plus : minus;
     return (
         <>
-        <button type="button" className={styles.button}> <img src={img} alt={addOrDelete} /></button>
+        <button disabled type="button" className={styles.button}> <img src={img} alt={addOrDelete} /></button>
         </>
     )
 }

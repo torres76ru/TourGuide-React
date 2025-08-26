@@ -16,10 +16,11 @@ const GuideExcursionsPage = () => {
       <BackHeader title="Мои экскурсии"></BackHeader>
       <button className={styles.button} onClick={() => setModalAddOpen(true)}><img src={plus} alt="Плюс"/></button>
       <ul className={styles.excursion_list}>
+        {excursion.title !== "" &&
         <li>
           <ExcursionCard img={img} name={excursion.title}
           date={formattedDate} rating={4.2} сity={excursion.city}></ExcursionCard>
-        </li>
+        </li>}
       </ul>
       {isModalAddOpen && <ModalAddExcursion onClick={() => setModalAddOpen(false)}></ModalAddExcursion>}
       
