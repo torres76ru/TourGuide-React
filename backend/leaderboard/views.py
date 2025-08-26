@@ -8,15 +8,12 @@ from .serializers import LeaderboardSerializer
 from .utils import get_yearly_leaderboard
 
 class LeaderBoardView(generics.ListAPIView):
-
     permission_classes = [AllowAny]
 
     def post(self, request):
-
         limit = request.data.get('limit', 10)
         tags = request.data.get('tags', '')
         city = request.data.get('city', '')
-
 
         tags = tags.split(',') if isinstance(tags, str) and tags else []
 
@@ -27,6 +24,7 @@ class LeaderBoardView(generics.ListAPIView):
             {
                 **serializer.data[i],
                 'weighted_average': leaderboard[i]['weighted_average'],
+                'average_rating': leaderboard[i]['average_rating'],
                 'rating_count': leaderboard[i]['rating_count']
             }
             for i in range(len(leaderboard))
