@@ -8,30 +8,30 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = True
 ALLOWED_HOSTS = [
-    'tourguide.yar',
-    'www.tourguide.yar', 
+    # 'tourguide.yar',
+    # 'www.tourguide.yar', 
     '176.123.161.85',  
     'localhost',
     '127.0.0.1'
 ]
 
-# HTTPS настройки
-SECURE_SSL_REDIRECT = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# # HTTPS настройки
+# SECURE_SSL_REDIRECT = True
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
 
 CORS_ALLOWED_ORIGINS = [
-    "https://tourguide.yar",
-    "https://www.tourguide.yar",
+    # "https://tourguide.yar",
+    # "https://www.tourguide.yar",
     "http://176.123.161.85",  
     "http://localhost",     
     "http://127.0.0.1",      
 ]
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
-    "https://tourguide.yar",
-    "https://www.tourguide.yar",
+    # "https://tourguide.yar",
+    # "https://www.tourguide.yar",
     "http://176.123.161.85",
 ]
 
