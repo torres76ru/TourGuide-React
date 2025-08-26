@@ -95,8 +95,6 @@ class MapAttractionsView(APIView):
             lat, lng = float(lat), float(lng)
             radius = float(radius)
 
-            if radius < 0.001 or radius > 0.01:
-                return Response({"error": "Радиус должен быть между 0.001 и 0.01"}, status=status.HTTP_400_BAD_REQUEST)
 
             cache_key = f"attractions_{lat}_{lng}_{radius}_{','.join(tags)}_{name_filter or ''}"
             cached_data = cache.get(cache_key)
