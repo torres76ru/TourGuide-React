@@ -83,7 +83,7 @@ export function useAddExcursionForm() {
      setErrors((prev) => ({ ...prev, [field]: "" }));
    };
 
-   const handleSubmit = (e: React.FormEvent) => {
+   const handleSubmit = () => {
     if (validate()) {
       updateMockExcursion(formData);
       console.log(formData);

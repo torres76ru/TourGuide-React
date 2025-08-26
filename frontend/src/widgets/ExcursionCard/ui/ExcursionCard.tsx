@@ -11,10 +11,10 @@ interface ExcursionCardProps {
   name?: string;
   date?: string;
   rating: number;
-  сity?: string;
+  city?: string;
 }
 
-export default function ExcursionCard({ img, name, date, rating, сity }: ExcursionCardProps) {
+export default function ExcursionCard({ img, name, date, rating, city }: ExcursionCardProps) {
   const roundedRating = Math.round(rating);
 
   const stars = Array(5)
@@ -53,7 +53,7 @@ export default function ExcursionCard({ img, name, date, rating, сity }: Excurs
             <h3 className={styles.text}>{name}</h3>
           </div>
           <p className={styles.text}>{date}</p>
-          <Location distance={''} сity={сity}></Location>
+          <Location distance={''} city={city}></Location>
           <div className={styles.stars}>{stars}</div>
         </div>
         <div className={styles.edit_button_section}>

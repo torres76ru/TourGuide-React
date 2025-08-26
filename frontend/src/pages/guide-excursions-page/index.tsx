@@ -19,7 +19,7 @@ const GuideExcursionsPage = () => {
         {excursion.title !== "" &&
         <li>
           <ExcursionCard img={img} name={excursion.title}
-          date={formattedDate} rating={4.2} сity={excursion.city}></ExcursionCard>
+          date={formattedDate} rating={4.2} city={excursion.city}></ExcursionCard>
         </li>}
       </ul>
       {isModalAddOpen && <ModalAddExcursion onClick={() => setModalAddOpen(false)}></ModalAddExcursion>}

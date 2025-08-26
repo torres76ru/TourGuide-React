@@ -13,7 +13,6 @@ import Button from "shared/ui/Button";
 const ReviewPage = () => {
   const { user } = useSelector((state: RootState) => state.user);
   const [rating, setRating] = useState<number>(0);
-  const [reviewText, setReviewText] = useState<string>("");
 
   // Создаем массив из 5 звезд
   const stars = Array(5).fill(0).map((_, index) => (
