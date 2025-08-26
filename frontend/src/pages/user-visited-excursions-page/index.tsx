@@ -12,7 +12,7 @@ const UserVisitedExcursionsPage = () => {
 //   const navigate = useNavigate();
 
 //   const handleRedirect = (url: string) => {
-//     navigate(url);
+//     navigate(url);т
 //   };
 
   return (
@@ -21,15 +21,15 @@ const UserVisitedExcursionsPage = () => {
       <ul className={styles.excursion_list}>
         <li>
           <ExcursionCard img={img} name='Выставка достижений народного хозяйства (ВДНХ)'
-          date='15.06.2025' rating={4.2} sity='Москва'></ExcursionCard>
+          date='15.06.2025' rating={4.2} city='Москва'></ExcursionCard>
         </li>
         <li>
           <ExcursionCard img={img} name='Выставка достижений народного хозяйства (ВДНХ)'
-          date='15.06.2025' rating={4.8} sity='Москва'></ExcursionCard>
+          date='15.06.2025' rating={4.8} city='Москва'></ExcursionCard>
         </li>
         <li>
           <ExcursionCard img={img} name='Выставка достижений народного хозяйства (ВДНХ)'
-          date='15.06.2025' rating={3.1} sity='Москва'></ExcursionCard>
+          date='15.06.2025' rating={3.1} city='Москва'></ExcursionCard>
         </li>
       </ul>
     </div>

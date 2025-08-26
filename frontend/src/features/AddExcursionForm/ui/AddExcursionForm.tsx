@@ -154,7 +154,7 @@ export default function AddExcursionForm({onClick} : AddExcursionFormProps) {
                 </div>
                 <AddPhotoButton children="Добавить фото"/>
                <Button variant="black" style={{ width: "278px", marginTop: "60px"}} onClick={(event) => {
-    handleSubmit(event); 
+    handleSubmit(); 
     onClick?.(event);}} type="button">
                     Создать экскурсию
                 </Button>

@@ -60,7 +60,7 @@ const [formData, setFormData] = useState({
      setErrors((prev) => ({ ...prev, [field]: "" }));
    };
 
-   const handleSubmit = (e: React.FormEvent) => {
+   const handleSubmit = () => {
     if (validate()) {
       console.log(formData)
     }

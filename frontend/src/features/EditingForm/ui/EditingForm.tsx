@@ -157,8 +157,8 @@ export default function EditingForm() {
                         ></Input>
                     </div>
                 </div>
-               <Button variant="black" style={{ width: "278px", marginTop: "40px"}} onClick={(event) => {
-                handleSubmit(event); 
+               <Button variant="black" style={{ width: "278px", marginTop: "40px"}} onClick={() => {
+                handleSubmit(); 
                 window.history.back();}} type="button">
                     Сохранить
                 </Button>
