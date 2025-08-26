@@ -84,16 +84,28 @@ class CitySearchView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request):
-
         query = request.data.get('city', '')
 
-        if not query:
-            return Response({"error": "City name is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        if len(query) < 3:
-            return Response({"error": "City name must be at least 3 characters long"}, status=status.HTTP_400_BAD_REQUEST)
-
         try:
+            # Если query пустой или отсутствует, возвращаем все города
+            if not query:
+                cache_key = "city_search_all"
+                cached_cities = cache.get(cache_key)
+                if cached_cities:
+                    return Response(cached_cities, status=status.HTTP_200_OK)
+
+                cities = City.objects.all().distinct()
+                if not cities:
+                    return Response({"error": "No cities found in the database"}, status=status.HTTP_404_NOT_FOUND)
+
+                response_data = [city.name for city in cities]
+                cache.set(cache_key, response_data, timeout=3600)
+                return Response(response_data, status=status.HTTP_200_OK)
+
+
+            if len(query) < 3:
+                return Response({"error": "City name must be at least 3 characters long"}, status=status.HTTP_400_BAD_REQUEST)
+
             cache_key = f"city_search_{query.lower()}"
             cached_cities = cache.get(cache_key)
             if cached_cities:
