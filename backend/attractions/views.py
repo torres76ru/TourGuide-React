@@ -379,10 +379,10 @@ class AttractionSearchView(APIView):
                 attractions = Attraction.objects.filter(name__icontains=name).distinct()
 
             if not attractions.exists():
-                response_data = {"warning": f"No attractions found matching the query '{name}'"}
+                response_data = {"error": f"No attractions found matching the query '{name}'"}
                 print(f"No attractions found for query '{name}'")
                 cache.set(cache_key, response_data, timeout=3600)
-                return Response(response_data, status=status.HTTP_200_OK)
+                return Response(response_data, status=status.HTTP_404_NOT_FOUND)
 
             print(f"Found {attractions.count()} attractions for query '{name}'")
             serializer = AttractionListSerializer(attractions, many=True)

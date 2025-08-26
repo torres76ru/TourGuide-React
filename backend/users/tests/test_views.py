@@ -25,13 +25,12 @@ def test_register_view_creates_user_and_returns_tokens():
     assert response.status_code == 201
     response_data = response.json()
 
-    # Проверяем наличие токенов
     assert "access" in response_data
     assert "refresh" in response_data
     assert "user" in response_data
     assert response_data["user"]["username"] == "apiviewuser"
 
-    # Проверяем, что пользователь реально создался
+
     assert User.objects.filter(username="apiviewuser").exists()
 
 
@@ -61,7 +60,7 @@ class TestUserViews:
 
     # -------- LoginView tests --------
     def test_login_with_username_success(self, client, active_user):
-        url = reverse("login")  # поставь свой URL name для LoginView
+        url = reverse("login")
         response = client.post(url, {"username": "activeuser", "password": "StrongPassword123!"})
         assert response.status_code == 200
         assert "access" in response.data
@@ -87,7 +86,7 @@ class TestUserViews:
 
     # -------- MeView tests --------
     def test_me_view_authenticated(self, client, active_user):
-        url = reverse("me")  # поставь свой URL name для MeView
+        url = reverse("me")
         refresh = RefreshToken.for_user(active_user)
         client.credentials(HTTP_AUTHORIZATION=f"Bearer {refresh.access_token}")
         response = client.get(url)
