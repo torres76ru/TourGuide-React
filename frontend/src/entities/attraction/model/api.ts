@@ -14,13 +14,26 @@ export const attractionApi = {
     });
     return data;
   },
+  getLeaders: async (
+    city?: string,
+    tag?: string,
+    limit: number = 5
+  ): Promise<AttractionResponse> => {
+    const { data } = await axios.post(`${API_BASE_URL}/leaderboard/`, {
+      city,
+      tag,
+      limit,
+    });
+    return data;
+  },
   getByCoords: async (
     lat: number,
     lon: number,
-    tags?: string[]
+    tags?: string[],
+    radius: number = 0.001
   ): Promise<AttractionListResponse> => {
     const { data } = await axios.get(
-      `${API_BASE_URL}/map/attractions/?lat=${lat}&lng=${lon}${tags ? `&tags=${tags.join(',')}` : ''}`
+      `${API_BASE_URL}/map/attractions/?lat=${lat}&lng=${lon}${tags ? `&radius=${radius}&tags=${tags.join(',')}` : ''}`
     );
     return data;
   },

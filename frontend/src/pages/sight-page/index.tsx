@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { attractionApi } from "entities/attraction/model/api";
 import type { AttractionDetails } from "entities/attraction/model/types";
 import Loader from "shared/ui/Loader/Loader";
+import BackButton from "features/back-button";
+import ModalReview from "widgets/ModalReview/ModalReview";
 
 const SightPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -14,6 +16,7 @@ const SightPage = () => {
     undefined
   );
   const [loading, setLoading] = useState(true);
+  const [isModalReview, setModalReview] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -45,9 +48,13 @@ const SightPage = () => {
 
   return (
     <div className={styles.body}>
-      <Attraction attraction={attraction} />
+      <div>
+        <BackButton className={styles.back_button}></BackButton>
+        <Attraction attraction={attraction} />
+      </div>
       <AttractionCarousel category="Для вас:" count={8} />
-      <Reviews attraction={attraction} />
+      <Reviews attraction={attraction} onClick={() => setModalReview(true)}/>
+      {isModalReview && <ModalReview onClick={() => setModalReview(false)}  attraction={attraction}></ModalReview>}
     </div>
   );
 };

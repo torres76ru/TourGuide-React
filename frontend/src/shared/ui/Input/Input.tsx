@@ -24,11 +24,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
   ...props
 }, ref) => {
   return (
-    <>
+    <div className={styles.input_section}>
       {label && <label className={classLable} htmlFor={id}>{label}</label>}
       <input
         ref={ref} 
-        className={clsx(styles.input, error && styles.input_error, classInput)}
+        className={clsx(styles.input, classInput, error && styles.input_error)}
         type={type}
         id={id}
         value={value}
@@ -38,7 +38,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
         {...props}
       />
       {error && <span className={styles.error_message}>{error}</span>}
-    </>
+    </div>
   );
 });
 

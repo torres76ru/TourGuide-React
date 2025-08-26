@@ -10,8 +10,6 @@ interface ReviewListProps {
 export default function ReviewList({ ratings }: ReviewListProps) {
   const [showAllReviews, setShowAllReviews] = useState(false);
 
-  // Отображаем либо 3 отзыва, либо все в зависимости от состояния
-
   return (
     <>
       <div className={styles.reviews_list}>

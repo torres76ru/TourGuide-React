@@ -26,7 +26,14 @@
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
+        margin-bottom: 3px;
         h3 {
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          height: 58px;
           font-weight: 400;
           font-size: 16px;
           letter-spacing: -4%;
@@ -34,6 +41,14 @@
       }
 
       .description {
+        display: -webkit-box;
+        -webkit-line-clamp: 5;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 400;
+        font-size: 16px;
+        letter-spacing: -4%;
         font-weight: 200;
         font-size: 12px;
         height: 77px;

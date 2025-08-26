@@ -3,13 +3,9 @@
 import WhereToGo from 'widgets/where-to-go';
 import styles from './MainPage.module.scss';
 import { Carousel } from 'widgets/index';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppDispatch, RootState } from 'app/store/mainStore';
-import { useEffect } from 'react';
-import { fetchAttractionsRequest } from 'entities/attraction/model/slice';
+import { useSelector } from 'react-redux';
+import type { RootState } from 'app/store/mainStore';
 import { selectAttractionsByTags } from 'entities/attraction/model/selectors';
-import { useWatchLocation } from 'entities/location/hooks/useWatchLocation';
-import { useSearchParams } from 'react-router';
 
 const categories = [
   { tag: 'museum', label: 'Лучшие музеи' },
@@ -19,15 +15,16 @@ const categories = [
 ];
 
 const MainPage = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const city = useSelector((state: RootState) => state.location.city);
-  const coords = useSelector((state: RootState) => state.location.coords);
+  // const [searchParams] = useSearchParams();
 
-  const [searchParams] = useSearchParams();
+  // const city = useSelector((state: RootState) => state.location.city);
+  // const coords = useSelector((state: RootState) => state.location.coords);
 
-  const hasNearby = searchParams.has('nearby');
+  // const [user] = useSelector((state: RootState) => [state.user.user]);
 
-  useWatchLocation();
+  // const hasNearby = searchParams.has('nearby');
+
+  // useWatchLocation();
 
   const attractionsByTag = useSelector((state: RootState) =>
     selectAttractionsByTags(
@@ -36,28 +33,32 @@ const MainPage = () => {
     )
   );
 
-  // Только для загрузки по городу
-  useEffect(() => {
-    if (city && !hasNearby) {
-      categories.forEach(({ tag }) => {
-        dispatch(fetchAttractionsRequest({ city, tag }));
-      });
-    }
-  }, [dispatch, city, hasNearby]);
+  // // Только для загрузки по городу
+  // useEffect(() => {
+  //   if (city && !hasNearby) {
+  //     categories.forEach(({ tag }) => {
+  //       dispatch(fetchAttractionsRequest({ city, tag }));
+  //     });
+  //   } else {
+  //     categories.forEach(({ tag }) => {
+  //       dispatch(fetchAttractionsRequest({ tag }));
+  //     });
+  //   }
+  // }, [dispatch, city, hasNearby, user]);
 
-  // Только для nearby
-  useEffect(() => {
-    if (hasNearby && coords) {
-      categories.forEach(({ tag }) => {
-        dispatch(
-          fetchAttractionsRequest({
-            tag,
-            nearby: { lat: coords.latitude, lon: coords.longitude },
-          })
-        );
-      });
-    }
-  }, [dispatch, hasNearby, coords]);
+  // // Только для nearby
+  // useEffect(() => {
+  //   if (hasNearby && coords) {
+  //     categories.forEach(({ tag }) => {
+  //       dispatch(
+  //         fetchAttractionsRequest({
+  //           tag,
+  //           nearby: { lat: coords.latitude, lon: coords.longitude },
+  //         })
+  //       );
+  //     });
+  //   }
+  // }, [dispatch, hasNearby, coords]);
 
   return (
     <div className={styles.body}>
@@ -67,6 +68,7 @@ const MainPage = () => {
 
       {categories.map(({ tag, label }) => {
         const { attractions, loading, error } = attractionsByTag[tag];
+        if (error) return;
         return (
           <div key={tag} style={{ marginBottom: '56px' }}>
             <Carousel category={label} attractions={attractions} loading={loading} error={error} />

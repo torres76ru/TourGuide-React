@@ -1,10 +1,10 @@
-import { createSlice } from "@reduxjs/toolkit";
-import type { PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
 
-import type { LoginPayload, RegisterPayload, RegisterResponse } from "./types";
+import type { LoginPayload, RegisterPayload, RegisterResponse } from './types';
 
 interface UserState {
-  user: RegisterResponse["user"] | null;
+  user: RegisterResponse['user'] | null;
   accessToken: string | null;
   refreshToken: string | null;
   loading: boolean;
@@ -12,15 +12,15 @@ interface UserState {
 }
 
 const initialState: UserState = {
-  user: null,
-  accessToken: null,
-  refreshToken: null,
+  user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null,
+  accessToken: localStorage.getItem('accessToken'),
+  refreshToken: localStorage.getItem('refreshToken'),
   loading: false,
   error: null,
 };
 
 const userSlice = createSlice({
-  name: "user",
+  name: 'user',
   initialState,
   reducers: {
     // ---- Register ----
@@ -60,6 +60,10 @@ const userSlice = createSlice({
       state.user = null;
       state.accessToken = null;
       state.refreshToken = null;
+
+      localStorage.removeItem('user');
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
     },
   },
 });
