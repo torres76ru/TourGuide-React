@@ -59,18 +59,21 @@ class LoginView(generics.GenericAPIView):
     def post(self, request):
         login = request.data.get("username")
         password = request.data.get("password")
+
         user = None
 
         if '@' in login:
             try:
-                user_obj = User.objects.get(email=login)
-                user = authenticate(username=user_obj.username, password=password)
+                user = User.objects.get(email=login)
             except User.DoesNotExist:
-                pass
+                return Response({"error": "Неверные учетные данные"}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            user = authenticate(username=login, password=password)
+            try:
+                user = User.objects.get(username=login)
+            except User.DoesNotExist:
+                return Response({"error": "Неверные учетные данные"}, status=status.HTTP_400_BAD_REQUEST)
 
-        if not user:
+        if not user.check_password(password):
             return Response({"error": "Неверные учетные данные"}, status=status.HTTP_400_BAD_REQUEST)
 
         if not user.is_active:
@@ -82,7 +85,6 @@ class LoginView(generics.GenericAPIView):
             "refresh": str(refresh),
             "access": str(refresh.access_token),
         })
-
 
 # GET /api/auth/me/
 class MeView(generics.RetrieveUpdateAPIView):
