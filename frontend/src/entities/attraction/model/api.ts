@@ -18,7 +18,7 @@ export const attractionApi = {
     city?: string,
     tag?: string,
     limit: number = 5
-  ): Promise<AttractionListResponse> => {
+  ): Promise<AttractionResponse> => {
     const { data } = await axios.post(`${API_BASE_URL}/leaderboard/`, {
       city,
       tag,
@@ -29,10 +29,11 @@ export const attractionApi = {
   getByCoords: async (
     lat: number,
     lon: number,
-    tags?: string[]
+    tags?: string[],
+    radius: number = 0.001
   ): Promise<AttractionListResponse> => {
     const { data } = await axios.get(
-      `${API_BASE_URL}/map/attractions/?lat=${lat}&lng=${lon}${tags ? `&radius=0.01&tags=${tags.join(',')}` : ''}`
+      `${API_BASE_URL}/map/attractions/?lat=${lat}&lng=${lon}${tags ? `&radius=${radius}&tags=${tags.join(',')}` : ''}`
     );
     return data;
   },

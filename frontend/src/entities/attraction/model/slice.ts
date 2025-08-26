@@ -1,7 +1,7 @@
 // entities/attraction/model/slice.ts
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { AttractionListResponse, AttractionResponse } from './types';
+import type { Attraction, AttractionListResponse, AttractionResponse } from './types';
 
 interface SearchState {
   results: AttractionListResponse['attractions'];
@@ -15,13 +15,25 @@ interface AttractionByTag {
   error: string | null;
 }
 
+interface NearbyState {
+  attractions: Attraction[];
+  loading: boolean;
+  error: string | null;
+}
+
 interface AttractionListState {
   attractionsByTag: Record<string, AttractionByTag>;
+  nearby: NearbyState;
   search: SearchState;
 }
 
 const initialState: AttractionListState = {
   attractionsByTag: {},
+  nearby: {
+    attractions: [],
+    loading: false,
+    error: null,
+  },
   search: {
     results: [],
     loading: false,
@@ -52,11 +64,39 @@ const attractionSlice = createSlice({
     },
     fetchAttractionsRequest(
       state,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      _action: PayloadAction<{
+        tags?: string[];
+        lat: number;
+        lon: number;
+        radius?: number;
+      }>
+    ) {
+      state.nearby.loading = true;
+      state.nearby.error = null;
+    },
+    fetchAttractionsSuccess(
+      state,
+      action: PayloadAction<{ tags?: string[]; data: AttractionListResponse }>
+    ) {
+      const { data } = action.payload;
+      state.nearby.attractions = data.attractions;
+      state.nearby.loading = false;
+      state.nearby.error = null;
+    },
+    fetchAttractionsFailure(state, action: PayloadAction<string>) {
+      state.nearby.attractions = [];
+      state.nearby.loading = false;
+      state.nearby.error = action.payload;
+    },
+    fetchLeadersRequest(
+      state,
       action: PayloadAction<{
         city?: string;
         tag: string;
         nearby?: { lat: number; lon: number };
         leaders?: boolean;
+        limit?: number;
       }>
     ) {
       const { tag } = action.payload;
@@ -67,14 +107,11 @@ const attractionSlice = createSlice({
         state.attractionsByTag[tag].error = null;
       }
     },
-    fetchAttractionsSuccess(
-      state,
-      action: PayloadAction<{ tag: string; data: AttractionListResponse }>
-    ) {
+    fetchLeadersSuccess(state, action: PayloadAction<{ tag: string; data: AttractionResponse }>) {
       const { tag, data } = action.payload;
-      state.attractionsByTag[tag] = { attractions: data.attractions, loading: false, error: null };
+      state.attractionsByTag[tag] = { attractions: data, loading: false, error: null };
     },
-    fetchAttractionsFailure(state, action: PayloadAction<{ tag: string; error: string }>) {
+    fetchLeadersFailure(state, action: PayloadAction<{ tag: string; error: string }>) {
       const { tag, error } = action.payload;
       if (!state.attractionsByTag[tag]) {
         state.attractionsByTag[tag] = { attractions: [], loading: false, error };
@@ -93,6 +130,9 @@ export const {
   searchAttractionsRequest,
   searchAttractionsFailure,
   searchAttractionsSuccess,
+  fetchLeadersRequest,
+  fetchLeadersSuccess,
+  fetchLeadersFailure,
 } = attractionSlice.actions;
 
 export default attractionSlice.reducer;

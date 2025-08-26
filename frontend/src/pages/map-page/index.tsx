@@ -8,6 +8,8 @@ import { setCity, setCoords } from 'entities/location/model/slice';
 import { locationApi } from 'entities/location/model/api';
 import { fetchAttractionsRequest } from 'entities/attraction/model/slice';
 import ConfirmModal from 'widgets/ConfirmModal';
+import type { Attraction } from 'entities/attraction/model/types';
+import { useNavigate } from 'react-router';
 
 // Custom marker icon (fixes default icon issue)
 const markerIcon = new L.Icon({
@@ -17,6 +19,13 @@ const markerIcon = new L.Icon({
   popupAnchor: [1, -34],
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
   shadowSize: [41, 41],
+});
+
+const nearbyIcon = new L.Icon({
+  iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', // пример: другая иконка
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
 });
 
 const LocationSelector: React.FC<{
@@ -40,13 +49,23 @@ const categories = [
 const MapPage: React.FC = () => {
   const dispatch = useDispatch();
   const savedLocation = useSelector((state: RootState) => state.location);
+  const navigate = useNavigate();
 
   const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [selectedAttraction, setSelectedAttraction] = useState<Attraction | null>(null);
 
   const handleMapClick = (coords: [number, number]) => {
     setSelectedCoords(coords);
     setModalOpen(true);
+  };
+
+  const { attractions: attractionsNearby } = useSelector(
+    (state: RootState) => state.attraction.nearby
+  );
+
+  const handleRedirect = (href: string) => {
+    navigate(href);
   };
 
   async function getCity(lat: number, lon: number) {
@@ -73,14 +92,13 @@ const MapPage: React.FC = () => {
         })
       );
 
-      categories.forEach(({ tag }) => {
-        dispatch(
-          fetchAttractionsRequest({
-            tag,
-            nearby: { lat: selectedCoords[0], lon: selectedCoords[1] },
-          })
-        );
-      });
+      dispatch(
+        fetchAttractionsRequest({
+          tags: categories.map((category) => category.tag),
+          lat: selectedCoords[0],
+          lon: selectedCoords[1],
+        })
+      );
       getCity(selectedCoords[0], selectedCoords[1]);
 
       setModalOpen(false);
@@ -93,7 +111,7 @@ const MapPage: React.FC = () => {
   };
 
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
+    <div style={{ width: '100vw', height: '100%', position: 'relative' }}>
       <MapContainer
         center={
           savedLocation.coords?.latitude !== undefined &&
@@ -117,9 +135,40 @@ const MapPage: React.FC = () => {
               icon={markerIcon}
             />
           )}
+        {attractionsNearby &&
+          attractionsNearby.map((attraction) => (
+            <Marker
+              key={attraction.id}
+              position={[attraction.latitude, attraction.longitude]}
+              icon={nearbyIcon}
+              eventHandlers={{
+                click: () => setSelectedAttraction(attraction),
+              }}
+            />
+          ))}
       </MapContainer>
       {modalOpen && selectedCoords && (
         <ConfirmModal coords={selectedCoords} onConfirm={handleConfirm} onCancel={handleCancel} />
+      )}
+      {selectedAttraction && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 40,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: '#fff',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            padding: 16,
+            borderRadius: 8,
+            zIndex: 2000,
+          }}
+          onClick={() => handleRedirect(`/sight/${selectedAttraction.id}`)}
+        >
+          <h3>{selectedAttraction.name}</h3>
+          <p>{selectedAttraction.address}</p>
+          <button onClick={() => setSelectedAttraction(null)}>Закрыть</button>
+        </div>
       )}
     </div>
   );
