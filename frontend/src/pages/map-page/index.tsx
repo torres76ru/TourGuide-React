@@ -167,7 +167,9 @@ const MapPage: React.FC = () => {
         >
           <h3>{selectedAttraction.name}</h3>
           <p>{selectedAttraction.address}</p>
-          <button onClick={() => setSelectedAttraction(null)}>Закрыть</button>
+          <button onClick={(e) => {e.stopPropagation(); // Останавливаем всплытие
+              setSelectedAttraction(null);
+            }}>Закрыть</button>
         </div>
       )}
     </div>
