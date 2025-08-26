@@ -21,7 +21,7 @@ export const attractionApi = {
   ): Promise<AttractionResponse> => {
     const { data } = await axios.post(`${API_BASE_URL}/leaderboard/`, {
       city,
-      tag,
+      tags: tag,
       limit,
     });
     return data;
