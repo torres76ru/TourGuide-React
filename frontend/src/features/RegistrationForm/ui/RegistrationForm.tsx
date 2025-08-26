@@ -15,6 +15,10 @@ interface RegistrationFormProps {
 export default function RegistrationForm({ className, back, userType }: RegistrationFormProps) {
   const { formData, errors, handleChange, handleSubmit, loading, error } = useRegistrationForm();
 
+  if (userType === 'guide') {
+    formData.is_guide = true;
+  }
+
   return (
     <form onSubmit={handleSubmit} className={clsx(styles.registration_form, className)}>
       {userType}

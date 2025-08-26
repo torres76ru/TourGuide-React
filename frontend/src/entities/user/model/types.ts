@@ -5,6 +5,7 @@ export interface RegisterPayload {
   email: string;
   password: string;
   password2: string;
+  is_guide: boolean;
 }
 
 export interface LoginPayload {

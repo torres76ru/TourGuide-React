@@ -25,6 +25,8 @@ const MainPage = () => {
 
   const [searchParams] = useSearchParams();
 
+  const [user] = useSelector((state: RootState) => [state.user.user]);
+
   const hasNearby = searchParams.has('nearby');
 
   useWatchLocation();
@@ -42,8 +44,12 @@ const MainPage = () => {
       categories.forEach(({ tag }) => {
         dispatch(fetchAttractionsRequest({ city, tag }));
       });
+    } else {
+      categories.forEach(({ tag }) => {
+        dispatch(fetchAttractionsRequest({ tag }));
+      });
     }
-  }, [dispatch, city, hasNearby]);
+  }, [dispatch, city, hasNearby, user]);
 
   // Только для nearby
   useEffect(() => {
