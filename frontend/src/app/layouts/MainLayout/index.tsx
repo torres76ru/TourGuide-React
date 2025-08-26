@@ -24,7 +24,6 @@ const MainLayout = () => {
   // const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    console.log(coords);
     if (coords) {
       // Запрос города по координатам
       dispatch(setCoords({ latitude: coords.lat, longitude: coords.lon }));

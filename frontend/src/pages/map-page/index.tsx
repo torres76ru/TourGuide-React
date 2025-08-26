@@ -10,6 +10,7 @@ import { fetchAttractionsRequest } from 'entities/attraction/model/slice';
 import ConfirmModal from 'widgets/ConfirmModal';
 import type { Attraction } from 'entities/attraction/model/types';
 import { useNavigate } from 'react-router';
+import Header from 'widgets/Header';
 
 // Custom marker icon (fixes default icon issue)
 const markerIcon = new L.Icon({
@@ -112,7 +113,16 @@ const MapPage: React.FC = () => {
   };
 
   return (
-    <div style={{ width: '100vw', height: '100%', position: 'relative' }}>
+    <div
+      style={{
+        width: '100vw',
+        height: '100%',
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <Header />
       <MapContainer
         center={
           savedLocation.coords?.latitude !== undefined &&
@@ -155,22 +165,30 @@ const MapPage: React.FC = () => {
         <div
           style={{
             position: 'absolute',
-            bottom: 40,
+            bottom: 20,
             left: '50%',
             transform: 'translateX(-50%)',
+            maxWidth: '400px',
+            width: '90%',
             background: '#fff',
             boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
             padding: 16,
             borderRadius: 8,
             zIndex: 2000,
+            boxSizing: 'border-box',
           }}
           onClick={() => handleRedirect(`/sight/${selectedAttraction.id}`)}
         >
           <h3>{selectedAttraction.name}</h3>
           <p>{selectedAttraction.address}</p>
-          <button onClick={(e) => {e.stopPropagation(); // Останавливаем всплытие
+          <button
+            onClick={(e) => {
+              e.stopPropagation(); // Останавливаем всплытие
               setSelectedAttraction(null);
-            }}>Закрыть</button>
+            }}
+          >
+            Закрыть
+          </button>
         </div>
       )}
     </div>

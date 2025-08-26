@@ -1,11 +1,12 @@
 import type { Attraction } from 'entities/attraction/model/types';
 import { SightTiny } from 'entities/sight-tiny';
+import { memo } from 'react';
 
 interface SearchListProps {
   attractions?: Attraction[];
 }
 
-export const SearchList = ({ attractions }: SearchListProps) => {
+export const SearchList = memo(({ attractions }: SearchListProps) => {
   if (!attractions || attractions.length === 0) {
     return <div>Ничего не найдено</div>;
   }
@@ -23,4 +24,4 @@ export const SearchList = ({ attractions }: SearchListProps) => {
         ))}
     </div>
   );
-};
+});

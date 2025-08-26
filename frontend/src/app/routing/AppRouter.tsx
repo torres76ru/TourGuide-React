@@ -1,18 +1,19 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { routes } from "./routes";
-import { MainLayout } from "app/layouts";
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { routes } from './routes';
+import { MainLayout } from 'app/layouts';
 
-import SearchPage from "pages/search-page";
-import UserDataPage from "pages/user-data-page";
-import UserEditingPage from "pages/user-editing-page";
-import UserChangePasswordPage from "pages/user-change-password-page";
-import UserVisitedExcursionsPage from "pages/user-visited-excursions-page";
-import UserScheduledExcursionsPage from "pages/user-scheduled-excursions-page";
-import ReviewPage from "pages/review-page"
-import GuideExcursionsPage from "pages/guide-excursions-page"
-import JoinPage from "pages/join-page"
-import EditingExcursionPage from "pages/editing-excursion-page";
-import JoinListPage from "pages/join-list-page";
+import SearchPage from 'pages/search-page';
+import UserDataPage from 'pages/user-data-page';
+import UserEditingPage from 'pages/user-editing-page';
+import UserChangePasswordPage from 'pages/user-change-password-page';
+import UserVisitedExcursionsPage from 'pages/user-visited-excursions-page';
+import UserScheduledExcursionsPage from 'pages/user-scheduled-excursions-page';
+import ReviewPage from 'pages/review-page';
+import GuideExcursionsPage from 'pages/guide-excursions-page';
+import JoinPage from 'pages/join-page';
+import EditingExcursionPage from 'pages/editing-excursion-page';
+import JoinListPage from 'pages/join-list-page';
+import MapPage from 'pages/map-page';
 
 export const Routing = () => {
   return (
@@ -34,6 +35,7 @@ export const Routing = () => {
         <Route path="/excursion/join" element={<JoinPage />} />
         <Route path="/user/guide-excursions/editing" element={<EditingExcursionPage />} />
         <Route path="/user/guide-excursions/join-list" element={<JoinListPage />} />
+        <Route path="/map" element={<MapPage />} />
       </Routes>
     </BrowserRouter>
   );
