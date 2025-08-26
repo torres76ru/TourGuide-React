@@ -97,6 +97,7 @@ const MapPage: React.FC = () => {
           tags: categories.map((category) => category.tag),
           lat: selectedCoords[0],
           lon: selectedCoords[1],
+          radius: 0.01,
         })
       );
       getCity(selectedCoords[0], selectedCoords[1]);
