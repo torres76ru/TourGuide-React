@@ -8,4 +8,4 @@ class LeaderboardSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Attraction
-        fields = ['id', 'name', 'category', 'address', 'weighted_average', 'average_rating', 'rating_count']
+        fields = ['id', 'name', 'category', 'address', 'weighted_average', 'average_rating', 'rating_count','description_short']
