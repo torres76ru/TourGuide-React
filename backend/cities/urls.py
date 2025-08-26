@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import CityListView, CityDetailView
+from .views import CityListView, CityDetailView, CitySearchView
 
 urlpatterns = [
-    path('', CityListView.as_view(), name='city-list'),
-    path('<str:name>/', CityDetailView.as_view(), name='city-detail'),
+    path('', CityDetailView.as_view(), name='city-detail'),
+    path('search/', CitySearchView.as_view(), name='city-search'),
 ]
