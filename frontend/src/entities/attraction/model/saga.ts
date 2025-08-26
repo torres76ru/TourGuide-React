@@ -44,12 +44,13 @@ function* handleFetchAttractions(
     tags?: string[];
     lat: number;
     lon: number;
+    radius?: number;
   }>
 ) {
-  const { tags, lat, lon } = action.payload;
+  const { tags, lat, lon, radius } = action.payload;
 
   try {
-    const data = yield* call(attractionApi.getByCoords, lat, lon, tags);
+    const data = yield* call(attractionApi.getByCoords, lat, lon, tags, radius);
 
     yield* put(fetchAttractionsSuccess({ tags, data }));
   } catch (err: unknown) {
