@@ -30,8 +30,8 @@ const UserPage = () => {
               fontSize: "16px" 
             }}
             imageStyle={{
-              width: "32px",
-              height: "32px"
+              width: "27px",
+              height: "27px"
             }}></UserName>
       </div>
       {user?.is_guide ? 

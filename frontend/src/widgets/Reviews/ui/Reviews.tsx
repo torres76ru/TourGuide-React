@@ -19,18 +19,22 @@ export default function Reviews({ attraction, onClick }: ReviewsProps) {
           <button className={styles.link} onClick={onClick}>Написать отзыв</button>
         </div>
 
-        {attraction?.ratings && (
+        {attraction?.ratings && attraction.ratings.length > 0 ? (
           <DisplayingRating
             rating={attraction.average_rating}
             reviews={attraction.ratings}
-          ></DisplayingRating>
-        )}
-        {attraction?.additional_photos && (
+          ></DisplayingRating>)
+          :
+          <div style={{margin: '20px 0', fontSize: '14px', fontWeight: '600'}}>
+            <p>Здесь пока нет отзывов и оценок.</p>
+          </div>
+        }
+        {attraction?.additional_photos && attraction.additional_photos.length > 0 && (
           <GalleryCarousel
             photos={attraction.additional_photos}
           ></GalleryCarousel>
         )}
-        {attraction?.ratings && <ReviewList ratings={attraction.ratings} />}
+        {attraction?.ratings && attraction.ratings.length > 0 && <ReviewList ratings={attraction.ratings} />}
       </div>
     </>
   );

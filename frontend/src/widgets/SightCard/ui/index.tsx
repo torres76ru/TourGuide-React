@@ -13,6 +13,7 @@ interface Props {
 }
 
 const SightCard = ({ id, name, description, prices, rating, img }: Props) => {
+  const addressParts = description.split(',').slice(1); 
   const navigate = useNavigate();
   const handleRedirect = () => {
     navigate(`/sight/${id}`);
@@ -35,7 +36,7 @@ const SightCard = ({ id, name, description, prices, rating, img }: Props) => {
             <h3>{name}</h3>
             <Rating rating={rating} />
           </div>
-          <div className={style.description}>{description}</div>
+          <div className={style.description}>{addressParts}</div>
         </div>
         {prices && <div className={style.prices}>От {prices} рублей</div>}
       </div>

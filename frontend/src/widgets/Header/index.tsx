@@ -74,8 +74,8 @@ const Header = () => {
                       fontSize: '20px',
                     }}
                     imageStyle={{
-                      width: '50px',
-                      height: '50px',
+                      width: '38px',
+                      height: '38px',
                     }}
                   ></UserName>{' '}
                 </button>

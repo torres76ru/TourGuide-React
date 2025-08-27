@@ -59,7 +59,7 @@ const Excursion = ({TimetableClick} : ExcursionProps) => {
             посмотреть на карте
           </a>
         </div>
-        <People min={excursion.min_people} max={excursion.max_people}></People>
+        <People max={excursion.max_people}></People>
         <div className={styles.button_section}>
             <button className={styles.btn} onClick={TimetableClick}>Расписание</button>
             <img src={blueArrow} alt="Стрелочка" />

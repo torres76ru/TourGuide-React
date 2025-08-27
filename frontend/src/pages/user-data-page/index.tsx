@@ -1,6 +1,6 @@
 import styles from "./UserData.module.scss"
 import BackHeader from "shared/ui/BackHeader/ui/BachHeader";
-import avatar from "shared/assets/Suga.jpg";
+import avatar from "shared/assets/avatar.svg";
 import type { RootState } from "app/store/mainStore";
 import { useSelector } from "react-redux";
 import edit from "shared/assets/edit.svg"
@@ -19,12 +19,14 @@ const UserDataPage = () => {
     <div className={styles.userDataPage}>
       <BackHeader title="Личные данные"></BackHeader>
       <div className={styles.data_section}>
-        <div className={styles.user_img}> <img src={avatar} alt="Аватар" /></div>
-        <div className={styles.user_name}>
-          <span className={styles.name}>{user?.username}</span>
-          <div className={styles.name_section}>
-            <span className={styles.name}>{user?.first_name}</span>
-            <span className={styles.name}>{user?.last_name}</span>
+        <div className={styles.user_name_section}>
+          <img src={avatar} alt="Аватар" className={styles.user_img}/>
+          <div className={styles.user_name}>
+            <span className={styles.name}>{user?.username}</span>
+            <div className={styles.name_section}>
+              <span className={styles.name}>{user?.first_name}</span>
+              <span className={styles.name}>{user?.last_name}</span>
+            </div>
           </div>
         </div>
         <button className={styles.edit_button} onClick={() => handleRedirect("/user/data/editing")}> <img src={edit} alt="Редактировать" /></button>

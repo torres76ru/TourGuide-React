@@ -6,7 +6,6 @@ export function useAddExcursionForm() {
  const [formData, setFormData] = useState({
         title: "",
         price: "",
-        min_people: "",
         max_people: "",
         description: "",
         date: "",
@@ -24,7 +23,6 @@ export function useAddExcursionForm() {
     const [errors, setErrors] = useState({
         title: "",
         price: "",
-        min_people: "",
         max_people: "",
         description: "",
         date: "",
@@ -44,7 +42,7 @@ export function useAddExcursionForm() {
     const newErrors = { ...errors };
 
     const requiredFields = [
-      'title', 'price', 'min_people', 'max_people', 'description',
+      'title', 'price', 'max_people', 'description',
       'date', 'min_time', 'max_time', 'phone', 'email', 'city', 'street'
     ] as const;
     
@@ -71,8 +69,8 @@ export function useAddExcursionForm() {
         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
         });
 
-      // Создание массива чисел от 0 до 100
-      const numbArray = Array.from({ length: 101 }, (_, index) => index.toString());
+      // Создание массива чисел от 1 до 100
+      const numbArray = Array.from({ length: 100 }, (_, index) => (index + 1).toString());
         
 
     const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
