@@ -58,7 +58,7 @@ const MapPage: React.FC = () => {
   const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedAttraction, setSelectedAttraction] = useState<Attraction | null>(null);
-  const [radius, setRadius] = useState<number>(1);
+  const [radius, setRadius] = useState<number>(100);
 
   const handleMapClick = (coords: [number, number]) => {
     setSelectedCoords(coords);
@@ -102,7 +102,7 @@ const MapPage: React.FC = () => {
           tags: categories.map((category) => category.tag),
           lat: selectedCoords[0],
           lon: selectedCoords[1],
-          radius: radius / 1000,
+          radius: radius / 100000,
         })
       );
       getCity(selectedCoords[0], selectedCoords[1]);
@@ -122,14 +122,14 @@ const MapPage: React.FC = () => {
       <div className={styles.mapWrapper}>
         <div className={styles.radiusPanel}>
           <label htmlFor="radius-slider" className={styles.radiusLabel}>
-            Радиус (км):
+            Радиус (м):
           </label>
           <Slider
             id="radius-slider"
             value={radius}
-            min={1}
-            max={10}
-            step={0.1}
+            min={100}
+            max={1000}
+            step={10}
             onChange={(_, value) => setRadius(Number(value))}
             valueLabelDisplay="auto"
             className={styles.radiusSlider}
