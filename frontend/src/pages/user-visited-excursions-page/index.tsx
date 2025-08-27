@@ -1,7 +1,7 @@
 // import ExcursionCard from "widgets/ExcursionCard/ui/ExcursionCard";
 import styles from "./UserVisitedExcursions.module.scss"
 import BackHeader from "shared/ui/BackHeader/ui/BachHeader";
-import img from "shared/assets/attraction.png"
+// import img from "shared/assets/attraction.png"
 // import type { RootState } from "app/store/mainStore";
 // import { useSelector } from "react-redux";
 // import Input from "shared/ui/Input/Input";

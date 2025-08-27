@@ -1,6 +1,6 @@
 import Input from "shared/ui/Input/Input"
 import styles from "./AddExcursionForm.module.scss"
-import DropDownSection from "shared/ui/DropDownSection/DropDownSection"
+// import DropDownSection from "shared/ui/DropDownSection/DropDownSection"
 import { type MouseEventHandler } from "react";
 import AddPhotoButton from "shared/ui/AddPhotoButton/AddPhotoButton";
 import Button from "shared/ui/Button";
