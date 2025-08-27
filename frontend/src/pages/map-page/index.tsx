@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import styles from './MapPage.module.scss';
+import Slider from '@mui/material/Slider';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -11,6 +13,7 @@ import ConfirmModal from 'widgets/ConfirmModal';
 import type { Attraction } from 'entities/attraction/model/types';
 import { useNavigate } from 'react-router';
 import Header from 'widgets/Header';
+import { SightCard } from 'widgets/index';
 
 // Custom marker icon (fixes default icon issue)
 const markerIcon = new L.Icon({
@@ -55,6 +58,7 @@ const MapPage: React.FC = () => {
   const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedAttraction, setSelectedAttraction] = useState<Attraction | null>(null);
+  const [radius, setRadius] = useState<number>(1);
 
   const handleMapClick = (coords: [number, number]) => {
     setSelectedCoords(coords);
@@ -98,7 +102,7 @@ const MapPage: React.FC = () => {
           tags: categories.map((category) => category.tag),
           lat: selectedCoords[0],
           lon: selectedCoords[1],
-          radius: 0.01,
+          radius: radius / 1000,
         })
       );
       getCity(selectedCoords[0], selectedCoords[1]);
@@ -113,84 +117,79 @@ const MapPage: React.FC = () => {
   };
 
   return (
-    <div
-      style={{
-        width: '100vw',
-        height: '100%',
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
+    <div className={styles.root}>
       <Header />
-      <MapContainer
-        center={
-          savedLocation.coords?.latitude !== undefined &&
-          savedLocation.coords?.longitude !== undefined
-            ? [savedLocation.coords.latitude, savedLocation.coords.longitude]
-            : [55.751244, 37.618423]
-        } // Moscow default
-        zoom={13}
-        style={{ width: '100%', height: '100%' }}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <LocationSelector onSelect={handleMapClick} />
-        {selectedCoords && <Marker position={selectedCoords} icon={markerIcon} />}
-        {savedLocation?.coords?.latitude !== undefined &&
-          savedLocation?.coords?.longitude !== undefined && (
-            <Marker
-              position={[savedLocation.coords.latitude, savedLocation.coords.longitude]}
-              icon={markerIcon}
-            />
-          )}
-        {attractionsNearby &&
-          attractionsNearby.map((attraction) => (
-            <Marker
-              key={attraction.id}
-              position={[attraction.latitude, attraction.longitude]}
-              icon={nearbyIcon}
-              eventHandlers={{
-                click: () => setSelectedAttraction(attraction),
-              }}
-            />
-          ))}
-      </MapContainer>
-      {modalOpen && selectedCoords && (
-        <ConfirmModal coords={selectedCoords} onConfirm={handleConfirm} onCancel={handleCancel} />
-      )}
-      {selectedAttraction && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 20,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            maxWidth: '400px',
-            width: '90%',
-            background: '#fff',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-            padding: 16,
-            borderRadius: 8,
-            zIndex: 2000,
-            boxSizing: 'border-box',
-          }}
-          onClick={() => handleRedirect(`/sight/${selectedAttraction.id}`)}
-        >
-          <h3>{selectedAttraction.name}</h3>
-          <p>{selectedAttraction.address}</p>
-          <button
-            onClick={(e) => {
-              e.stopPropagation(); // Останавливаем всплытие
-              setSelectedAttraction(null);
-            }}
-          >
-            Закрыть
-          </button>
+      <div className={styles.mapWrapper}>
+        <div className={styles.radiusPanel}>
+          <label htmlFor="radius-slider" className={styles.radiusLabel}>
+            Радиус (км):
+          </label>
+          <Slider
+            id="radius-slider"
+            value={radius}
+            min={1}
+            max={10}
+            step={0.1}
+            onChange={(_, value) => setRadius(Number(value))}
+            valueLabelDisplay="auto"
+            className={styles.radiusSlider}
+          />
         </div>
-      )}
+
+        <MapContainer
+          center={
+            savedLocation.coords?.latitude !== undefined &&
+            savedLocation.coords?.longitude !== undefined
+              ? [savedLocation.coords.latitude, savedLocation.coords.longitude]
+              : [55.751244, 37.618423]
+          } // Moscow default
+          zoom={13}
+          className={styles.map}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <LocationSelector onSelect={handleMapClick} />
+          {selectedCoords && <Marker position={selectedCoords} icon={markerIcon} />}
+          {savedLocation?.coords?.latitude !== undefined &&
+            savedLocation?.coords?.longitude !== undefined && (
+              <Marker
+                position={[savedLocation.coords.latitude, savedLocation.coords.longitude]}
+                icon={markerIcon}
+              />
+            )}
+          {attractionsNearby &&
+            attractionsNearby.map((attraction) => (
+              <Marker
+                key={attraction.id}
+                position={[attraction.latitude, attraction.longitude]}
+                icon={nearbyIcon}
+                eventHandlers={{
+                  click: () => setSelectedAttraction(attraction),
+                }}
+              />
+            ))}
+        </MapContainer>
+        {modalOpen && selectedCoords && (
+          <ConfirmModal coords={selectedCoords} onConfirm={handleConfirm} onCancel={handleCancel} />
+        )}
+        {selectedAttraction && (
+          <div
+            className={styles.attractionCard}
+            onClick={() => handleRedirect(`/sight/${selectedAttraction.id}`)}
+          >
+            <SightCard
+              id={selectedAttraction.id}
+              name={selectedAttraction.name}
+              description={selectedAttraction.description_short}
+              rating={selectedAttraction.average_rating}
+              img={selectedAttraction.main_photo_url}
+              className={styles.sightCard}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

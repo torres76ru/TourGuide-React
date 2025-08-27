@@ -10,15 +10,19 @@ interface Props {
   prices?: string;
   rating: number;
   img?: string | null;
+  className?: string;
 }
 
-const SightCard = ({ id, name, description, prices, rating, img }: Props) => {
+const SightCard = ({ id, name, description, prices, rating, img, className }: Props) => {
   const navigate = useNavigate();
   const handleRedirect = () => {
     navigate(`/sight/${id}`);
   };
   return (
-    <div className={style.cardBody} onClick={() => handleRedirect()}>
+    <div
+      className={`${style.cardBody}${className ? ' ' + className : ''}`}
+      onClick={handleRedirect}
+    >
       <div className={style.cardImage}>
         <img
           src={img ? BASE_URL + img : attractionPlaceholder}
