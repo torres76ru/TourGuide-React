@@ -1,54 +1,53 @@
 .cardBody {
-    display: flex;
-    gap: 8px;
-    height: 100px;
-    width: 215px;
-    border-radius: 5px;
-    border-color: #fff;
-    box-shadow: 0px 0px 10px 0px #2424244D;
-    padding: 5px;
+  display: flex;
+  gap: 8px;
+  height: 100px;
+  width: 215px;
+  border-radius: 5px;
+  border-color: #fff;
+  box-shadow: 0px 0px 10px 0px #2424244d;
+  padding: 5px;
 }
 
 .cardImage {
-    width: 90px;
-    height: 90px;
-    overflow: hidden;
-    border-radius: 5px;
-    img {
-        width: 100%;
-        height: 100%;
-    }
+  width: 90px;
+  height: 90px;
+  overflow: hidden;
+  border-radius: 5px;
+  img {
+    width: 100%;
+    height: 100%;
+  }
 }
 
 .context {
-    display: flex;
-    flex-direction: column;
-    font-size: 10px;
-    font-weight: 400;
-    max-width: 105px;
-    max-height: 90px;
-    p {
-         text-overflow: ellipsis;
-         overflow: hidden;
-    }
-    h4 {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
+  display: flex;
+  flex-direction: column;
+  font-size: 10px;
+  font-weight: 400;
+  max-width: 105px;
+  max-height: 90px;
+  p {
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+  h4 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 12px;
+    font-weight: 600;
+  }
 }
 
 .rating_location {
-    margin: 4px 0;
+  margin: 4px 0;
 }
 
 .size {
-    font-size: 10px !important;
+  font-size: 10px !important;
 }
 
 .size_icon {
-    width: 14px;
-    height: 14px;
+  width: 14px;
+  height: 14px;
 }

@@ -10,6 +10,7 @@ export interface Attraction {
   main_photo_url: string | null;
   average_rating: number;
   rating_count: number;
+  description_short: string;
 }
 
 export interface iReview {
