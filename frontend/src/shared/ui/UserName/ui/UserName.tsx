@@ -1,5 +1,5 @@
 import styles from "./UserName.module.scss"
-import avatar from "shared/assets/Suga.jpg"
+import avatar from "shared/assets/avatar.svg"
 
 interface UserNameProps {
     name?: string;
@@ -11,9 +11,7 @@ export default function UserName({name, headingStyle = {}, imageStyle = {}} : Us
     return (
         <>
         <div className={styles.name_section}>
-            <div className={styles.img_section} style={imageStyle}>
-                <img src={avatar} alt="Аватар" />
-            </div>
+            <img className={styles.img} src={avatar} alt="Аватар" style={imageStyle}/>
             <h3 style={headingStyle}>{name}</h3>
         </div>
         </>

@@ -5,7 +5,7 @@ import Location from 'shared/ui/Location/ui/Location';
 import AttractionMap from 'widgets/AttractionMap/ui/AttractionMap';
 import AttractionContacts from 'widgets/AttractionContacts/ui/AttractionContacts';
 import AttractionDescription from 'widgets/AttractionDescription/ui/AttractionDescription';
-import AttractionWorkingTime from 'widgets/AttractionWorkingTime/ui/AttractionWorkingTime';
+// import AttractionWorkingTime from 'widgets/AttractionWorkingTime/ui/AttractionWorkingTime';
 import AttractionPlaceholder from 'shared/assets/attraction_placeholder.png';
 import type { AttractionDetails } from 'entities/attraction/model/types';
 import { BASE_URL } from 'shared/config/constants';
@@ -64,15 +64,15 @@ const Attraction = ({ attraction }: AttractionProps) => {
             посмотреть на карте
           </a>
         </div>
-        <AttractionWorkingTime
+        {/* <AttractionWorkingTime
           titleClassName={styles.title}
           textClassName={styles.text}
-        ></AttractionWorkingTime>
-        <AttractionDescription
+        ></AttractionWorkingTime> */}
+        {attraction.description && <AttractionDescription
           titleClassName={styles.title}
           textClassName={styles.text}
           description={attraction.description}
-        ></AttractionDescription>
+        ></AttractionDescription>}
         <AttractionMap
           titleClassName={styles.title}
           textClassName={styles.text}

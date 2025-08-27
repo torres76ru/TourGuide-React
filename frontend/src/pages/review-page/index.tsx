@@ -40,8 +40,8 @@ const ReviewPage = () => {
             fontSize: "16px" 
           }}
           imageStyle={{
-            width: "32px",
-            height: "32px"
+            width: "27px",
+            height: "27px"
           }}
         />
         
