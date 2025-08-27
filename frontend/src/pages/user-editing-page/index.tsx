@@ -30,7 +30,7 @@ const UserEditingPage = () => {
   return (
     <div className={styles.userEditingPage}>
       <BackHeader title="Личные данные"></BackHeader>
-      <form className={styles.editing_section} action="">
+      <form className={styles.editing_section}>
           <Input 
           label="Имя пользователя" 
           classLable={styles.font_weight} 
@@ -58,7 +58,7 @@ const UserEditingPage = () => {
         <Button 
           variant="black" 
           style={{ width: "278px" }} 
-          type="submit" 
+          type="button" 
           className={styles.margin}
           onClick={handleSave}
         >
