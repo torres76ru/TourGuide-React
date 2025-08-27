@@ -67,6 +67,16 @@ class Attraction(models.Model):
 
         self.save(update_fields=['description', 'description_short', 'category'])
 
+    def update_rating_stats(self):
+        from ratings.models import Rating
+        stats = Rating.objects.filter(attraction=self).aggregate(
+            avg_rating=Avg('value'),
+            count=Count('id')
+        )
+        self.average_rating = stats['avg_rating'] or 0.0
+        self.rating_count = stats['count'] or 0
+        self.save(update_fields=['average_rating', 'rating_count'])
+
 class AttractionPhoto(models.Model):
     attraction = models.ForeignKey(
         Attraction,
