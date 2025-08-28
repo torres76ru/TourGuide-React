@@ -5,6 +5,7 @@ import type {
   AttractionResponse,
 } from './types';
 import { API_BASE_URL } from 'shared/config/constants';
+import { store } from 'app/store/mainStore';
 
 export const attractionApi = {
   getByCity: async (city: string, tag?: string): Promise<AttractionListResponse> => {
@@ -43,6 +44,23 @@ export const attractionApi = {
   },
   searchAttractions: async (query: string): Promise<AttractionResponse> => {
     const { data } = await axios.post(`${API_BASE_URL}/attractions/search/`, { name: query });
+    return data;
+  },
+  sendComment: async (attractionID: number, comment: string, rating: number) => {
+    const accessToken = store.getState().user.accessToken;
+    const { data } = await axios.post(
+      `${API_BASE_URL}/ratings/create/`,
+      {
+        attraction: attractionID,
+        comment,
+        value: rating,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
     return data;
   },
 };

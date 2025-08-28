@@ -34,7 +34,7 @@ const Carousel = ({ category, attractions, loading = false, error }: Props) => {
                 key={sight.id}
                 id={sight.id}
                 name={sight.name}
-                description={sight.address}
+                description={sight.description_short}
                 rating={sight.average_rating}
                 img={sight.main_photo_url}
               />
