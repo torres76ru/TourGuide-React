@@ -174,7 +174,6 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_ADAPTER = "users.adapters.CustomAccountAdapter"
 SOCIALACCOUNT_ADAPTER = "users.adapters.CustomSocialAccountAdapter"
 
-
 #stripe
 STRIPE_SECRET_KEY = config('STRIPE_API_KEY')
 STRIPE_PUBLISHABLE_KEY = config("STRIPE_PUBLISHABLE_KEY")
