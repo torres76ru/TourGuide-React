@@ -138,6 +138,16 @@ const MapPage: React.FC = () => {
             valueLabelDisplay="auto"
             className={styles.radiusSlider}
           />
+          <select className={styles.categoryDropdown} defaultValue="">
+            <option value="" disabled>
+              Выберите категорию достопримечательности
+            </option>
+            {categories.map((category) => (
+              <option key={category.tag} value={category.tag}>
+                {category.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         <MapContainer
