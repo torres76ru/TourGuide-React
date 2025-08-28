@@ -70,7 +70,7 @@ export default function JoinForm() {
                     <TextArea
                     placeholder="Напишите свой комментарий..."
                     value={formData.comment}
-                    onChange={handleChange('description')}
+                    onChange={handleChange('comment')}
                     error={errors.comment}>
                     </TextArea>
                 </div>

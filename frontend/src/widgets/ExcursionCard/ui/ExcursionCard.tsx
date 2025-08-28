@@ -12,9 +12,10 @@ interface ExcursionCardProps {
   date?: string;
   rating: number;
   city?: string;
+  isGuide?: boolean;
 }
 
-export default function ExcursionCard({ img, name, date, rating, city }: ExcursionCardProps) {
+export default function ExcursionCard({ isGuide, img, name, date, rating, city }: ExcursionCardProps) {
   const roundedRating = Math.round(rating);
 
   const stars = Array(5)
@@ -44,7 +45,7 @@ export default function ExcursionCard({ img, name, date, rating, city }: Excursi
 
   return (
     <div className={styles.excursion_card_section}>
-      <div className={styles.excursion_card} onClick={handleCardClick}>
+      <div className={`${styles.excursion_card} ${!isGuide && styles.is_guide}`} onClick={handleCardClick}>
         <div className={styles.img_section}>
           <img src={img} alt="Экскурсия" />
         </div>
@@ -56,6 +57,7 @@ export default function ExcursionCard({ img, name, date, rating, city }: Excursi
           <Location distance={''} city={city}></Location>
           <div className={styles.stars}>{stars}</div>
         </div>
+        {isGuide && 
         <div className={styles.edit_button_section}>
           <button 
             className={styles.edit_button} 
@@ -63,9 +65,9 @@ export default function ExcursionCard({ img, name, date, rating, city }: Excursi
           > 
             <img src={edit} alt="Редактировать" />
           </button>
-        </div>
+        </div>}
       </div>
-      <Button className={styles.button_size} onClick={() => handleRedirect('/user/guide-excursions/join-list')}>К списку записавшихся</Button>
+      { isGuide && <Button className={styles.button_size} onClick={() => handleRedirect('/user/guide-excursions/join-list')}>К списку записавшихся</Button>}
     </div>
   );
 }

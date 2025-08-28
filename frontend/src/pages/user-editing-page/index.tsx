@@ -1,6 +1,5 @@
 import styles from "./UserEditingPage.module.scss";
 import BackHeader from "shared/ui/BackHeader/ui/BachHeader";
-import avatar from "shared/assets/Suga.jpg";
 import type { RootState } from "app/store/mainStore";
 import { useSelector } from "react-redux";
 import Input from "shared/ui/Input/Input";
@@ -31,13 +30,7 @@ const UserEditingPage = () => {
   return (
     <div className={styles.userEditingPage}>
       <BackHeader title="Личные данные"></BackHeader>
-      <div className={styles.img_section}>
-        <div className={styles.user_img}> 
-          <img src={avatar} alt="Аватар" />
-        </div>
-        <button className={styles.btn}>Изменить фото</button>
-      </div>
-      <form className={styles.editing_section} action="">
+      <form className={styles.editing_section}>
           <Input 
           label="Имя пользователя" 
           classLable={styles.font_weight} 
@@ -65,7 +58,7 @@ const UserEditingPage = () => {
         <Button 
           variant="black" 
           style={{ width: "278px" }} 
-          type="submit" 
+          type="button" 
           className={styles.margin}
           onClick={handleSave}
         >

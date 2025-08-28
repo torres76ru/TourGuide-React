@@ -40,6 +40,13 @@
     gap: 20px;
 }
 
+.people_section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
 .font_weight {
     font-weight: 400;
 }
