@@ -30,6 +30,7 @@ const SightPage = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     if (!id) {
       console.error('Attraction ID is not provided');

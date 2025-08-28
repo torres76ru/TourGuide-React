@@ -1,19 +1,18 @@
-import { BASE_URL } from "shared/config/constants";
-import styles from "./GalleryCarousel.module.scss";
+import type { AdditionalPhotos } from 'entities/attraction/model/types';
+import styles from './GalleryCarousel.module.scss';
 
 interface GalleryCarouselProps {
-  photos: string[];
+  photos: AdditionalPhotos[];
 }
 
 export default function GalleryCarousel({ photos }: GalleryCarouselProps) {
-  const imgs = photos.map((photo) => BASE_URL + photo);
   return (
     <>
       <div className={styles.carousel}>
         <div className={styles.carousel_list}>
-          {imgs.map((img, index) => (
+          {photos.map((photo, index) => (
             <div key={index} className={styles.img_section}>
-              <img src={img} alt={`Изображение ${index + 1}`} />
+              <img src={photo.photo} alt={`Изображение ${index + 1}`} />
             </div>
           ))}
         </div>

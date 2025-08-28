@@ -22,9 +22,14 @@ export interface iReview {
   updated_at: string;
 }
 
+export interface AdditionalPhotos {
+  id: number;
+  photo: string;
+}
+
 export interface AttractionDetails extends Attraction {
   description: string;
-  additional_photos: string[];
+  additional_photos: AdditionalPhotos[];
   phone_number: string;
   email: string;
   website: string;

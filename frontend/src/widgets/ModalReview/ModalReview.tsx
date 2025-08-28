@@ -1,30 +1,49 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './ModalReview.module.scss';
 import { IconArrowBack } from 'shared/ui/ArrowBackSvg';
 import UserName from 'shared/ui/UserName/ui/UserName';
 import TextArea from 'shared/ui/TextArea/TextArea';
-import AddPhotoButton from 'shared/ui/AddPhotoButton/AddPhotoButton';
 import Button from 'shared/ui/Button';
 import starBlue from 'shared/assets/star-blue.svg';
 import star from 'shared/assets/star.svg';
 import type { AttractionDetails } from 'entities/attraction/model/types';
 import { useSelector } from 'react-redux';
 import type { RootState } from 'app/store/mainStore';
-import { attractionApi } from 'entities/attraction/model/api';
 import axios from 'axios';
+import { reviewApi } from 'entities/Review/model/api';
+import AddPhotoButton from 'shared/ui/AddPhotoButton/AddPhotoButton';
 
 interface ModalReviewProps {
   attraction: AttractionDetails;
   onClick?: () => void;
+  initialComment?: string;
+  initialRating?: number;
 }
 
-export default function ModalReview({ attraction, onClick }: ModalReviewProps) {
-  const [rating, setRating] = useState<number>(0);
-  const [comment, setComment] = useState<string>('');
+export default function ModalReview({
+  attraction,
+  onClick,
+  initialComment = '',
+  initialRating = 0,
+}: ModalReviewProps) {
+  const [rating, setRating] = useState<number>(initialRating);
+  const [text, setText] = useState<string>(initialComment);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  const [photo, setPhoto] = useState<File | null>(null);
   const { user } = useSelector((state: RootState) => state.user);
+  const [idComment, setIdComment] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (attraction.ratings && user?.email) {
+      const comment = attraction.ratings.find((item) => item.user.email === user.email);
+      if (comment) {
+        setRating(comment.value);
+        setText(comment.comment);
+        setIdComment(comment.id);
+      }
+    }
+  }, [attraction.ratings, user?.email]);
 
   // Создаем массив из 5 звезд
   const stars = Array(5)
@@ -51,14 +70,20 @@ export default function ModalReview({ attraction, onClick }: ModalReviewProps) {
       setError('Поставьте оценку');
       return;
     }
-    if (!comment.trim()) {
+    if (!text.trim()) {
       setError('Напишите комментарий');
       return;
     }
 
     setLoading(true);
     try {
-      await attractionApi.sendComment(attraction.id, comment, rating);
+      if (idComment) {
+        await reviewApi.updateComment(idComment, attraction.id, text, rating);
+        if (photo) await reviewApi.sendPhoto(attraction.id, photo);
+      } else {
+        await reviewApi.sendComment(attraction.id, text, rating);
+        if (photo) await reviewApi.sendPhoto(attraction.id, photo);
+      }
       // Закрыть форму после успешной отправки
       if (onClick) onClick();
     } catch (e: unknown) {
@@ -102,10 +127,10 @@ export default function ModalReview({ attraction, onClick }: ModalReviewProps) {
 
           <TextArea
             placeholder="Напишите свой отзыв..."
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
           />
-          <AddPhotoButton children="Добавить фото" className={styles.margin} />
+          <AddPhotoButton photo={photo} onPhotoChange={setPhoto} className={styles.margin} />
           <Button
             variant="black"
             style={{

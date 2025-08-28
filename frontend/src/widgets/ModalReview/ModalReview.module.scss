@@ -1,54 +1,54 @@
 .ModalReview {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 10;
-    width: 100%;
-    height: 100%;
-    padding: 20px;
-    background: linear-gradient(to bottom, #FEF6ED 0%, #FFFFFF 17%, #FFFFFF 100%);
-    overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  background: linear-gradient(to bottom, #fef6ed 0%, #ffffff 17%, #ffffff 100%);
+  overflow: hidden;
 }
 
 .title_section {
-    display: flex;
-    align-items: center;
-    h3 {
-        font-weight: 400;
-        font-size: 20px;
-        margin-left: 15px;
-         display: -webkit-box;
-        line-clamp: 2; 
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+  display: flex;
+  align-items: center;
+  h3 {
+    font-weight: 400;
+    font-size: 20px;
+    margin-left: 15px;
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .back_button {
-    background-color: transparent;
+  background-color: transparent;
 }
 
 .review_section {
-    margin-top: 25px;
+  margin-top: 25px;
 }
 
 .rating {
-    margin-top: 10px;
-    display: flex;
-    justify-content: space-between;
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
 
-    max-width: 270px;
-    margin: 10px auto 20px auto;
+  max-width: 270px;
+  margin: 10px auto 20px auto;
 }
 
 .star_button {
-    background-color: transparent;
-    img {
-        width: 38px;
-        height: 38px;
-    }
+  background-color: transparent;
+  img {
+    width: 38px;
+    height: 38px;
+  }
 }
 
 .review_input_container {
@@ -64,19 +64,18 @@
   font-family: inherit;
   resize: vertical;
   min-height: 120px;
-  
+
   &:focus {
     outline: none;
-    border-color: #6588E6;
+    border-color: #6588e6;
     box-shadow: 0 0 0 2px rgba(101, 136, 230, 0.1);
   }
-  
+
   &::placeholder {
     color: #999;
   }
 }
 
 .margin {
-    margin-top: 30px;
+  margin-top: 30px;
 }
-
