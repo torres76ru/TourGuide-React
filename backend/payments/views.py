@@ -1,67 +1,98 @@
+import stripe
+from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view
-from django.http import JsonResponse
-from yookassa import Configuration, Payment
-from django.conf import settings
-from tours.models import Tour, TourRegistration
 
-# Конфигурация YooKassa
-Configuration.account_id = settings.YOOKASSA_SHOP_ID
-Configuration.secret_key = settings.YOOKASSA_SECRET_KEY
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+from tours.models import Tour
+from django.contrib.auth import get_user_model
+from .models import Payment
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
-class CreatePaymentView(APIView):
+class CreateCheckoutSessionView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, tour_id):
+    def post(self, request, *args, **kwargs):
+        tour_id = request.data.get("tour_id")
         try:
             tour = Tour.objects.get(id=tour_id)
-
-            if tour.available_slots <= 0:
-                return Response({"error": "Нет свободных мест"}, status=400)
-
-            payment = Payment.create({
-                "amount": {
-                    "value": str(tour.price),
-                    "currency": "RUB"
-                },
-                "confirmation": {
-                    "type": "redirect",
-                    "return_url": "http://localhost:3000/payment/success"
-                },
-                "capture": True,
-                "description": f"Оплата за экскурсию {tour.title}"
-            })
-
-            reg, created = TourRegistration.objects.get_or_create(
-                user=request.user,
-                tour=tour,
-                defaults={"payment_id": payment.id}
-            )
-            if not created:
-                reg.payment_id = payment.id
-                reg.save()
-
-            return Response({"payment_url": payment.confirmation.confirmation_url})
-
         except Tour.DoesNotExist:
-            return Response({"error": "Экскурсия не найдена"}, status=404)
+            return Response({"error": "Тур не найден"}, status=404)
 
-
-@api_view(["POST"])
-def yookassa_webhook(request):
-    event = request.data
-    if event.get("event") == "payment.succeeded":
-        payment_id = event["object"]["id"]
+        # создаем оплату в БД
+        payment = Payment.objects.create(
+            user=request.user,
+            tour=tour,
+            amount=tour.price,
+            status="pending"
+        )
 
         try:
-            reg = TourRegistration.objects.get(payment_id=payment_id)
-            reg.paid = True
-            reg.save()
-            reg.tour.participants.add(reg.user)  # добавляем в экскурсию
-        except TourRegistration.DoesNotExist:
-            pass
+            checkout_session = stripe.checkout.Session.create(
+                payment_method_types=["card"],
+                line_items=[{
+                    "price_data": {
+                        "currency": "rub",
+                        "unit_amount": int(tour.price * 100),  # копейки
+                        "product_data": {
+                            "name": f"Оплата тура: {tour.title}",
+                        },
+                    },
+                    "quantity": 1,
+                }],
+                mode="payment",
+                success_url="http://localhost:3000/payment-success/",
+                cancel_url="http://localhost:3000/payment-cancel/",
+                client_reference_id=str(request.user.id),
+                metadata={
+                    "tour_id": str(tour.id),
+                    "payment_id": str(payment.id),
+                }
+            )
 
-    return JsonResponse({"status": "ok"})
+            payment.stripe_session_id = checkout_session.id
+            payment.save()
+
+            return Response({"url": checkout_session.url})
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+
+
+@csrf_exempt
+def stripe_webhook(request):
+    payload = request.body
+    sig_header = request.META.get("HTTP_STRIPE_SIGNATURE")
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
+        )
+    except stripe.error.SignatureVerificationError:
+        return HttpResponse(status=400)
+
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+
+        payment_id = session["metadata"].get("payment_id")
+        tour_id = session["metadata"].get("tour_id")
+        user_id = session.get("client_reference_id")
+
+        try:
+            payment = Payment.objects.get(id=payment_id)
+            payment.status = "paid"
+            payment.stripe_payment_intent = session.get("payment_intent")
+            payment.save()
+
+            # добавляем пользователя в участники тура
+            tour = Tour.objects.get(id=tour_id)
+            User = get_user_model()
+            user = User.objects.get(id=user_id)
+            tour.add_participant(user)
+
+        except Exception as e:
+            print("Ошибка при добавлении участника:", e)
+
+    return HttpResponse(status=200)

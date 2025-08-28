@@ -31,7 +31,7 @@ class TourViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ["create"]:
             return [permissions.IsAuthenticated()]
-        elif self.action in ["join", "leave"]:
+        elif self.action in ["leave"]:
             return [permissions.IsAuthenticated()]
         return [permissions.IsAuthenticated(), IsGuideOrReadOnly()]
 
@@ -39,15 +39,6 @@ class TourViewSet(viewsets.ModelViewSet):
         if not self.request.user.is_guide:
             raise PermissionDenied("Только гид может создавать экскурсии.")
         serializer.save(guide=self.request.user)
-
-    @action(detail=True, methods=["post"])
-    def join(self, request, pk=None):
-        tour = self.get_object()
-        try:
-            tour.add_participant(request.user)
-        except ValidationError as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({"detail": "Вы успешно записались на экскурсию!"}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"])
     def leave(self, request, pk=None):
