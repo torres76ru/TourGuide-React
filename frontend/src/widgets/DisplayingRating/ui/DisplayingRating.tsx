@@ -15,19 +15,19 @@ export default function DisplayingRating({
 }: DisplayingRatingProps) {
   const roundedRating = Math.round(rating);
 
-  // 1. Рассчитываем количество отзывов для каждой оценки
+  // Рассчитываем количество отзывов для каждой оценки
   const ratingCounts = reviews.reduce((acc, review) => {
     const rounded = Math.round(review.value);
     acc[rounded] = (acc[rounded] || 0) + 1;
     return acc;
   }, {} as Record<number, number>);
 
-  // 2. Вычисляем процент для каждой оценки
+  // Вычисляем процент для каждой оценки
   const totalReviews = reviews.length;
   const ratingPercentages = [5, 4, 3, 2, 1].map((star) => ({
-    star,
-    percentage: ((ratingCounts[star] || 0) / totalReviews) * 100,
-  }));
+  star,
+  percentage: totalReviews === 0 ? 0 : ((ratingCounts[star] || 0) / totalReviews) * 100,
+}));
 
   // Создаем массив из 5 элементов и заполняем звёздами
   const stars = Array(5)

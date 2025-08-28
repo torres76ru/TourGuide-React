@@ -8,12 +8,20 @@ import UserName from "shared/ui/UserName/ui/UserName";
 interface ReviewProps {
   name?: string;
   rating?: number;
-  date?: string;
+  date: string;
   text?: string;
 }
 
 export default function Review({ name, rating = 0, date, text }: ReviewProps) {
   const [expanded, setExpanded] = useState(false);
+
+  // Форматирование даты
+  const formatDate = (dateString: string): string => {
+  const [datePart] = dateString.split('T');
+  const [year, month, day] = datePart.split('-');
+  
+  return `${day}.${month}.${year}`;
+};
 
   // Рассчитываем, нужно ли показывать кнопку (только если текст длинный)
   const shouldShowButton = text && text.length > 230;
@@ -38,7 +46,7 @@ export default function Review({ name, rating = 0, date, text }: ReviewProps) {
             </div> */}
       <div className={styles.rating_date}>
         <div className={styles.rating}>{stars}</div>
-        <span className={styles.date}>{date}</span>
+        <span className={styles.date}>{formatDate(date)}</span>
       </div>
       <div
         className={expanded ? styles.textExpanded : styles.text}

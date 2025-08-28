@@ -48,7 +48,7 @@ const UserChangePasswordPage = () => {
   return (
     <div className={styles.userChangePasswordPage}>
       <BackHeader title="Смена пароля"></BackHeader>
-      <form action="" className={styles.change_password_section}>
+      <form className={styles.change_password_section}>
         <PasswordInput
                 label="Введите старый пароль"
                 id="old_password-id"
@@ -85,7 +85,7 @@ const UserChangePasswordPage = () => {
         <Button 
             variant="black" 
             style={{ width: "278px" }} 
-            type="submit" 
+            type="button" 
             className={styles.margin_btn}
             onClick={handleSubmit}
           >

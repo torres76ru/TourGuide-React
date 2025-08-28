@@ -4,6 +4,8 @@ import GalleryCarousel from "widgets/GalleryCarousel/ui/GalleryCarousel";
 import DisplayingRating from "widgets/DisplayingRating/ui/DisplayingRating";
 import type { AttractionDetails } from "entities/attraction/model/types";
 import type { MouseEventHandler } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "app/store/mainStore";
 
 interface ReviewsProps {
   attraction: AttractionDetails;
@@ -11,26 +13,31 @@ interface ReviewsProps {
 }
 
 export default function Reviews({ attraction, onClick }: ReviewsProps) {
+  const { user } = useSelector((state: RootState) => state.user);
   return (
     <>
       <div className={styles.container}>
         <div className={styles.title_section}>
           <h3 className={styles.title}>Отзывы</h3>
-          <button className={styles.link} onClick={onClick}>Написать отзыв</button>
+          { user && <button className={styles.link} onClick={onClick}>Написать отзыв</button>}
         </div>
 
-        {attraction?.ratings && (
+        {attraction?.ratings && attraction.ratings.length > 0 ? (
           <DisplayingRating
             rating={attraction.average_rating}
             reviews={attraction.ratings}
-          ></DisplayingRating>
-        )}
-        {attraction?.additional_photos && (
+          ></DisplayingRating>)
+          :
+          <div style={{margin: '20px 0', fontSize: '14px', fontWeight: '600'}}>
+            <p>Здесь пока нет отзывов и оценок.</p>
+          </div>
+        }
+        {attraction?.additional_photos && attraction.additional_photos.length > 0 && (
           <GalleryCarousel
             photos={attraction.additional_photos}
           ></GalleryCarousel>
         )}
-        {attraction?.ratings && <ReviewList ratings={attraction.ratings} />}
+        {attraction?.ratings && attraction.ratings.length > 0 && <ReviewList ratings={attraction.ratings} />}
       </div>
     </>
   );

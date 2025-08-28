@@ -1,4 +1,4 @@
-import AttractionCarousel from "widgets/AttractionCarousel/ui/AttractionCarousel";
+// import AttractionCarousel from "widgets/AttractionCarousel/ui/AttractionCarousel";
 import styles from "./SightPage.module.scss";
 import Attraction from "widgets/Attraction/ui";
 import Reviews from "widgets/Reviews/ui/Reviews";
@@ -52,7 +52,7 @@ const SightPage = () => {
         <BackButton className={styles.back_button}></BackButton>
         <Attraction attraction={attraction} />
       </div>
-      <AttractionCarousel category="Для вас:" count={8} />
+      {/* <AttractionCarousel category="Для вас:" count={8} /> */}
       <Reviews attraction={attraction} onClick={() => setModalReview(true)}/>
       {isModalReview && <ModalReview onClick={() => setModalReview(false)}  attraction={attraction}></ModalReview>}
     </div>

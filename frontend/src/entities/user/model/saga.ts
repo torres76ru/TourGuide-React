@@ -1,5 +1,5 @@
 // import { call, put, takeLatest } from "redux-saga/effects";
-import { call, put, takeLatest } from 'typed-redux-saga';
+import { call, delay, put, select, takeLatest, fork } from 'typed-redux-saga';
 import { authApi } from './api';
 
 import {
@@ -9,10 +9,13 @@ import {
   loginSuccess,
   loginFailure,
   loginRequest,
+  setTokens,
+  logoutRequest,
 } from './slice';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { LoginPayload, RegisterPayload, RegisterResponse } from './types';
 import type { AxiosError } from 'axios';
+import type { RootState } from 'app/store/mainStore';
 
 function extractErrorMessages(err: unknown): string {
   const error = err as AxiosError<{ [key: string]: string[] | string }>;
@@ -49,7 +52,16 @@ function* registerSaga(action: PayloadAction<RegisterPayload>) {
     localStorage.setItem('refreshToken', response.refresh);
     localStorage.setItem('user', JSON.stringify(response.user));
 
+    const tenMinutesLater = Date.now() + 10 * 60 * 1000;
+
     yield* put(registerSuccess(response));
+    yield* put(
+      setTokens({
+        accessToken: response.access,
+        refreshToken: response.refresh,
+        expiresAt: tenMinutesLater,
+      })
+    );
   } catch (err: unknown) {
     const message = extractErrorMessages(err);
 
@@ -66,15 +78,60 @@ function* loginSaga(action: PayloadAction<LoginPayload>) {
     localStorage.setItem('refreshToken', response.refresh);
     localStorage.setItem('user', JSON.stringify(response.user));
 
+    const tenMinutesLater = Date.now() + 10 * 60 * 1000;
+
     yield* put(loginSuccess(response));
+    yield* put(
+      setTokens({
+        accessToken: response.access,
+        refreshToken: response.refresh,
+        expiresAt: tenMinutesLater,
+      })
+    );
   } catch (err: unknown) {
     const message = extractErrorMessages(err);
 
     yield* put(loginFailure(message));
   }
 }
+function* watchTokenExpiration() {
+  console.info('watchTokenExpiration started');
+  while (true) {
+    console.info('watchTokenExpiration cycle');
+
+    const expiresAt = yield* select((state: RootState) => state.user.expiresAt);
+    const refreshToken = yield* select((state: RootState) => state.user.refreshToken);
+    if (!expiresAt || !refreshToken) {
+      yield* delay(10000);
+      continue;
+    }
+    const now = Date.now();
+
+    const msToExpire = expiresAt - now - 30000; // обновлять за 30 сек до истечения
+    console.log(msToExpire);
+    if (msToExpire > 0) {
+      yield* delay(msToExpire);
+    }
+    try {
+      const response = yield* call(authApi.refreshToken, refreshToken);
+      const tenMinutesLater = Date.now() + 10 * 60 * 1000;
+      yield* put(
+        setTokens({
+          accessToken: response.data.access,
+          refreshToken: response.data.refresh,
+          expiresAt: tenMinutesLater,
+        })
+      );
+    } catch (e: unknown) {
+      console.error('Error refreshing token:', e);
+      yield* put(logoutRequest());
+      // обработка ошибки, например, logout
+    }
+  }
+}
 
 export function* userSaga() {
   yield* takeLatest(registerRequest.type, registerSaga);
   yield* takeLatest(loginRequest.type, loginSaga);
+  yield* fork(watchTokenExpiration);
 }

@@ -1,12 +1,13 @@
 import Input from "shared/ui/Input/Input"
 import styles from "./AddExcursionForm.module.scss"
-import DropDownSection from "shared/ui/DropDownSection/DropDownSection"
+// import DropDownSection from "shared/ui/DropDownSection/DropDownSection"
 import { type MouseEventHandler } from "react";
 import AddPhotoButton from "shared/ui/AddPhotoButton/AddPhotoButton";
 import Button from "shared/ui/Button";
 import DateExcursion from "widgets/DateExcursion/DateExcursion";
 import TextArea from "shared/ui/TextArea/TextArea";
 import { useAddExcursionForm } from "../model/hooks/setAddExcursionForm";
+import DropDown from "shared/ui/DropDown/DropDown";
 
 interface AddExcursionFormProps{
   onClick?: MouseEventHandler<HTMLButtonElement>;
@@ -41,7 +42,16 @@ export default function AddExcursionForm({onClick} : AddExcursionFormProps) {
                   ></Input>
                   <p>рублей с человека</p>
                 </div>
-                <DropDownSection 
+                <div className={styles.people_section}>
+                     <DropDown
+                        options={numbArray}
+                        selectedValue={formData.max_people}
+                        handleChange={handleChange('max_people')}
+                        label='Количество человек'
+                        error={errors.max_people}>
+                    </DropDown>
+                </div>
+                {/* <DropDownSection 
                 title="Количество человек"
                 options={numbArray}
                 selectedValue_1={formData.min_people}
@@ -50,7 +60,7 @@ export default function AddExcursionForm({onClick} : AddExcursionFormProps) {
                 selectedValue_2={formData.max_people}
                 onValueChange_2={handleChange('max_people')}
                 error_2={errors.max_people}
-                ></DropDownSection>
+                ></DropDownSection> */}
                 <div className={styles.description_section}>
                     <p>Описание</p>
                     <TextArea

@@ -1,4 +1,3 @@
-import AttractionCarousel from "widgets/AttractionCarousel/ui/AttractionCarousel";
 import styles from "./ExcursionPage.module.scss"
 import Excursion from "widgets/Excursion/ui/Excursion";
 import { useState } from "react";
@@ -13,7 +12,6 @@ const ExcursionPage = () => {
         <BackButton className={styles.back_button}></BackButton>
         <Excursion TimetableClick={() => setModalTimetableOpen(true)}></Excursion>
       </div>
-      <AttractionCarousel category="Для вас:" count={8} />
       {/* <Reviews attraction={attraction} /> */}
       {isModalTimetableOpen && <ModalTimetable onClick={() => setModalTimetableOpen(false)}></ModalTimetable>}
     </div>
