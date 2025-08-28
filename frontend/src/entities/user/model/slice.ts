@@ -7,6 +7,7 @@ interface UserState {
   user: RegisterResponse['user'] | null;
   accessToken: string | null;
   refreshToken: string | null;
+  expiresAt: number | null;
   loading: boolean;
   error: string | null;
 }
@@ -15,6 +16,9 @@ const initialState: UserState = {
   user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null,
   accessToken: localStorage.getItem('accessToken'),
   refreshToken: localStorage.getItem('refreshToken'),
+  expiresAt: localStorage.getItem('expiresAt')
+    ? parseInt(localStorage.getItem('expiresAt')!)
+    : null,
   loading: false,
   error: null,
 };
@@ -64,6 +68,23 @@ const userSlice = createSlice({
       localStorage.removeItem('user');
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('expiresAt');
+    },
+    setTokens(
+      state,
+      action: PayloadAction<{
+        accessToken: string;
+        refreshToken: string;
+        expiresAt: number;
+      }>
+    ) {
+      state.accessToken = action.payload.accessToken;
+      state.refreshToken = action.payload.refreshToken;
+      state.expiresAt = action.payload.expiresAt;
+
+      localStorage.setItem('accessToken', action.payload.accessToken);
+      localStorage.setItem('refreshToken', action.payload.refreshToken);
+      localStorage.setItem('expiresAt', action.payload.expiresAt.toString());
     },
   },
 });
@@ -76,5 +97,6 @@ export const {
   loginSuccess,
   loginFailure,
   logoutRequest,
+  setTokens,
 } = userSlice.actions;
 export default userSlice.reducer;

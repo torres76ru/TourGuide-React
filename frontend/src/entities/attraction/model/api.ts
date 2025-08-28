@@ -45,4 +45,5 @@ export const attractionApi = {
     const { data } = await axios.post(`${API_BASE_URL}/attractions/search/`, { name: query });
     return data;
   },
+  sendComment,
 };
