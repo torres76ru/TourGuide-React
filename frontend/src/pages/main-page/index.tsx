@@ -70,7 +70,7 @@ const MainPage = () => {
       <div style={{ margin: '40px 0 66px' }}>
         <WhereToGo />
       </div>
-      {nearbyAttractions.attractions.length > 0 && (
+      {nearbyAttractions?.attractions && nearbyAttractions.attractions.length > 0 && (
         <div style={{ marginBottom: '56px' }}>
           <Carousel
             category="Рядом с вами"
@@ -84,7 +84,7 @@ const MainPage = () => {
       {categories.map(({ tag, label }) => {
         const { attractions, loading, error } = attractionsByTag[tag];
         if (error) return null;
-        if (attractions.length > 0) {
+        if (attractions && attractions.length > 0) {
           return (
             <div key={tag} style={{ marginBottom: '56px' }}>
               <Carousel

@@ -41,7 +41,7 @@ const SightCard = ({ id, name, description, address, prices, rating, img, classN
             <Rating rating={rating} />
           </div>
           <div className={style.description}>
-            {description.length < 100 ? address : description}
+            {description && description.length < 100 ? address : description}
           </div>
         </div>
         {prices && <div className={style.prices}>От {prices} рублей</div>}
