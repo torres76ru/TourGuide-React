@@ -149,7 +149,7 @@ class PendingAttractionUpdate(models.Model):
     class Meta:
         indexes = [
             models.Index(fields=["status"], name="pending_update_status_idx"),
-            models.Index(fields=["attraction", "status"], name="pending_update_attraction_status_idx"),
+            models.Index(fields=["status", "name"], name="pua_status_idx"),
         ]
 
 

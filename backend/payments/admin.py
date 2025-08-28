@@ -1,7 +1,7 @@
 from django.contrib import admin
-from tours.models import TourRegistration
+from .models import Payment
 
-@admin.register(TourRegistration)
-class TourRegistrationAdmin(admin.ModelAdmin):
-    list_display = ("user", "tour", "paid", "created_at")
-    list_filter = ("paid", "created_at")
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "tour", "amount", "status", "created_at")
+    list_filter = ("status", "created_at")
