@@ -79,7 +79,8 @@ INSTALLED_APPS = [
     
     'attraction_routes',
     'leaderboard',
-    'attractions_map'
+    'attractions_map',
+    'payments',
 ]
 
 SITE_ID = 2

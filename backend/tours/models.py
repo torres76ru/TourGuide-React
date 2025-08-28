@@ -10,6 +10,7 @@ class Tour(models.Model):
     content = models.TextField()
     date = models.DateField()
     image = models.ImageField(upload_to="tours_img/", blank=True, null=True)
+    price = models.DecimalField(max_digits=8, decimal_places=2, default=50)
 
     guide = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -76,7 +77,9 @@ class Schedule(models.Model):
     tour = models.ForeignKey(
         "Tour",
         on_delete=models.CASCADE,
-        related_name="schedules"
+        related_name="schedules",
+        null=True,
+        blank=True
     )
     day_of_week = models.IntegerField(choices=DAYS_OF_WEEK)
     start_time = models.TimeField()

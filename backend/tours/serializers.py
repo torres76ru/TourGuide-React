@@ -24,6 +24,7 @@ class TourSerializer(serializers.ModelSerializer):
             "date",
             "image",
             "guide",
+            "price",
             "participants",
             "meeting_email",
             "meeting_phone",
