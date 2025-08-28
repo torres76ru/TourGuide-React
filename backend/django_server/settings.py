@@ -173,11 +173,8 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"  # обычная регистраци�
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_ADAPTER = "users.adapters.CustomAccountAdapter"
 SOCIALACCOUNT_ADAPTER = "users.adapters.CustomSocialAccountAdapter"
-<<<<<<< HEAD
 
 #stripe
 STRIPE_SECRET_KEY = config('STRIPE_API_KEY')
 STRIPE_PUBLISHABLE_KEY = config("STRIPE_PUBLISHABLE_KEY")
 STRIPE_WEBHOOK_SECRET=config('STRIPE_WEBHOOK_SECRET')
-=======
->>>>>>> 925d0d55e1ad9bd8bf4f5d50b6c67cb2a1267d69
