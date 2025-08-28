@@ -34,6 +34,11 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
+# CSRF_TRUSTED_ORIGINS = [
+#     # "https://tourguide.yar",
+#     # "https://www.tourguide.yar",
+#     "http://176.123.161.85",
+# ]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -71,6 +76,7 @@ INSTALLED_APPS = [
     'attractions',
     'ratings',
     'tours',
+    
     'attraction_routes',
     'leaderboard',
     'attractions_map',
