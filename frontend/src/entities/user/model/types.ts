@@ -14,11 +14,11 @@ export interface LoginPayload {
 }
 
 export interface User {
-  username: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  is_guide: boolean;
+  username?: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  is_guide?: boolean;
 }
 
 export interface RegisterResponse {

@@ -55,6 +55,9 @@ const userSlice = createSlice({
       state.accessToken = action.payload.access;
       state.refreshToken = action.payload.refresh;
     },
+    updateProfile(state, action: PayloadAction<RegisterResponse['user']>) {
+      state.user = action.payload;
+    },
     loginFailure(state, action: PayloadAction<string>) {
       state.loading = false;
       state.error = action.payload;
@@ -97,6 +100,7 @@ export const {
   loginSuccess,
   loginFailure,
   logoutRequest,
+  updateProfile,
   setTokens,
 } = userSlice.actions;
 export default userSlice.reducer;

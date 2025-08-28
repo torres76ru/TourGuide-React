@@ -77,7 +77,9 @@ class Schedule(models.Model):
     tour = models.ForeignKey(
         "Tour",
         on_delete=models.CASCADE,
-        related_name="schedules"
+        related_name="schedules",
+        null=True,
+        blank=True
     )
     day_of_week = models.IntegerField(choices=DAYS_OF_WEEK)
     start_time = models.TimeField()

@@ -21,7 +21,6 @@ export default function RegistrationForm({ className, back, userType }: Registra
 
   return (
     <form onSubmit={handleSubmit} className={clsx(styles.registration_form, className)}>
-      {userType}
       <Input
         label="Почта"
         id="reg__email-id"
