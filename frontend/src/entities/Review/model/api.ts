@@ -59,7 +59,7 @@ export const reviewApi = {
   },
   updateComment: async (id: number, attractionID: number, comment: string, rating: number) => {
     const accessToken = store.getState().user.accessToken;
-    const { data } = await axios.post(
+    const { data } = await axios.put(
       `${API_BASE_URL}/ratings/${id}/update/`,
       {
         attraction: attractionID,
