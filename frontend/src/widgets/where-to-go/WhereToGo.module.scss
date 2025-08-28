@@ -1,0 +1,39 @@
+.body {
+  width: 100%;
+  padding: 15px 50px;
+  background-color: #fff;
+  border-radius: 15px;
+  border: 1px solid var(--color-primary);
+  box-shadow: 0 0 10px 0 rgba(36, 36, 36, 0.25);
+}
+
+.header {
+  color: var(--color-primary);
+  font-size: 24px;
+  font-weight: 400;
+  text-align: center;
+  line-height: 29px;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-primary);
+  background-color: var(--color-primary);
+  margin: 10px 0;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  margin: 0 13px;
+  gap: 30px;
+}
+.locationIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

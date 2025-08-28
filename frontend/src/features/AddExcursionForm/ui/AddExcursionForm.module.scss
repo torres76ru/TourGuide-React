@@ -1,0 +1,73 @@
+.addExcursionForm {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+.size {
+    margin-bottom: 20px;
+    padding: 15px 10px;
+    border: 0.5px solid rgba(36, 36, 36, 0.3);
+    box-shadow: none;
+    &:focus {
+    background: #FFFFFF;
+    box-shadow: 0px 0px 4px 0px #2424244D;
+    }
+    &::placeholder {
+        font-weight: 400;
+    }
+}
+
+.small_size {
+    margin-bottom: 20px;
+    width: 86px;
+    height: 34px;
+    padding: 7px 10px;
+     border: 0.5px solid rgba(36, 36, 36, 0.3);
+    box-shadow: none;
+    &:focus {
+    background: #FFFFFF;
+    box-shadow: 0px 0px 4px 0px #2424244D;
+    }
+    &::placeholder {
+        font-weight: 400;
+    }
+}
+
+.price_section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.people_section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.font_weight {
+    font-weight: 400;
+}
+
+.margin {
+    margin-bottom: 0;
+}
+
+.description_section {
+    margin-bottom: 30px;
+}
+
+.address_section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0
+}
+
+.adress {
+    display: flex;
+    justify-content: space-between;
+    gap: 25px;
+}

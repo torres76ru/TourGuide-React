@@ -1,0 +1,19 @@
+//src/pages/index.tsx
+export { default as LoginPage } from './login-page';
+export { default as MainPage } from './main-page';
+export { default as Test } from './test';
+export { default as SightPage } from './sight-page';
+export { default as SearchPage } from './search-page';
+export { default as UserPage } from './user-page';
+export { default as UserDataPage } from './user-data-page';
+export { default as UserEditingPage } from './user-editing-page';
+export { default as UserChangePasswordPage } from './user-change-password-page';
+export { default as UserVisitedExcursionsPage } from './user-visited-excursions-page';
+export { default as UserScheduledExcursionsPage } from './user-scheduled-excursions-page';
+export { default as ReviewPage } from './review-page';
+export { default as GuideExcursionsPage } from './guide-excursions-page';
+export { default as ExcursionPage } from './excursion-page';
+export { default as JoinPage } from './join-page';
+export { default as MapPage } from './map-page';
+export { default as EditingExcursionPage } from './editing-excursion-page';
+export { default as JoinListPage } from './join-list-page';
