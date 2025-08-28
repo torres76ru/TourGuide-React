@@ -1,4 +1,4 @@
-import { useState, type MouseEventHandler } from 'react';
+import { useState } from 'react';
 import styles from './ModalReview.module.scss';
 import { IconArrowBack } from 'shared/ui/ArrowBackSvg';
 import UserName from 'shared/ui/UserName/ui/UserName';
@@ -10,12 +10,12 @@ import star from 'shared/assets/star.svg';
 import type { AttractionDetails } from 'entities/attraction/model/types';
 import { useSelector } from 'react-redux';
 import type { RootState } from 'app/store/mainStore';
+import { attractionApi } from 'entities/attraction/model/api';
 import axios from 'axios';
-import { API_BASE_URL, BASE_URL } from 'shared/config/constants';
 
 interface ModalReviewProps {
   attraction: AttractionDetails;
-  onClick?: MouseEventHandler<HTMLButtonElement>;
+  onClick?: () => void;
 }
 
 export default function ModalReview({ attraction, onClick }: ModalReviewProps) {
@@ -24,7 +24,7 @@ export default function ModalReview({ attraction, onClick }: ModalReviewProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { user, accessToken } = useSelector((state: RootState) => state.user);
+  const { user } = useSelector((state: RootState) => state.user);
 
   // Создаем массив из 5 звезд
   const stars = Array(5)
@@ -58,25 +58,20 @@ export default function ModalReview({ attraction, onClick }: ModalReviewProps) {
 
     setLoading(true);
     try {
-      await axios.post(
-        `${API_BASE_URL}/ratings/create/`,
-        {
-          attraction: attraction.id,
-          comment,
-          value: rating,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      await attractionApi.sendComment(attraction.id, comment, rating);
       // Закрыть форму после успешной отправки
-      if (onClick) onClick({} as any);
-    } catch (e: any) {
-      setError(
-        e.response?.data?.error || e.response?.data?.detail || e.message || 'Ошибка отправки отзыва'
-      );
+      if (onClick) onClick();
+    } catch (e: unknown) {
+      if (axios.isAxiosError(e)) {
+        setError(
+          e.response?.data?.error ||
+            e.response?.data?.detail ||
+            e.message ||
+            'Ошибка отправки отзыва'
+        );
+      } else {
+        setError('Неизвестная ошибка');
+      }
     } finally {
       setLoading(false);
     }
