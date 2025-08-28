@@ -68,15 +68,21 @@ const Attraction = ({ attraction }: AttractionProps) => {
           titleClassName={styles.title}
           textClassName={styles.text}
         ></AttractionWorkingTime> */}
-        {attraction.description && <AttractionDescription
-          titleClassName={styles.title}
-          textClassName={styles.text}
-          description={attraction.description}
-        ></AttractionDescription>}
+        {attraction.description && (
+          <AttractionDescription
+            titleClassName={styles.title}
+            textClassName={styles.text}
+            description={attraction.description}
+          ></AttractionDescription>
+        )}
         <AttractionMap
           titleClassName={styles.title}
           textClassName={styles.text}
           address={attraction.address}
+          location={{
+            latitude: attraction.latitude,
+            longitude: attraction.longitude,
+          }}
         ></AttractionMap>
         {(attraction.phone_number || attraction.email || attraction.website) && (
           <AttractionContacts
