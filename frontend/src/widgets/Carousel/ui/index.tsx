@@ -20,26 +20,11 @@ const Carousel = ({ category, attractions, loading = false, error }: Props) => {
         <h1>{category}</h1>
         <img src={arrowLeft} alt="Стрелочка в право" />
       </div>
+      {error ? <div className={style.error}>{error}</div> : null}
 
       {loading ? (
         <div className={style.loader}>
           <Loader size={40} color="#000" />
-        </div>
-      ) : error ? (
-        <div className={style.carousel}>
-          <div className={style.error}>Ошибка: {error}</div>
-          <div className={style.carousel_list}>
-            {attractions.map((sight) => (
-              <SightCard
-                key={sight.id}
-                id={sight.id}
-                name={sight.name}
-                description={sight.description_short}
-                rating={sight.average_rating}
-                img={sight.main_photo_url}
-              />
-            ))}
-          </div>
         </div>
       ) : (
         <div className={style.carousel}>
@@ -50,6 +35,7 @@ const Carousel = ({ category, attractions, loading = false, error }: Props) => {
                 id={sight.id}
                 name={sight.name}
                 description={sight.description_short}
+                address={sight.address}
                 rating={sight.average_rating}
                 img={sight.main_photo_url}
               />

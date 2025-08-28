@@ -23,3 +23,7 @@ export const selectAttractionsByTags = (state: RootState, tags: string[]) => {
     return acc;
   }, {});
 };
+
+export const selectNearbyAttractions = (state: RootState) => {
+  return state.attraction.nearby;
+};

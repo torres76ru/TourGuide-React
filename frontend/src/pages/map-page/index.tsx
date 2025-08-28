@@ -14,6 +14,8 @@ import type { Attraction } from 'entities/attraction/model/types';
 import { useNavigate } from 'react-router';
 import Header from 'widgets/Header';
 import { SightCard } from 'widgets/index';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 
 // Custom marker icon (fixes default icon issue)
 const markerIcon = new L.Icon({
@@ -44,10 +46,11 @@ const LocationSelector: React.FC<{
 };
 
 const categories = [
-  { tag: 'museum', label: 'Лучшие музеи' },
-  { tag: 'cafe', label: 'Лучшие кафе' },
-  { tag: 'restaurant', label: 'Лучшие рестораны' },
-  { tag: 'theatre', label: 'Лучшие театры' },
+  { tag: 'museum', label: 'музеи' },
+  { tag: 'cafe', label: 'кафе' },
+  { tag: 'restaurant', label: 'рестораны' },
+  { tag: 'theatre', label: 'театры' },
+  { tag: '', label: 'Все' },
 ];
 
 const MapPage: React.FC = () => {
@@ -59,6 +62,7 @@ const MapPage: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedAttraction, setSelectedAttraction] = useState<Attraction | null>(null);
   const [radius, setRadius] = useState<number>(100);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
 
   const coords = useSelector((state: RootState) => state.location.coords);
   useEffect(() => {
@@ -103,7 +107,7 @@ const MapPage: React.FC = () => {
 
       dispatch(
         fetchAttractionsRequest({
-          tags: categories.map((category) => category.tag),
+          tags: selectedCategory ? [selectedCategory] : [],
           lat: selectedCoords[0],
           lon: selectedCoords[1],
           radius: radius / 100000,
@@ -128,26 +132,36 @@ const MapPage: React.FC = () => {
           <label htmlFor="radius-slider" className={styles.radiusLabel}>
             Радиус (м):
           </label>
-          <Slider
-            id="radius-slider"
-            value={radius}
-            min={100}
-            max={1000}
-            step={10}
-            onChange={(_, value) => setRadius(Number(value))}
-            valueLabelDisplay="auto"
-            className={styles.radiusSlider}
-          />
-          <select className={styles.categoryDropdown} defaultValue="">
-            <option value="" disabled>
-              Выберите категорию достопримечательности
-            </option>
+          <div style={{ padding: '0 16px', width: '100%' }}>
+            <Slider
+              id="radius-slider"
+              value={radius}
+              min={100}
+              max={1000}
+              step={10}
+              onChange={(_, value) => setRadius(Number(value))}
+              valueLabelDisplay="auto"
+              className={styles.radiusSlider}
+            />
+          </div>
+          <Select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            displayEmpty
+            className={styles.categoryDropdown}
+            style={{
+              width: '100%',
+              height: 48, // высота
+              marginTop: 12, // отступ сверху
+              marginBottom: 12, // отступ снизу
+            }}
+          >
             {categories.map((category) => (
-              <option key={category.tag} value={category.tag}>
+              <MenuItem key={category.tag} value={category.tag}>
                 {category.label}
-              </option>
+              </MenuItem>
             ))}
-          </select>
+          </Select>
         </div>
 
         <MapContainer
@@ -196,7 +210,7 @@ const MapPage: React.FC = () => {
             <SightCard
               id={selectedAttraction.id}
               name={selectedAttraction.name}
-              description={selectedAttraction.description_short}
+              description={''}
               rating={selectedAttraction.average_rating}
               img={selectedAttraction.main_photo_url}
               className={styles.sightCard}

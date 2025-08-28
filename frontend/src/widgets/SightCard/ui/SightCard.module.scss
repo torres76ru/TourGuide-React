@@ -55,6 +55,20 @@
         font-weight: 200;
         font-size: 12px;
         height: 77px;
+        margin-bottom: 8px;
+      }
+      .address {
+        display: -webkit-box;
+        -webkit-line-clamp: 5;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 400;
+        font-size: 16px;
+        letter-spacing: -4%;
+        font-weight: 200;
+        font-size: 12px;
+        height: 77px;
       }
     }
     .prices {
