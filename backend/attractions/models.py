@@ -3,6 +3,8 @@ from django.db.models import Avg, Count
 from users.models import User
 from cities.models import City
 import os, uuid
+from django.contrib.postgres.indexes import GinIndex
+
 
 def main_photo_path(instance, filename):
     return f'mainphoto/{instance.id}.{filename.split(".")[-1]}'
@@ -40,6 +42,14 @@ class Attraction(models.Model):
     need_photo = models.BooleanField(default=True)
     admin_reviewed = models.BooleanField(default=False)
 
+    class Meta:
+        indexes = [
+            GinIndex(
+                fields=["name"],
+                opclasses=["gin_trgm_ops"],
+                name="attraction_name_trgm",
+            )
+        ]
 
     def save(self, *args, **kwargs):
         if self.street or self.house or self.entrance or self.apartment:
@@ -135,6 +145,14 @@ class PendingAttractionUpdate(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["status"], name="pending_update_status_idx"),
+            models.Index(fields=["attraction", "status"], name="pending_update_attraction_status_idx"),
+        ]
+
+
 
     def apply_update(self):
         try:

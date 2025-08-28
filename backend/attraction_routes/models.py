@@ -20,7 +20,7 @@ class Route(models.Model):
         related_name="routes"
     )
 
-    is_public = models.BooleanField(default=False)
+    is_public = models.BooleanField(default=False, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -31,7 +31,7 @@ class RouteAttraction(models.Model):
     """Промежуточная модель для порядка достопримечательностей"""
     route = models.ForeignKey(Route, on_delete=models.CASCADE, related_name="route_attractions")
     attraction = models.ForeignKey(Attraction, on_delete=models.CASCADE)
-    order = models.PositiveIntegerField()  # порядок в маршруте
+    order = models.PositiveIntegerField(db_index=True)
 
     class Meta:
         unique_together = ("route", "attraction")
