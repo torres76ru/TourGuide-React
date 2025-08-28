@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './MapPage.module.scss';
 import Slider from '@mui/material/Slider';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
@@ -60,6 +60,10 @@ const MapPage: React.FC = () => {
   const [selectedAttraction, setSelectedAttraction] = useState<Attraction | null>(null);
   const [radius, setRadius] = useState<number>(100);
 
+  const coords = useSelector((state: RootState) => state.location.coords);
+  useEffect(() => {
+    if (coords) setSelectedCoords([coords?.latitude, coords?.longitude]);
+  }, [coords]);
   const handleMapClick = (coords: [number, number]) => {
     setSelectedCoords(coords);
     setModalOpen(true);

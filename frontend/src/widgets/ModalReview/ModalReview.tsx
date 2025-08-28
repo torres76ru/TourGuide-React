@@ -1,70 +1,134 @@
-import { useState, type MouseEventHandler } from "react";
-import styles from "./ModalReview.module.scss"
-import { IconArrowBack } from "shared/ui/ArrowBackSvg"
-import UserName from "shared/ui/UserName/ui/UserName";
-import TextArea from "shared/ui/TextArea/TextArea";
-import AddPhotoButton from "shared/ui/AddPhotoButton/AddPhotoButton";
-import Button from "shared/ui/Button";
-import starBlue from "shared/assets/star-blue.svg";
-import star from "shared/assets/star.svg";
-import type { AttractionDetails } from "entities/attraction/model/types";
-import { useSelector } from "react-redux";
-import type { RootState } from "app/store/mainStore";
+import { useState, type MouseEventHandler } from 'react';
+import styles from './ModalReview.module.scss';
+import { IconArrowBack } from 'shared/ui/ArrowBackSvg';
+import UserName from 'shared/ui/UserName/ui/UserName';
+import TextArea from 'shared/ui/TextArea/TextArea';
+import AddPhotoButton from 'shared/ui/AddPhotoButton/AddPhotoButton';
+import Button from 'shared/ui/Button';
+import starBlue from 'shared/assets/star-blue.svg';
+import star from 'shared/assets/star.svg';
+import type { AttractionDetails } from 'entities/attraction/model/types';
+import { useSelector } from 'react-redux';
+import type { RootState } from 'app/store/mainStore';
+import axios from 'axios';
+import { API_BASE_URL, BASE_URL } from 'shared/config/constants';
 
 interface ModalReviewProps {
-    attraction: AttractionDetails;
-    onClick?: MouseEventHandler<HTMLButtonElement>;
+  attraction: AttractionDetails;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
 }
 
-export default function ModalReview({attraction, onClick} : ModalReviewProps) {
-    const [rating, setRating] = useState<number>(0);
-    const { user } = useSelector((state: RootState) => state.user);
+export default function ModalReview({ attraction, onClick }: ModalReviewProps) {
+  const [rating, setRating] = useState<number>(0);
+  const [comment, setComment] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    // Создаем массив из 5 звезд
-    const stars = Array(5).fill(0).map((_, index) => (
-        <button
+  const { user, accessToken } = useSelector((state: RootState) => state.user);
+
+  // Создаем массив из 5 звезд
+  const stars = Array(5)
+    .fill(0)
+    .map((_, index) => (
+      <button
         key={index}
         className={styles.star_button}
         onClick={() => setRating(index + 1)}
         type="button"
-        >
-        <img 
-            src={index < rating ? starBlue : star}
-            alt={index < rating ? "Голубая звезда" : "Обычная звезда"}
+      >
+        <img
+          src={index < rating ? starBlue : star}
+          alt={index < rating ? 'Голубая звезда' : 'Обычная звезда'}
         />
-        </button>
+      </button>
     ));
-    return (
-        <>
-        <div className={styles.ModalReview}>
-            <div className={styles.title_section}>
-                <button className={styles.back_button} onClick={onClick}> <IconArrowBack /> </button>
-                <h3>{attraction.name}</h3>
-            </div>
-            <div className={styles.review_section}>
-                <UserName 
-                name={user?.username} 
-                headingStyle={{
-                    fontSize: "16px" 
-                }}
-                imageStyle={{
-                    width: "32px",
-                    height: "32px"
-                }}
-                />
-                
-                <div className={styles.rating}>{stars}</div>
 
-                <TextArea
-                placeholder="Напишите свой отзыв...">
-                </TextArea>
-                <AddPhotoButton children="Добавить фото" className={styles.margin}/>
-                <Button variant="black" style={{ width: "278px", position: "absolute", bottom: "35px", left: "50%", transform: "translate(-50%, -50%)"}} 
-                type="button">
-                    Опубликовать    
-                </Button>
-            </div>
+  const handleSubmit = async () => {
+    setError(null);
+
+    // Валидация
+    if (!rating) {
+      setError('Поставьте оценку');
+      return;
+    }
+    if (!comment.trim()) {
+      setError('Напишите комментарий');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await axios.post(
+        `${API_BASE_URL}/ratings/create/`,
+        {
+          attraction: attraction.id,
+          comment,
+          value: rating,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      // Закрыть форму после успешной отправки
+      if (onClick) onClick({} as any);
+    } catch (e: any) {
+      setError(
+        e.response?.data?.error || e.response?.data?.detail || e.message || 'Ошибка отправки отзыва'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <div className={styles.ModalReview}>
+        <div className={styles.title_section}>
+          <button className={styles.back_button} onClick={onClick}>
+            <IconArrowBack />
+          </button>
+          <h3>{attraction.name}</h3>
         </div>
-        </>
-    )
+        <div className={styles.review_section}>
+          <UserName
+            name={user?.username}
+            headingStyle={{
+              fontSize: '16px',
+            }}
+            imageStyle={{
+              width: '32px',
+              height: '32px',
+            }}
+          />
+
+          <div className={styles.rating}>{stars}</div>
+
+          <TextArea
+            placeholder="Напишите свой отзыв..."
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+          <AddPhotoButton children="Добавить фото" className={styles.margin} />
+          <Button
+            variant="black"
+            style={{
+              width: '278px',
+              position: 'absolute',
+              bottom: '35px',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+            }}
+            type="button"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? 'Отправка...' : 'Опубликовать'}
+          </Button>
+          {error && <p style={{ color: 'red', marginTop: 8 }}>{error}</p>}
+        </div>
+      </div>
+    </>
+  );
 }
