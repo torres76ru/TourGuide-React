@@ -36,7 +36,7 @@ class TourSerializer(serializers.ModelSerializer):
 
 
 class TourCreateSerializer(serializers.ModelSerializer):
-    schedules = ScheduleSerializer(many=True)
+    schedules = ScheduleSerializer(many=True, required=False)
     guide = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
