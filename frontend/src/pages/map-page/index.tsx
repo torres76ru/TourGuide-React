@@ -230,7 +230,7 @@ const MapPage: React.FC = () => {
         {modalOpen && selectedCoords && (
           <ConfirmModal coords={selectedCoords} onConfirm={handleConfirm} onCancel={handleCancel} />
         )}
-        {selectedAttraction && (
+        {!loading && !error && selectedAttraction && (
           <div
             className={styles.attractionCard}
             onClick={() => handleRedirect(`/sight/${selectedAttraction.id}`)}
