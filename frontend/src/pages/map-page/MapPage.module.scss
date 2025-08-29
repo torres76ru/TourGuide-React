@@ -29,16 +29,19 @@
   padding: 5px 16px;
   background: #fff;
   z-index: 1001;
-  display: flex;
-  // flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
+
 
   gap: 8px;
   width: 100%;
   position: absolute;
   bottom: 0;
   left: 0;
+  .row {
+    display: flex;
+    // flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+  }
   label {
     width: 80px;
     min-width: 80px;
@@ -76,4 +79,68 @@
   height: 100%;
   background-color: #fff;
   padding: 8px;
+}
+
+
+.elegantStatus {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.elegantLoading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #666;
+}
+
+.dotFlashing {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: #007bff;
+  animation: dotFlashing 1s infinite linear alternate;
+  animation-delay: 0.5s;
+}
+
+.dotFlashing::before, .dotFlashing::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: #007bff;
+  animation: dotFlashing 1s infinite alternate;
+}
+
+.dotFlashing::before {
+  left: -15px;
+  animation-delay: 0s;
+}
+
+.dotFlashing::after {
+  left: 15px;
+  animation-delay: 1s;
+}
+
+@keyframes dotFlashing {
+  0% { background-color: #007bff; }
+  50%, 100% { background-color: #e0e0e0; }
+}
+
+.elegantError {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #fff3f3;
+  border: 1px solid #ffcdd2;
+  border-radius: 8px;
+  color: #d32f2f;
+}
+
+.errorSymbol {
+  font-size: 24px;
+  font-weight: bold;
 }

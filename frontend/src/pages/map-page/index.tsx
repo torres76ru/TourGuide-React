@@ -124,11 +124,39 @@ const MapPage: React.FC = () => {
     setModalOpen(false);
   };
 
+  const loading = useSelector((state: RootState) => state.attraction.nearby.loading)
+  const error = useSelector((state: RootState) => state.attraction.nearby.error)
+
+
   return (
     <div className={styles.root}>
       <Header />
       <div className={styles.mapWrapper}>
+        
+     
         <div className={styles.radiusPanel}>
+
+        <div style={{maxWidth: '100%'}}>
+        <div className={styles.elegantStatus}>
+      {loading && (
+        <div className={styles.elegantLoading}>
+          <div className={styles.dotFlashing}></div>
+          <span>Загрузка данных...</span>
+        </div>
+      )}
+      
+      {error && (
+        <div className={styles.elegantError}>
+          <span className={styles.errorSymbol}>ⓘ</span>
+          <div className={styles.errorMessage}>
+            <strong>Ошибка</strong>
+            <p>Не удалось загрузить данные</p>
+          </div>
+        </div>
+      )}
+    </div>
+        </div>
+        <div className={styles.row}>
           <label htmlFor="radius-slider" className={styles.radiusLabel}>
             Радиус (м):
           </label>
@@ -163,7 +191,7 @@ const MapPage: React.FC = () => {
             ))}
           </Select>
         </div>
-
+        </div>
         <MapContainer
           center={
             savedLocation.coords?.latitude !== undefined &&
