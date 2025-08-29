@@ -1,0 +1,56 @@
+.JoinListPage {
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    background: linear-gradient(to bottom, #FEF6ED 0%, #FFFFFF 17%, #FFFFFF 100%);
+}
+
+.join_list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 40px;
+}
+
+.list_item {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 15px;
+    border-radius: 5px;
+    gap: 15px;
+    border: 0.5px solid #6588E6;
+    box-shadow: 0 0 4px 0 #24242426;
+}
+
+.section {
+    display: flex;
+    gap: 30px;
+}
+
+
+.table {
+    width: 100%;
+    border: 0.5px solid #6588E6;
+    border-radius: 5px;
+    
+    td {
+        padding: 11px 0;
+        text-align: center;
+    }
+    
+    // Убираем двойные границы
+    tr:not(:first-child) td {
+        border-top: 0.5px solid #6588E6;
+    }
+    
+    td:not(:last-child) {
+        border-right: 0.5px solid #6588E6;
+    }
+}
+
+@media ( max-width: 350px ) {
+    .join_list {
+    font-size: 14px;
+}
+}

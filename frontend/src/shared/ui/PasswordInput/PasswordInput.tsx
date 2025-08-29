@@ -1,0 +1,73 @@
+import { useEffect, useState } from "react";
+import styles from "./PasswordInput.module.scss";
+import clsx from "clsx";
+import Input from "shared/ui/Input/Input";
+import eyeClose from "shared/assets/icons/PasswordEye-close.svg";
+import eyeOpen from "shared/assets/icons/PasswordEye-open.svg";
+
+interface PasswordInputProps {
+  label?: string;
+  id: string;
+  className?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  error?: string;
+  back?: boolean;
+  classLable?: string;
+  classInput?: string;
+  classEye?: string 
+}
+
+export default function PasswordInput({
+  label,
+  id,
+  className = "",
+  value,
+  onChange,
+  error,
+  back,
+  classLable = "",
+  classInput = "", 
+  classEye = ""
+}: PasswordInputProps) {
+  const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (back) {
+      setShowPassword(false);
+    }
+  }, [back]);
+
+  // console.log(back)
+  // console.log(showPassword)
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  return (
+    <div className={clsx(styles.password_container, className)}>
+      <Input
+        label={label}
+        id={id}
+        type={showPassword ? "text" : "password"}
+        value={value}
+        onChange={onChange}
+        error={error}
+        classInput={classInput}
+        classLable={classLable}
+      />
+      <button
+        type="button"
+        className={clsx(styles.eye_btn, classEye)}
+        onClick={togglePasswordVisibility}
+        aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
+      >
+        <img
+          src={showPassword ? eyeOpen : eyeClose}
+          alt={showPassword ? "Скрыть пароль" : "Показать пароль"}
+        />
+      </button>
+    </div>
+  );
+}

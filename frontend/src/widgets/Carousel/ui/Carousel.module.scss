@@ -1,0 +1,32 @@
+.carousel {
+  display: flex;
+  overflow-x: auto; // включаем горизонтальный скролл
+  overflow-y: hidden; // скрываем вертикальный скролл
+  padding: 10px 20px; // отступы по бокам, можно подстраивать
+  margin-left: -20px;
+  margin-right: -20px;
+  gap: 16px; // расстояние между карточками
+  scroll-behavior: smooth; // плавный скролл
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Скрыть полосу в Firefox */
+  scrollbar-width: none; // Firefox
+}
+
+.carousel_list {
+  display: flex;
+  flex-wrap: nowrap; // карточки в одну линию
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  h1 {
+    font-size: 20px;
+    font-weight: 400;
+  }
+}
