@@ -45,3 +45,10 @@ tourist-guide/
     ├── package.json
     └── .env                  # Настройки фронтенда
 ```
+
+## Frontend .env
+Замените localhost на адрес бекенда
+```text
+VITE_API_BASE_URL = "http://localhost:8000/api"
+VITE_BASE_URL = "http://localhost:8000"
+```
