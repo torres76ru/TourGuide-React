@@ -96,20 +96,20 @@ const Header = () => {
           </div>
 
           <ul className={styles.buttons_list}>
-            <li>
+            {/* <li>
               <MenuButton onClick={() => handleRedirect('/search')}>Поблизости</MenuButton>
-            </li>
+            </li> */}
             <li>
-              <MenuButton>Поиск мест</MenuButton>
+              <MenuButton onClick={() => handleRedirect('/search')}>Поиск мест</MenuButton>
             </li>
             <li>
               <MenuButton onClick={() => handleRedirect('/map')}>Карта</MenuButton>
             </li>
-            {user && (
+            {/* {user && (
               <li>
                 <MenuButton>Добавить место</MenuButton>
               </li>
-            )}
+            )} */}
             {/* {user && user.is_guide && (
               <li>
                 <MenuButton onClick={() => handleRedirect('/excursion')}>Экскурсия</MenuButton>

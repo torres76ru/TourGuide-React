@@ -5,7 +5,10 @@ import styles from './MainPage.module.scss';
 import { Carousel } from 'widgets/index';
 import { useSelector } from 'react-redux';
 import type { RootState } from 'app/store/mainStore';
-import { selectAttractionsByTags } from 'entities/attraction/model/selectors';
+import {
+  selectAttractionsByTags,
+  selectNearbyAttractions,
+} from 'entities/attraction/model/selectors';
 
 const categories = [
   { tag: 'museum', label: 'Лучшие музеи' },
@@ -32,6 +35,8 @@ const MainPage = () => {
       categories.map((c) => c.tag)
     )
   );
+
+  const nearbyAttractions = useSelector(selectNearbyAttractions);
 
   // // Только для загрузки по городу
   // useEffect(() => {
@@ -65,15 +70,33 @@ const MainPage = () => {
       <div style={{ margin: '40px 0 66px' }}>
         <WhereToGo />
       </div>
+      {nearbyAttractions?.attractions && nearbyAttractions.attractions.length > 0 && (
+        <div style={{ marginBottom: '56px' }}>
+          <Carousel
+            category="Рядом с вами"
+            attractions={nearbyAttractions.attractions}
+            loading={nearbyAttractions.loading}
+            error={nearbyAttractions.error}
+          />
+        </div>
+      )}
 
       {categories.map(({ tag, label }) => {
         const { attractions, loading, error } = attractionsByTag[tag];
-        if (error) return;
-        return (
-          <div key={tag} style={{ marginBottom: '56px' }}>
-            <Carousel category={label} attractions={attractions} loading={loading} error={error} />
-          </div>
-        );
+        if (error) return null;
+        if (attractions && attractions.length > 0) {
+          return (
+            <div key={tag} style={{ marginBottom: '56px' }}>
+              <Carousel
+                category={label}
+                attractions={attractions}
+                loading={loading}
+                error={error}
+              />
+            </div>
+          );
+        }
+        return null;
       })}
     </div>
   );
